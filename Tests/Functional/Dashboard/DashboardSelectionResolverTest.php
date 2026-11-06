@@ -41,7 +41,7 @@ final class DashboardSelectionResolverTest extends FunctionalTestCase
     #[Test]
     public function offersConfiguredSitesWhoseRootPageTheUserMaySee(): void
     {
-        self::assertSame(['main', 'shop'], array_keys($this->get(DashboardSelectionResolver::class)->getSites($this->setUpBackendUser(1))));
+        self::assertSame(['main', 'shop', 'trial'], array_keys($this->get(DashboardSelectionResolver::class)->getSites($this->setUpBackendUser(1))));
         self::assertSame(['main', 'shop'], array_keys($this->get(DashboardSelectionResolver::class)->getSites($this->setUpBackendUser(6))));
         self::assertSame(['main'], array_keys($this->get(DashboardSelectionResolver::class)->getSites($this->setUpBackendUser(5))));
     }
@@ -64,7 +64,7 @@ final class DashboardSelectionResolverTest extends FunctionalTestCase
         self::assertSame('main', $selection->site->getIdentifier());
         self::assertSame(3, $selection->configuration->idSite);
         self::assertSame('2026-10-31,2026-11-06', $selection->period->toMatomoDate());
-        self::assertCount(2, $selection->sites);
+        self::assertCount(3, $selection->sites);
     }
 
     #[Test]

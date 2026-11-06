@@ -27,6 +27,7 @@ Shows Matomo statistics in the TYPO3 backend: a statistics bar for the current p
 * Opt-in per backend group: separate permissions for page and site statistics
 * One HTTP request per page or widget and period, cached for an hour
 * Reuses the Matomo URL and site ID of EXT:matomo_integration, EXT:matomo_widgets or EXT:matomo_tracking
+* Demo data mode (`analyticsMatomo.demoData`) to try it out without a Matomo instance
 
 ## 🔥 Installation
 

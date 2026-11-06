@@ -38,6 +38,15 @@ Site settings
     the repository with an environment variable. The token is sent in the body
     of a POST request, never in the URL. Empty: anonymous access.
 
+..  confval:: analyticsMatomo.demoData
+    :type: bool
+    :default: false
+
+    Shows generated statistics instead of asking Matomo, to try out the
+    extension or to take screenshots without a Matomo instance. Replaces any
+    connection of the site and is marked with a :guilabel:`Demo data` badge.
+    Never enable it on a production site.
+
 Reuse of other Matomo extensions
 ================================
 

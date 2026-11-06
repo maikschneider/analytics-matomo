@@ -101,6 +101,21 @@ final class MatomoConfigurationResolverTest extends UnitTestCase
         ])));
     }
 
+    #[Test]
+    public function demoDataReplaceAnyConnection(): void
+    {
+        $site = new Site('main', 1, [
+            'base' => 'https://example.com/',
+            'settings' => ['analyticsMatomo' => ['demoData' => true, 'url' => 'https://own.example.com', 'idSite' => 7, 'tokenAuth' => 'own-token']],
+        ]);
+
+        self::assertEquals(MatomoConfiguration::demo('https://example.com/'), $this->subject()->resolve($site));
+        self::assertEquals(
+            MatomoConfiguration::demo('https://example.com/'),
+            $this->subject()->resolve(new Site('main', 1, ['base' => 'https://example.com/', 'settings' => ['analyticsMatomo' => ['demoData' => true]]]))
+        );
+    }
+
     private function subject(?string $matomoTrackingUrl = null): MatomoConfigurationResolver
     {
         $extensionConfiguration = $this->createMock(ExtensionConfiguration::class);

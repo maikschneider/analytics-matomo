@@ -263,6 +263,14 @@
 				<source>Share of visits that left the site after one page.</source>
 				<target>Anteil der Besuche, die die Website nach einer Seite verlassen haben.</target>
 			</trans-unit>
+			<trans-unit id="settings.demoData" resname="settings.demoData">
+				<source>Demo data</source>
+				<target>Demo-Daten</target>
+			</trans-unit>
+			<trans-unit id="settings.demoData.description" resname="settings.demoData.description">
+				<source>Shows generated statistics instead of asking Matomo, e.g. to try out the extension or to take screenshots. Never enable on a production site.</source>
+				<target>Zeigt erzeugte Statistiken statt Matomo abzufragen, z. B. zum Ausprobieren oder für Screenshots. Nie auf einer Produktivseite aktivieren.</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

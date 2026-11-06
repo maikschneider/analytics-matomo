@@ -27,6 +27,9 @@ final readonly class MatomoConfigurationResolver
     public function resolve(Site $site): ?MatomoConfiguration
     {
         $settings = $site->getSettings();
+        if ($settings->get('analyticsMatomo.demoData') === true) {
+            return MatomoConfiguration::demo((string)$site->getBase());
+        }
         $configuration = $site->getConfiguration();
         $tokenAuth = $this->value($settings->get('analyticsMatomo.tokenAuth'));
 

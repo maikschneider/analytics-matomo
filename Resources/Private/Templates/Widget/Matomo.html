@@ -39,10 +39,15 @@
 
 <f:section name="footer">
     <f:if condition="{reportUrl}">
-        <a class="widget-cta" href="{reportUrl}" target="_blank" rel="noopener noreferrer">
-            <core:icon identifier="actions-window-open" size="small" />
-            <f:translate key="{ll}:bar.openMatomo" />
-        </a>
+        <f:then>
+            <a class="widget-cta" href="{reportUrl}" target="_blank" rel="noopener noreferrer">
+                <core:icon identifier="actions-window-open" size="small" />
+                <f:translate key="{ll}:bar.openMatomo" />
+            </a>
+        </f:then>
+        <f:else if="{selection.configuration.demo}">
+            <span class="badge badge-warning"><f:translate key="{ll}:settings.demoData" /></span>
+        </f:else>
     </f:if>
 </f:section>
 

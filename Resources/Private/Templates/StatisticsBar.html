@@ -43,16 +43,23 @@
                         </option>
                     </f:for>
                 </select>
-                <a
-                    class="tx-analytics-matomo-link"
-                    href="{reportUrl}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title="{f:translate(key: '{ll}:bar.pageUrl', arguments: {0: target.pageUrl})}"
-                >
-                    <core:icon identifier="actions-window-open" size="small" />
-                    <f:translate key="{ll}:bar.openMatomo" />
-                </a>
+                <f:if condition="{reportUrl}">
+                    <f:then>
+                        <a
+                            class="tx-analytics-matomo-link"
+                            href="{reportUrl}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="{f:translate(key: '{ll}:bar.pageUrl', arguments: {0: target.pageUrl})}"
+                        >
+                            <core:icon identifier="actions-window-open" size="small" />
+                            <f:translate key="{ll}:bar.openMatomo" />
+                        </a>
+                    </f:then>
+                    <f:else>
+                        <span class="badge badge-warning"><f:translate key="{ll}:settings.demoData" /></span>
+                    </f:else>
+                </f:if>
             </div>
             <f:render section="LoadingOverlay" arguments="{ll: ll}" />
         </section>

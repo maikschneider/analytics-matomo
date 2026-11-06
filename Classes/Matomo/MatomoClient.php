@@ -18,6 +18,7 @@ final readonly class MatomoClient
 
     public function __construct(
         private RequestFactory $requestFactory,
+        private DemoData $demoData = new DemoData(),
     ) {
     }
 
@@ -29,6 +30,9 @@ final readonly class MatomoClient
      */
     public function bulkRequest(MatomoConfiguration $configuration, array $requests, string $language = ''): array
     {
+        if ($configuration->demo) {
+            return $this->demoData->results($requests, $configuration);
+        }
         $body = [
             'module' => 'API',
             'method' => 'API.getBulkRequest',

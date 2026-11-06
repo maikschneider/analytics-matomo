@@ -21,3 +21,9 @@ settings:
     category: analyticsMatomo
     type: string
     default: ''
+  analyticsMatomo.demoData:
+    label: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:settings.demoData'
+    description: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:settings.demoData.description'
+    category: analyticsMatomo
+    type: bool
+    default: false

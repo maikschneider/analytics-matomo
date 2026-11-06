@@ -7,6 +7,7 @@ namespace MaikSchneider\AnalyticsMatomo\Tests\Functional\Dashboard;
 use GuzzleHttp\Promise\FulfilledPromise;
 use GuzzleHttp\Psr7\Response;
 use MaikSchneider\AnalyticsMatomo\Controller\DashboardSelectionController;
+use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelectionResolver;
 use MaikSchneider\AnalyticsMatomo\Dashboard\Widget\MatomoWidget;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\RequestInterface;
@@ -161,6 +162,24 @@ final class MatomoWidgetTest extends FunctionalTestCase
 
         self::assertStringContainsString('You are not allowed to view site statistics.', $html);
         self::assertSame([], $this->sentRequests);
+    }
+
+    #[Test]
+    public function demoSitesShowGeneratedDataWithoutAskingMatomo(): void
+    {
+        $user = $this->setUpBackendUser(1);
+        $this->get(DashboardSelectionResolver::class)->save($user, 'trial', 7);
+
+        $performance = $this->render(1, 'analyticsMatomoPerformance', 'ErrorNoViewAccess');
+        $widget = $this->widget(1, 'analyticsMatomoTopPages');
+        $topPages = $widget->renderWidgetContent();
+        $footer = $widget->renderWidgetContent();
+
+        self::assertSame([], $this->sentRequests);
+        self::assertStringContainsString('tx-analytics-matomo-metric--visits', $performance);
+        self::assertStringNotContainsString('module=CoreHome', $performance);
+        self::assertStringContainsString('Demo data', $footer);
+        self::assertStringContainsString('>About the trial</a>', $topPages);
     }
 
     #[Test]
