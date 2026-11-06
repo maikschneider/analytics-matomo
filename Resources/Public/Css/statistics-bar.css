@@ -1,0 +1,228 @@
+/*
+* Layout and look follow the page performance bar of TYPO3GmbH/analytics
+* (https://github.com/TYPO3GmbH/analytics, GPL-2.0-or-later).
+*/
+.tx-analytics-matomo {
+    --tx-analytics-matomo-color-views: light-dark(var(--token-color-blue-45), var(--token-color-blue-35));
+    --tx-analytics-matomo-color-bounceRate: var(--typo3-text-color-danger);
+    --tx-analytics-matomo-color-averageTimeOnPage: var(--typo3-text-color-warning);
+    --tx-analytics-matomo-color-exitRate: light-dark(var(--token-color-teal-50), var(--token-color-teal-45));
+
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(12rem, 1fr)) minmax(12rem, auto);
+    align-items: stretch;
+    min-height: 4.5rem;
+    margin: 0 0 1rem;
+    border: var(--typo3-component-border-width) solid var(--typo3-component-border-color);
+    border-radius: var(--typo3-component-border-radius);
+    background: var(--typo3-component-bg);
+    color: var(--typo3-component-color);
+}
+
+.tx-analytics-matomo-metric,
+.tx-analytics-matomo-message {
+    position: relative;
+    display: grid;
+    grid-template-areas:
+        "icon value"
+        "icon label";
+    grid-template-columns: 3.75rem minmax(0, 1fr);
+    column-gap: 1rem;
+    align-items: center;
+    padding: .75rem 1.25rem;
+    border-right: var(--typo3-component-border-width) solid var(--typo3-component-border-color);
+}
+
+.tx-analytics-matomo-message {
+    display: flex;
+    grid-column: 1 / 5;
+    gap: .5rem;
+}
+
+.tx-analytics-matomo-metric:focus-visible {
+    outline: var(--typo3-outline-width) var(--typo3-outline-style) var(--typo3-state-primary-border-color);
+    outline-offset: calc(var(--typo3-outline-width) * -1);
+}
+
+.tx-analytics-matomo-metric--views { --tx-analytics-matomo-color: var(--tx-analytics-matomo-color-views); }
+.tx-analytics-matomo-metric--bounceRate { --tx-analytics-matomo-color: var(--tx-analytics-matomo-color-bounceRate); }
+.tx-analytics-matomo-metric--averageTimeOnPage { --tx-analytics-matomo-color: var(--tx-analytics-matomo-color-averageTimeOnPage); }
+.tx-analytics-matomo-metric--exitRate { --tx-analytics-matomo-color: var(--tx-analytics-matomo-color-exitRate); }
+
+.tx-analytics-matomo-icon {
+    display: inline-flex;
+    grid-area: icon;
+    align-items: center;
+    justify-content: center;
+    width: 3.75rem;
+    height: 3.75rem;
+    border: var(--typo3-component-border-width) solid color-mix(in srgb, var(--tx-analytics-matomo-color), transparent 75%);
+    border-radius: var(--typo3-component-border-radius);
+    background: color-mix(in srgb, var(--tx-analytics-matomo-color), transparent 97%);
+    color: var(--tx-analytics-matomo-color);
+}
+
+.tx-analytics-matomo-value-row {
+    display: flex;
+    grid-area: value;
+    flex-wrap: wrap;
+    gap: .25rem .5rem;
+    align-items: baseline;
+    align-self: end;
+    min-width: 0;
+}
+
+.tx-analytics-matomo-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.tx-analytics-matomo-label {
+    grid-area: label;
+    align-self: start;
+    color: var(--typo3-text-color-variant);
+    line-height: 1.35;
+}
+
+.tx-analytics-matomo-trend {
+    display: inline-flex;
+    gap: .25rem;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.tx-analytics-matomo-trend--positive {
+    color: var(--typo3-text-color-success);
+}
+
+.tx-analytics-matomo-trend--negative {
+    color: var(--typo3-text-color-danger);
+}
+
+.tx-analytics-matomo-meta {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    align-items: flex-start;
+    justify-content: center;
+    padding: .75rem 1rem;
+}
+
+.tx-analytics-matomo-meta .form-select {
+    min-width: 9rem;
+}
+
+.tx-analytics-matomo-link {
+    display: inline-flex;
+    gap: .5rem;
+    align-items: center;
+    color: var(--typo3-text-color-primary);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.tx-analytics-matomo-link:hover {
+    text-decoration: underline;
+}
+
+.tx-analytics-matomo-tooltip {
+    position: absolute;
+    z-index: 100;
+    inset-inline-start: 1rem;
+    inset-block-start: calc(100% - .5rem);
+    width: min(18rem, calc(100vw - 2rem));
+    padding: .75rem;
+    border: var(--typo3-component-border-width) solid var(--typo3-component-border-color);
+    border-radius: var(--typo3-component-border-radius);
+    background: var(--typo3-component-bg);
+    box-shadow: var(--typo3-component-box-shadow);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-.25rem);
+    transition: opacity .15s ease-in-out, transform .15s ease-in-out;
+}
+
+.tx-analytics-matomo-metric:hover .tx-analytics-matomo-tooltip,
+.tx-analytics-matomo-metric:focus-visible .tx-analytics-matomo-tooltip {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.tx-analytics-matomo-tooltip-title {
+    margin-bottom: .25rem;
+    font-weight: 700;
+}
+
+.tx-analytics-matomo-sparkline {
+    display: block;
+    width: 100%;
+    height: 3rem;
+    padding-block-start: .5rem;
+    border-top: var(--typo3-component-border-width) solid var(--typo3-component-border-color);
+    overflow: visible;
+}
+
+.tx-analytics-matomo-sparkline-line {
+    fill: none;
+    stroke: var(--tx-analytics-matomo-color);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+}
+
+.tx-analytics-matomo-sparkline-area {
+    fill: color-mix(in srgb, var(--tx-analytics-matomo-color), transparent 82%);
+}
+
+.tx-analytics-matomo-sparkline-legend {
+    display: flex;
+    justify-content: space-between;
+    color: var(--typo3-text-color-variant);
+    font-size: var(--typo3-font-size-small, 11px);
+}
+
+.tx-analytics-matomo-loading {
+    position: absolute;
+    z-index: 20;
+    inset: 0;
+    display: none;
+    gap: .75rem;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, var(--typo3-component-bg), transparent 18%);
+    font-weight: 700;
+}
+
+.tx-analytics-matomo--loading .tx-analytics-matomo-loading {
+    display: flex;
+}
+
+@media (max-width: 1200px) {
+    .tx-analytics-matomo {
+        grid-template-columns: repeat(2, minmax(12rem, 1fr));
+    }
+
+    .tx-analytics-matomo-message,
+    .tx-analytics-matomo-meta {
+        grid-column: 1 / -1;
+        border-top: var(--typo3-component-border-width) solid var(--typo3-component-border-color);
+    }
+
+    .tx-analytics-matomo-metric:nth-child(n + 3) {
+        border-top: var(--typo3-component-border-width) solid var(--typo3-component-border-color);
+    }
+}
+
+@media (max-width: 700px) {
+    .tx-analytics-matomo {
+        grid-template-columns: 1fr;
+    }
+
+    .tx-analytics-matomo-metric {
+        border-right: 0;
+    }
+}

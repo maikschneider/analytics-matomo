@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+	<file source-language="en" datatype="plaintext" original="EXT:analytics_matomo/Resources/Private/Language/locallang.xlf" product-name="analytics_matomo">
+		<header/>
+		<body>
+			<trans-unit id="bar.label" resname="bar.label">
+				<source>Matomo statistics of this page</source>
+			</trans-unit>
+			<trans-unit id="bar.loading" resname="bar.loading">
+				<source>Loading statistics from Matomo…</source>
+			</trans-unit>
+			<trans-unit id="bar.error" resname="bar.error">
+				<source>The statistics could not be loaded from Matomo.</source>
+			</trans-unit>
+			<trans-unit id="bar.period" resname="bar.period">
+				<source>Period</source>
+			</trans-unit>
+			<trans-unit id="bar.days" resname="bar.days">
+				<source>Last %d days</source>
+			</trans-unit>
+			<trans-unit id="bar.daysAgo" resname="bar.daysAgo">
+				<source>%d days ago</source>
+			</trans-unit>
+			<trans-unit id="bar.today" resname="bar.today">
+				<source>Today</source>
+			</trans-unit>
+			<trans-unit id="bar.trend" resname="bar.trend">
+				<source>Change compared to the %d days before</source>
+			</trans-unit>
+			<trans-unit id="bar.openMatomo" resname="bar.openMatomo">
+				<source>Open Matomo</source>
+			</trans-unit>
+			<trans-unit id="bar.pageUrl" resname="bar.pageUrl">
+				<source>Statistics for %s</source>
+			</trans-unit>
+			<trans-unit id="metric.views" resname="metric.views">
+				<source>Page views</source>
+			</trans-unit>
+			<trans-unit id="metric.views.description" resname="metric.views.description">
+				<source>How often this page was viewed.</source>
+			</trans-unit>
+			<trans-unit id="metric.bounceRate" resname="metric.bounceRate">
+				<source>Bounce rate</source>
+			</trans-unit>
+			<trans-unit id="metric.bounceRate.description" resname="metric.bounceRate.description">
+				<source>Share of visits that started on this page and left without viewing another page.</source>
+			</trans-unit>
+			<trans-unit id="metric.averageTimeOnPage" resname="metric.averageTimeOnPage">
+				<source>Avg. time on page</source>
+			</trans-unit>
+			<trans-unit id="metric.averageTimeOnPage.description" resname="metric.averageTimeOnPage.description">
+				<source>Average time visitors spent on this page, in minutes and seconds.</source>
+			</trans-unit>
+			<trans-unit id="metric.exitRate" resname="metric.exitRate">
+				<source>Exit rate</source>
+			</trans-unit>
+			<trans-unit id="metric.exitRate.description" resname="metric.exitRate.description">
+				<source>Share of views of this page after which the visit ended.</source>
+			</trans-unit>
+			<trans-unit id="settings.category" resname="settings.category">
+				<source>Matomo statistics</source>
+			</trans-unit>
+			<trans-unit id="settings.url" resname="settings.url">
+				<source>Matomo URL</source>
+			</trans-unit>
+			<trans-unit id="settings.url.description" resname="settings.url.description">
+				<source>Base URL of your Matomo, e.g. https://matomo.example.com/. Empty: URL and site ID are taken together from EXT:matomo_integration, EXT:matomo_widgets or EXT:matomo_tracking.</source>
+			</trans-unit>
+			<trans-unit id="settings.idSite" resname="settings.idSite">
+				<source>Matomo site ID</source>
+			</trans-unit>
+			<trans-unit id="settings.idSite.description" resname="settings.idSite.description">
+				<source>ID of this website in Matomo. Required when the Matomo URL is set.</source>
+			</trans-unit>
+			<trans-unit id="settings.tokenAuth" resname="settings.tokenAuth">
+				<source>Matomo auth token</source>
+			</trans-unit>
+			<trans-unit id="settings.tokenAuth.description" resname="settings.tokenAuth.description">
+				<source>Token of a Matomo user with view access to this site. Use an environment variable, e.g. %env(MATOMO_TOKEN)%, instead of the plain token.</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

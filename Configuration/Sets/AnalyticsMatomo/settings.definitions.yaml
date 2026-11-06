@@ -1,0 +1,23 @@
+categories:
+  analyticsMatomo:
+    label: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:settings.category'
+
+settings:
+  analyticsMatomo.url:
+    label: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:settings.url'
+    description: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:settings.url.description'
+    category: analyticsMatomo
+    type: string
+    default: ''
+  analyticsMatomo.idSite:
+    label: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:settings.idSite'
+    description: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:settings.idSite.description'
+    category: analyticsMatomo
+    type: int
+    default: 0
+  analyticsMatomo.tokenAuth:
+    label: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:settings.tokenAuth'
+    description: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:settings.tokenAuth.description'
+    category: analyticsMatomo
+    type: string
+    default: ''

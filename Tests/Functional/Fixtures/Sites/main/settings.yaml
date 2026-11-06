@@ -1,0 +1,4 @@
+analyticsMatomo:
+  url: 'https://matomo.example.com/'
+  idSite: 3
+  tokenAuth: '%env(ANALYTICS_MATOMO_TEST_TOKEN)%'

@@ -1,0 +1,70 @@
+<?php
+
+declare(strict_types=1);
+
+namespace MaikSchneider\AnalyticsMatomo\Statistics;
+
+use MaikSchneider\AnalyticsMatomo\Configuration\MatomoConfigurationResolver;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Domain\Repository\PageRepository;
+use TYPO3\CMS\Core\Exception\SiteNotFoundException;
+use TYPO3\CMS\Core\Routing\RouterInterface;
+use TYPO3\CMS\Core\Site\SiteFinder;
+use TYPO3\CMS\Core\Type\Bitmask\Permission;
+
+/**
+ * Decides whether statistics are shown for a page: the backend user may see
+ * the page, the page has a frontend URL and its site has a Matomo connection.
+ */
+final readonly class PageTargetResolver
+{
+    private const DOKTYPES_WITHOUT_URL = [
+        PageRepository::DOKTYPE_LINK,
+        PageRepository::DOKTYPE_SHORTCUT,
+        PageRepository::DOKTYPE_SPACER,
+        PageRepository::DOKTYPE_SYSFOLDER,
+    ];
+
+    public function __construct(
+        private SiteFinder $siteFinder,
+        private MatomoConfigurationResolver $configurationResolver,
+    ) {
+    }
+
+    public function resolve(int $pageId, int $languageId): ?PageTarget
+    {
+        if ($pageId <= 0) {
+            return null;
+        }
+        $backendUser = $this->getBackendUser();
+        $page = BackendUtility::readPageAccess($pageId, $backendUser->getPagePermsClause(Permission::PAGE_SHOW));
+        if (!is_array($page) || in_array((int)($page['doktype'] ?? 0), self::DOKTYPES_WITHOUT_URL, true)) {
+            return null;
+        }
+        if (!$backendUser->checkLanguageAccess($languageId)) {
+            return null;
+        }
+
+        try {
+            $site = $this->siteFinder->getSiteByPageId($pageId);
+            $language = $site->getLanguageById($languageId);
+        } catch (SiteNotFoundException|\InvalidArgumentException) {
+            return null;
+        }
+
+        $configuration = $this->configurationResolver->resolve($site);
+        if ($configuration === null) {
+            return null;
+        }
+
+        $pageUrl = (string)$site->getRouter()->generateUri($pageId, ['_language' => $language], '', RouterInterface::ABSOLUTE_URL);
+
+        return new PageTarget($pageId, $languageId, $pageUrl, $configuration);
+    }
+
+    private function getBackendUser(): BackendUserAuthentication
+    {
+        return $GLOBALS['BE_USER'];
+    }
+}
