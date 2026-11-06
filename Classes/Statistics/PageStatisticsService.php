@@ -7,8 +7,6 @@ namespace MaikSchneider\AnalyticsMatomo\Statistics;
 use MaikSchneider\AnalyticsMatomo\Configuration\MatomoConfiguration;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoClient;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Context\Context;
 
 /**
@@ -17,19 +15,11 @@ use TYPO3\CMS\Core\Context\Context;
  */
 final readonly class PageStatisticsService
 {
-    public const PERIODS = [7, 14, 30];
-
     public function __construct(
         private MatomoClient $client,
         private Context $context,
-        #[Autowire(service: 'cache.analytics_matomo')]
-        private FrontendInterface $cache,
+        private StatisticsCache $cache,
     ) {
-    }
-
-    public static function normalizeDays(int $days): int
-    {
-        return in_array($days, self::PERIODS, true) ? $days : self::PERIODS[0];
     }
 
     /**
@@ -37,29 +27,30 @@ final readonly class PageStatisticsService
      */
     public function getStatistics(MatomoConfiguration $configuration, string $pageUrl, int $days): PageStatistics
     {
-        $days = self::normalizeDays($days);
         /** @var \DateTimeImmutable $now */
         $now = $this->context->getPropertyFromAspect('date', 'full');
-        $today = $now->setTime(0, 0);
-        $from = $today->modify('-' . ($days - 1) . ' days');
-        $previousTo = $from->modify('-1 day');
-        $previousFrom = $previousTo->modify('-' . ($days - 1) . ' days');
+        $period = Period::lastDays($days, $now);
 
-        $cacheIdentifier = sha1(implode('|', [$configuration->url, $configuration->idSite, $pageUrl, $days, $today->format('Y-m-d')]));
-        $cached = $this->cache->get($cacheIdentifier);
-        if ($cached instanceof PageStatistics) {
-            return $cached;
-        }
+        return $this->cache->remember(
+            ['page', $configuration->url, $configuration->idSite, $pageUrl, $period->toMatomoDate()],
+            fn (): PageStatistics => $this->fetch($configuration, $pageUrl, $period),
+        );
+    }
 
+    /**
+     * @throws MatomoApiException
+     */
+    private function fetch(MatomoConfiguration $configuration, string $pageUrl, Period $period): PageStatistics
+    {
         $request = [
             'method' => 'Actions.getPageUrl',
             'pageUrl' => $pageUrl,
             'format_metrics' => 0,
         ];
         [$current, $previous, $daily] = $this->client->bulkRequest($configuration, [
-            $request + ['period' => 'range', 'date' => $this->range($from, $today)],
-            $request + ['period' => 'range', 'date' => $this->range($previousFrom, $previousTo)],
-            $request + ['period' => 'day', 'date' => $this->range($from, $today)],
+            $request + ['period' => 'range', 'date' => $period->toMatomoDate()],
+            $request + ['period' => 'range', 'date' => $period->previous()->toMatomoDate()],
+            $request + ['period' => 'day', 'date' => $period->toMatomoDate()],
         ]);
 
         // Matomo answers a day range with a map of date => rows
@@ -67,23 +58,14 @@ final readonly class PageStatisticsService
             throw new MatomoApiException('Matomo answered with an unexpected daily result', 1793960007);
         }
         $dailyMetrics = [];
-        for ($day = $from; $day <= $today; $day = $day->modify('+1 day')) {
-            $date = $day->format('Y-m-d');
+        foreach ($period->dates() as $date) {
             $dailyMetrics[$date] = PageMetrics::fromApiResult($daily[$date] ?? []);
         }
 
-        $statistics = new PageStatistics(
+        return new PageStatistics(
             PageMetrics::fromApiResult($current),
             PageMetrics::fromApiResult($previous),
             $dailyMetrics,
         );
-        $this->cache->set($cacheIdentifier, $statistics);
-
-        return $statistics;
-    }
-
-    private function range(\DateTimeImmutable $from, \DateTimeImmutable $to): string
-    {
-        return $from->format('Y-m-d') . ',' . $to->format('Y-m-d');
     }
 }

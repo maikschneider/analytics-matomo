@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace MaikSchneider\AnalyticsMatomo\EventListener;
 
-use MaikSchneider\AnalyticsMatomo\Statistics\PageStatisticsService;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageTargetResolver;
+use MaikSchneider\AnalyticsMatomo\Statistics\Period;
 use MaikSchneider\AnalyticsMatomo\View\StatisticsBarRenderer;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Context\PageContext;
@@ -52,7 +52,7 @@ final readonly class StatisticsBarListener
                 'pageId' => $target->pageId,
                 'languageId' => $target->languageId,
             ]),
-            'days' => PageStatisticsService::PERIODS[0],
+            'days' => Period::DAYS[0],
         ]));
     }
 

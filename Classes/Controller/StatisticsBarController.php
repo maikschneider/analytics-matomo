@@ -7,6 +7,7 @@ namespace MaikSchneider\AnalyticsMatomo\Controller;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageStatisticsService;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageTargetResolver;
+use MaikSchneider\AnalyticsMatomo\Statistics\Period;
 use MaikSchneider\AnalyticsMatomo\Statistics\TileFactory;
 use MaikSchneider\AnalyticsMatomo\View\StatisticsBarRenderer;
 use Psr\Http\Message\ResponseInterface;
@@ -34,7 +35,7 @@ final readonly class StatisticsBarController
     public function __invoke(ServerRequestInterface $request): ResponseInterface
     {
         $queryParams = $request->getQueryParams();
-        $days = PageStatisticsService::normalizeDays((int)($queryParams['days'] ?? 0));
+        $days = Period::normalizeDays((int)($queryParams['days'] ?? 0));
         $target = $this->pageTargetResolver->resolve((int)($queryParams['pageId'] ?? 0), (int)($queryParams['languageId'] ?? 0));
         if ($target === null) {
             return new JsonResponse(['html' => ''], 404);
@@ -60,7 +61,7 @@ final readonly class StatisticsBarController
             // Editors can't fix the connection, so only admins get the details
             'errorMessage' => $this->getBackendUser()->isAdmin() ? $error : '',
             'days' => $days,
-            'periods' => PageStatisticsService::PERIODS,
+            'periods' => Period::DAYS,
             'reportUrl' => $target->configuration->getReportUrl($days),
         ])]);
     }

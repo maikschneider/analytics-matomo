@@ -9,6 +9,7 @@ use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoClient;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageMetrics;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageStatisticsService;
+use MaikSchneider\AnalyticsMatomo\Statistics\StatisticsCache;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Context\Context;
@@ -77,13 +78,6 @@ final class PageStatisticsServiceTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function normalizeDaysFallsBackToFirstPeriod(): void
-    {
-        self::assertSame(30, PageStatisticsService::normalizeDays(30));
-        self::assertSame(7, PageStatisticsService::normalizeDays(365));
-    }
-
     private function subject(RequestFactory $requestFactory): PageStatisticsService
     {
         $context = new Context();
@@ -99,7 +93,7 @@ final class PageStatisticsServiceTest extends UnitTestCase
             $entries[$identifier] = $data;
         });
 
-        return new PageStatisticsService(new MatomoClient($requestFactory), $context, $cache);
+        return new PageStatisticsService(new MatomoClient($requestFactory), $context, new StatisticsCache($cache));
     }
 
     private function response(string $body): Response
