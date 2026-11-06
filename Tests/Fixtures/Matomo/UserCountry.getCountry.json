@@ -1,0 +1,230 @@
+[
+	[
+		{
+			"label": "Vereinigte Staaten",
+			"nb_visits": 8,
+			"code": "us",
+			"logo": "plugins/Morpheus/icons/dist/flags/us.png",
+			"segment": "countryCode==us",
+			"logoHeight": 16
+		},
+		{
+			"label": "Brasilien",
+			"nb_visits": 4,
+			"code": "br",
+			"logo": "plugins/Morpheus/icons/dist/flags/br.png",
+			"segment": "countryCode==br",
+			"logoHeight": 16
+		},
+		{
+			"label": "China",
+			"nb_visits": 3,
+			"code": "cn",
+			"logo": "plugins/Morpheus/icons/dist/flags/cn.png",
+			"segment": "countryCode==cn",
+			"logoHeight": 16
+		},
+		{
+			"label": "Niederlande",
+			"nb_visits": 2,
+			"code": "nl",
+			"logo": "plugins/Morpheus/icons/dist/flags/nl.png",
+			"segment": "countryCode==nl",
+			"logoHeight": 16
+		},
+		{
+			"label": "Tschechien",
+			"nb_visits": 2,
+			"code": "cz",
+			"logo": "plugins/Morpheus/icons/dist/flags/cz.png",
+			"segment": "countryCode==cz",
+			"logoHeight": 16
+		},
+		{
+			"label": "Bosnien und Herzegowina",
+			"nb_visits": 1,
+			"code": "ba",
+			"logo": "plugins/Morpheus/icons/dist/flags/ba.png",
+			"segment": "countryCode==ba",
+			"logoHeight": 16
+		},
+		{
+			"label": "Ecuador",
+			"nb_visits": 1,
+			"code": "ec",
+			"logo": "plugins/Morpheus/icons/dist/flags/ec.png",
+			"segment": "countryCode==ec",
+			"logoHeight": 16
+		},
+		{
+			"label": "Indonesien",
+			"nb_visits": 1,
+			"code": "id",
+			"logo": "plugins/Morpheus/icons/dist/flags/id.png",
+			"segment": "countryCode==id",
+			"logoHeight": 16
+		},
+		{
+			"label": "Italien",
+			"nb_visits": 1,
+			"code": "it",
+			"logo": "plugins/Morpheus/icons/dist/flags/it.png",
+			"segment": "countryCode==it",
+			"logoHeight": 16
+		},
+		{
+			"label": "Japan",
+			"nb_visits": 1,
+			"code": "jp",
+			"logo": "plugins/Morpheus/icons/dist/flags/jp.png",
+			"segment": "countryCode==jp",
+			"logoHeight": 16
+		},
+		{
+			"label": "Kenia",
+			"nb_visits": 1,
+			"code": "ke",
+			"logo": "plugins/Morpheus/icons/dist/flags/ke.png",
+			"segment": "countryCode==ke",
+			"logoHeight": 16
+		},
+		{
+			"label": "Malaysia",
+			"nb_visits": 1,
+			"code": "my",
+			"logo": "plugins/Morpheus/icons/dist/flags/my.png",
+			"segment": "countryCode==my",
+			"logoHeight": 16
+		},
+		{
+			"label": "Philippinen",
+			"nb_visits": 1,
+			"code": "ph",
+			"logo": "plugins/Morpheus/icons/dist/flags/ph.png",
+			"segment": "countryCode==ph",
+			"logoHeight": 16
+		},
+		{
+			"label": "Uruguay",
+			"nb_visits": 1,
+			"code": "uy",
+			"logo": "plugins/Morpheus/icons/dist/flags/uy.png",
+			"segment": "countryCode==uy",
+			"logoHeight": 16
+		},
+		{
+			"label": "Vereinigtes Königreich",
+			"nb_visits": 1,
+			"code": "gb",
+			"logo": "plugins/Morpheus/icons/dist/flags/gb.png",
+			"segment": "countryCode==gb",
+			"logoHeight": 16
+		}
+	],
+	[
+		{
+			"label": "China",
+			"nb_visits": 9,
+			"code": "cn",
+			"logo": "plugins/Morpheus/icons/dist/flags/cn.png",
+			"segment": "countryCode==cn",
+			"logoHeight": 16
+		},
+		{
+			"label": "Vereinigte Staaten",
+			"nb_visits": 6,
+			"code": "us",
+			"logo": "plugins/Morpheus/icons/dist/flags/us.png",
+			"segment": "countryCode==us",
+			"logoHeight": 16
+		},
+		{
+			"label": "Philippinen",
+			"nb_visits": 3,
+			"code": "ph",
+			"logo": "plugins/Morpheus/icons/dist/flags/ph.png",
+			"segment": "countryCode==ph",
+			"logoHeight": 16
+		},
+		{
+			"label": "Bulgarien",
+			"nb_visits": 2,
+			"code": "bg",
+			"logo": "plugins/Morpheus/icons/dist/flags/bg.png",
+			"segment": "countryCode==bg",
+			"logoHeight": 16
+		},
+		{
+			"label": "Brasilien",
+			"nb_visits": 1,
+			"code": "br",
+			"logo": "plugins/Morpheus/icons/dist/flags/br.png",
+			"segment": "countryCode==br",
+			"logoHeight": 16
+		},
+		{
+			"label": "Ecuador",
+			"nb_visits": 1,
+			"code": "ec",
+			"logo": "plugins/Morpheus/icons/dist/flags/ec.png",
+			"segment": "countryCode==ec",
+			"logoHeight": 16
+		},
+		{
+			"label": "Frankreich",
+			"nb_visits": 1,
+			"code": "fr",
+			"logo": "plugins/Morpheus/icons/dist/flags/fr.png",
+			"segment": "countryCode==fr",
+			"logoHeight": 16
+		},
+		{
+			"label": "Indien",
+			"nb_visits": 1,
+			"code": "in",
+			"logo": "plugins/Morpheus/icons/dist/flags/in.png",
+			"segment": "countryCode==in",
+			"logoHeight": 16
+		},
+		{
+			"label": "Mexiko",
+			"nb_visits": 1,
+			"code": "mx",
+			"logo": "plugins/Morpheus/icons/dist/flags/mx.png",
+			"segment": "countryCode==mx",
+			"logoHeight": 16
+		},
+		{
+			"label": "Niederlande",
+			"nb_visits": 1,
+			"code": "nl",
+			"logo": "plugins/Morpheus/icons/dist/flags/nl.png",
+			"segment": "countryCode==nl",
+			"logoHeight": 16
+		},
+		{
+			"label": "Schweden",
+			"nb_visits": 1,
+			"code": "se",
+			"logo": "plugins/Morpheus/icons/dist/flags/se.png",
+			"segment": "countryCode==se",
+			"logoHeight": 16
+		},
+		{
+			"label": "Singapur",
+			"nb_visits": 1,
+			"code": "sg",
+			"logo": "plugins/Morpheus/icons/dist/flags/sg.png",
+			"segment": "countryCode==sg",
+			"logoHeight": 16
+		},
+		{
+			"label": "Vereinigtes Königreich",
+			"nb_visits": 1,
+			"code": "gb",
+			"logo": "plugins/Morpheus/icons/dist/flags/gb.png",
+			"segment": "countryCode==gb",
+			"logoHeight": 16
+		}
+	]
+]

@@ -22,6 +22,7 @@ final readonly class StatisticsBarRenderer
     {
         $view = $this->viewFactory->create(new ViewFactoryData(
             templateRootPaths: ['EXT:analytics_matomo/Resources/Private/Templates'],
+            partialRootPaths: ['EXT:analytics_matomo/Resources/Private/Partials'],
             request: $request,
         ));
         $view->assignMultiple($variables);

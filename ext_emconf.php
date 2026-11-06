@@ -2,7 +2,7 @@
 
 $EM_CONF[$_EXTKEY] = [
     'title' => 'Analytics for Matomo',
-    'description' => 'Shows Matomo statistics of the current page directly in the TYPO3 Page module.',
+    'description' => 'Shows Matomo statistics in the TYPO3 Page module and on the dashboard.',
     'category' => 'be',
     'author' => 'Maik Schneider',
     'author_email' => 'schneider.maik@me.com',
@@ -13,6 +13,7 @@ $EM_CONF[$_EXTKEY] = [
             'typo3' => '13.4.0-14.99.99',
             'backend' => '13.4.0-14.99.99',
             'fluid' => '13.4.0-14.99.99',
+            'dashboard' => '13.4.0-14.99.99',
         ],
         'conflicts' => [],
         'suggests' => [],

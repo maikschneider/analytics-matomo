@@ -1,0 +1,134 @@
+/*
+* Dashboard widgets; the metric tiles reuse statistics-bar.css.
+* Look follows the analytics widgets of TYPO3GmbH/analytics (GPL-2.0-or-later).
+*/
+.tx-analytics-matomo-widget {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    height: 100%;
+}
+
+.tx-analytics-matomo-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.tx-analytics-matomo-toolbar-site {
+    margin-inline-end: auto;
+    color: var(--typo3-text-color-variant);
+}
+
+.tx-analytics-matomo-toolbar label:first-child {
+    margin-inline-end: auto;
+}
+
+.tx-analytics-matomo-widget-empty {
+    margin: auto;
+    color: var(--typo3-text-color-variant);
+    text-align: center;
+}
+
+.tx-analytics-matomo--grid {
+    --tx-analytics-matomo-color-visits: light-dark(var(--token-color-orange-50), var(--token-color-orange-40));
+    --tx-analytics-matomo-color-pageViews: var(--tx-analytics-matomo-color-views);
+    --tx-analytics-matomo-color-averageTimeOnSite: var(--typo3-text-color-warning);
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0;
+}
+
+.tx-analytics-matomo--grid .tx-analytics-matomo-metric {
+    border-bottom: var(--typo3-component-border-width) solid var(--typo3-component-border-color);
+}
+
+.tx-analytics-matomo--grid .tx-analytics-matomo-metric:nth-child(2n) {
+    border-right: 0;
+}
+
+.tx-analytics-matomo--grid .tx-analytics-matomo-metric:nth-last-child(-n + 2) {
+    border-bottom: 0;
+}
+
+.tx-analytics-matomo-metric--visits { --tx-analytics-matomo-color: var(--tx-analytics-matomo-color-visits); }
+.tx-analytics-matomo-metric--pageViews { --tx-analytics-matomo-color: var(--tx-analytics-matomo-color-pageViews); }
+.tx-analytics-matomo-metric--averageTimeOnSite { --tx-analytics-matomo-color: var(--tx-analytics-matomo-color-averageTimeOnSite); }
+
+.tx-analytics-matomo-totals {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem 2rem;
+    margin: 0;
+}
+
+.tx-analytics-matomo-totals dt {
+    color: var(--typo3-text-color-variant);
+    font-weight: normal;
+}
+
+.tx-analytics-matomo-totals dd {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.tx-analytics-matomo-chart {
+    position: relative;
+    flex: 1;
+    min-height: 12rem;
+}
+
+.tx-analytics-matomo-table {
+    margin: 0;
+}
+
+.tx-analytics-matomo-table td {
+    vertical-align: top;
+}
+
+.tx-analytics-matomo-page {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .25rem .5rem;
+    align-items: center;
+    overflow-wrap: anywhere;
+}
+
+.tx-analytics-matomo-share {
+    display: block;
+    height: .25rem;
+    margin-top: .375rem;
+    border-radius: .125rem;
+    background: color-mix(in srgb, var(--typo3-component-border-color), transparent 40%);
+}
+
+.tx-analytics-matomo-share > span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--typo3-text-color-primary);
+}
+
+.tx-analytics-matomo-swatch {
+    display: inline-block;
+    width: .625rem;
+    height: .625rem;
+    margin-inline-end: .25rem;
+    border-radius: 50%;
+    background: var(--tx-analytics-matomo-swatch);
+}
+
+.tx-analytics-matomo-breakdown--doughnut {
+    display: grid;
+    grid-template-columns: minmax(6rem, 10rem) minmax(0, 1fr);
+    gap: 1rem;
+    align-items: center;
+}
+
+.tx-analytics-matomo-doughnut {
+    position: relative;
+    aspect-ratio: 1;
+}

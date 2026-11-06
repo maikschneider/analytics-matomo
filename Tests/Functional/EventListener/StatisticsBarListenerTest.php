@@ -22,6 +22,10 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 final class StatisticsBarListenerTest extends FunctionalTestCase
 {
+    protected array $coreExtensionsToLoad = [
+        'dashboard',
+    ];
+
     protected array $testExtensionsToLoad = [
         'maikschneider/analytics-matomo',
     ];

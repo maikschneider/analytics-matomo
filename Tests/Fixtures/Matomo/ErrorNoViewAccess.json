@@ -1,0 +1,6 @@
+[
+	{
+		"result": "error",
+		"message": "You can't access this resource as it requires 'view' access for the website id = 1."
+	}
+]

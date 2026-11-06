@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace MaikSchneider\AnalyticsMatomo\Statistics;
 
+use MaikSchneider\AnalyticsMatomo\Dashboard\SiteMetrics;
+use MaikSchneider\AnalyticsMatomo\Dashboard\SitePerformance;
+
 /**
- * Turns page statistics into the four tiles of the statistics bar: formatted
+ * Turns page and site statistics into metric tiles: formatted
  * value, change against the previous period and a sparkline of the single days.
  */
 final class TileFactory
@@ -58,6 +61,55 @@ final class TileFactory
                 $this->formatSignedPercent($current->exitRate - $previous->exitRate),
                 false,
                 array_map(static fn (PageMetrics $day): float => $day->exitRate, $daily),
+            ),
+        ];
+    }
+
+    /**
+     * @return list<Tile>
+     */
+    public function createForSite(SitePerformance $performance): array
+    {
+        $current = $performance->current;
+        $previous = $performance->previous;
+        $daily = array_values($performance->daily);
+
+        return [
+            $this->tile(
+                'visits',
+                'actions-user',
+                $this->formatNumber($current->visits),
+                $current->visits - $previous->visits,
+                $this->formatSignedNumber($current->visits - $previous->visits),
+                true,
+                array_map(static fn (SiteMetrics $day): float => $day->visits, $daily),
+            ),
+            $this->tile(
+                'pageViews',
+                'actions-eye',
+                $this->formatNumber($current->pageViews),
+                $current->pageViews - $previous->pageViews,
+                $this->formatSignedNumber($current->pageViews - $previous->pageViews),
+                true,
+                array_map(static fn (SiteMetrics $day): float => $day->pageViews, $daily),
+            ),
+            $this->tile(
+                'bounceRate',
+                'actions-sign-out',
+                $this->formatPercent($current->bounceRate),
+                $current->bounceRate - $previous->bounceRate,
+                $this->formatSignedPercent($current->bounceRate - $previous->bounceRate),
+                false,
+                array_map(static fn (SiteMetrics $day): float => $day->bounceRate, $daily),
+            ),
+            $this->tile(
+                'averageTimeOnSite',
+                'actions-clock',
+                $this->formatDuration($current->averageTimeOnSite),
+                $current->averageTimeOnSite - $previous->averageTimeOnSite,
+                $this->formatSignedDuration($current->averageTimeOnSite - $previous->averageTimeOnSite),
+                true,
+                array_map(static fn (SiteMetrics $day): float => $day->averageTimeOnSite, $daily),
             ),
         ];
     }

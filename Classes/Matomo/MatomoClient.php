@@ -23,10 +23,11 @@ final readonly class MatomoClient
 
     /**
      * @param list<array<string, int|string>> $requests API parameters per call, e.g. ['method' => 'Actions.getPageUrl', ...]
+     * @param string $language language of translated labels, e.g. 'de'; Matomo ignores it inside the single requests
      * @return list<mixed> one decoded result per request, in the same order
      * @throws MatomoApiException
      */
-    public function bulkRequest(MatomoConfiguration $configuration, array $requests): array
+    public function bulkRequest(MatomoConfiguration $configuration, array $requests, string $language = ''): array
     {
         $body = [
             'module' => 'API',
@@ -37,6 +38,9 @@ final readonly class MatomoClient
                 $requests
             ),
         ];
+        if ($language !== '') {
+            $body['language'] = $language;
+        }
         if ($configuration->tokenAuth !== '') {
             $body['token_auth'] = $configuration->tokenAuth;
         }
@@ -65,13 +69,13 @@ final readonly class MatomoClient
             throw new MatomoApiException('Matomo answered with invalid JSON: ' . mb_substr($content, 0, 200), 1793960003);
         }
         $this->assertNoError($data);
-        if (!array_is_list($data) || count($data) !== count($requests)) {
-            throw new MatomoApiException('Matomo answered with an unexpected number of results', 1793960004);
-        }
         foreach ($data as $result) {
             if (is_array($result)) {
                 $this->assertNoError($result);
             }
+        }
+        if (!array_is_list($data) || count($data) !== count($requests)) {
+            throw new MatomoApiException('Matomo answered with an unexpected number of results', 1793960004);
         }
 
         return $data;

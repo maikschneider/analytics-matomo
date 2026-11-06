@@ -6,8 +6,121 @@ services:
 
   MaikSchneider\AnalyticsMatomo\:
     resource: '../Classes/*'
+    exclude: '../Classes/Dashboard/Widget/*'
 
   cache.analytics_matomo:
     class: TYPO3\CMS\Core\Cache\Frontend\FrontendInterface
     factory: ['@TYPO3\CMS\Core\Cache\CacheManager', 'getCache']
     arguments: ['analytics_matomo']
+
+  dashboard.widget.analyticsMatomoPerformance:
+    class: MaikSchneider\AnalyticsMatomo\Dashboard\Widget\MatomoWidget
+    arguments:
+      $options:
+        report: performance
+        refreshAvailable: true
+    tags:
+      - name: dashboard.widget
+        identifier: analyticsMatomoPerformance
+        groupNames: analytics_matomo
+        title: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:widget.performance'
+        description: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:widget.performance.description'
+        iconIdentifier: content-widget-number
+        height: medium
+        width: medium
+
+  dashboard.widget.analyticsMatomoTraffic:
+    class: MaikSchneider\AnalyticsMatomo\Dashboard\Widget\MatomoWidget
+    arguments:
+      $options:
+        report: traffic
+        refreshAvailable: true
+    tags:
+      - name: dashboard.widget
+        identifier: analyticsMatomoTraffic
+        groupNames: analytics_matomo
+        title: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:widget.traffic'
+        description: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:widget.traffic.description'
+        iconIdentifier: content-widget-chart
+        height: medium
+        width: medium
+
+  dashboard.widget.analyticsMatomoTopPages:
+    class: MaikSchneider\AnalyticsMatomo\Dashboard\Widget\MatomoWidget
+    arguments:
+      $options:
+        report: topPages
+        refreshAvailable: true
+    tags:
+      - name: dashboard.widget
+        identifier: analyticsMatomoTopPages
+        groupNames: analytics_matomo
+        title: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:widget.topPages'
+        description: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:widget.topPages.description'
+        iconIdentifier: content-widget-list
+        height: large
+        width: medium
+
+  dashboard.widget.analyticsMatomoChannel:
+    class: MaikSchneider\AnalyticsMatomo\Dashboard\Widget\MatomoWidget
+    arguments:
+      $options:
+        report: channel
+        refreshAvailable: true
+    tags:
+      - name: dashboard.widget
+        identifier: analyticsMatomoChannel
+        groupNames: analytics_matomo
+        title: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:widget.channel'
+        description: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:widget.channel.description'
+        iconIdentifier: content-widget-chart-bar
+        height: medium
+        width: small
+
+  dashboard.widget.analyticsMatomoDevices:
+    class: MaikSchneider\AnalyticsMatomo\Dashboard\Widget\MatomoWidget
+    arguments:
+      $options:
+        report: devices
+        refreshAvailable: true
+    tags:
+      - name: dashboard.widget
+        identifier: analyticsMatomoDevices
+        groupNames: analytics_matomo
+        title: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:widget.devices'
+        description: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:widget.devices.description'
+        iconIdentifier: content-widget-chart-pie
+        height: medium
+        width: small
+
+  dashboard.widget.analyticsMatomoBrowsers:
+    class: MaikSchneider\AnalyticsMatomo\Dashboard\Widget\MatomoWidget
+    arguments:
+      $options:
+        report: browsers
+        refreshAvailable: true
+    tags:
+      - name: dashboard.widget
+        identifier: analyticsMatomoBrowsers
+        groupNames: analytics_matomo
+        title: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:widget.browsers'
+        description: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:widget.browsers.description'
+        iconIdentifier: content-widget-chart-pie
+        height: medium
+        width: small
+
+  dashboard.widget.analyticsMatomoCountries:
+    class: MaikSchneider\AnalyticsMatomo\Dashboard\Widget\MatomoWidget
+    arguments:
+      $options:
+        report: countries
+        refreshAvailable: true
+    tags:
+      - name: dashboard.widget
+        identifier: analyticsMatomoCountries
+        groupNames: analytics_matomo
+        title: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:widget.countries'
+        description: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:widget.countries.description'
+        iconIdentifier: content-widget-chart-bar
+        height: medium
+        width: small

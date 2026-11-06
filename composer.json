@@ -1,6 +1,6 @@
 {
 	"name": "maikschneider/analytics-matomo",
-	"description": "Shows Matomo statistics of the current page directly in the TYPO3 Page module.",
+	"description": "Shows Matomo statistics in the TYPO3 Page module and on the dashboard.",
 	"license": "GPL-2.0-or-later",
 	"type": "typo3-cms-extension",
 	"keywords": [
@@ -28,6 +28,7 @@
 		"php": "^8.2",
 		"typo3/cms-backend": "^13.4 || ^14.3",
 		"typo3/cms-core": "^13.4 || ^14.3",
+		"typo3/cms-dashboard": "^13.4 || ^14.3",
 		"typo3/cms-fluid": "^13.4 || ^14.3"
 	},
 	"require-dev": {

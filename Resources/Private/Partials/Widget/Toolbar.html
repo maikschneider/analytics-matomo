@@ -1,0 +1,31 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+<form class="tx-analytics-matomo-toolbar" data-analytics-matomo-selection>
+    <f:if condition="{selection.sites -> f:count()} > 1">
+        <f:then>
+            <label>
+                <span class="visually-hidden"><f:translate key="{ll}:widget.site" /></span>
+                <select class="form-select form-select-sm" name="site">
+                    <f:for each="{selection.sites}" as="site" key="identifier">
+                        <option value="{identifier}" {f:if(condition: '{identifier} == {selection.site.identifier}', then: 'selected')}>{site.base.host}{site.base.path}</option>
+                    </f:for>
+                </select>
+            </label>
+        </f:then>
+        <f:else>
+            <input type="hidden" name="site" value="{selection.site.identifier}">
+            <span class="tx-analytics-matomo-toolbar-site">{selection.site.base.host}{selection.site.base.path}</span>
+        </f:else>
+    </f:if>
+    <label>
+        <span class="visually-hidden"><f:translate key="{ll}:bar.period" /></span>
+        <select class="form-select form-select-sm" name="days">
+            <f:for each="{periods}" as="period">
+                <option value="{period}" {f:if(condition: '{period} == {selection.period.days}', then: 'selected')}><f:translate key="{ll}:bar.days" arguments="{0: period}" /></option>
+            </f:for>
+        </select>
+    </label>
+</form>
+</html>

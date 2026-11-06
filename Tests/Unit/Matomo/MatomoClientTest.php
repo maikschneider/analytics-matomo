@@ -74,6 +74,21 @@ final class MatomoClientTest extends UnitTestCase
     }
 
     #[Test]
+    public function bulkRequestSendsTheLanguageWithTheOuterRequest(): void
+    {
+        // Matomo ignores `language` inside the single URLs of a bulk request
+        $this->requestFactory->expects(self::once())
+            ->method('request')
+            ->with(self::anything(), self::anything(), self::callback(
+                static fn (array $options): bool => $options['form_params']['language'] === 'de'
+                    && $options['form_params']['urls'] === ['method=Referrers.getReferrerType&idSite=1']
+            ))
+            ->willReturn($this->response(200, '[[]]'));
+
+        $this->subject->bulkRequest(new MatomoConfiguration('https://matomo.example.com', 1, ''), [['method' => 'Referrers.getReferrerType']], 'de');
+    }
+
+    #[Test]
     public function bulkRequestDoesNotFollowRedirects(): void
     {
         // A 307/308 redirect would resend the token in the body to the redirect target

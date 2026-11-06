@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MaikSchneider\AnalyticsMatomo\Tests\Unit\Statistics;
 
+use MaikSchneider\AnalyticsMatomo\Dashboard\SiteMetrics;
+use MaikSchneider\AnalyticsMatomo\Dashboard\SitePerformance;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageMetrics;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageStatistics;
 use MaikSchneider\AnalyticsMatomo\Statistics\Tile;
@@ -65,6 +67,28 @@ final class TileFactoryTest extends UnitTestCase
         $tiles = $this->tilesByKey(new PageStatistics(new PageMetrics(), new PageMetrics(), ['2026-11-06' => new PageMetrics(views: 3)]));
 
         self::assertSame('', $tiles['views']->sparklineLine);
+    }
+
+    #[Test]
+    public function createForSiteRatesVisitsPageViewsBounceRateAndTime(): void
+    {
+        $tiles = [];
+        foreach ((new TileFactory())->createForSite(new SitePerformance(
+            current: new SiteMetrics(visits: 29, pageViews: 43, bounceRate: 0.72, averageTimeOnSite: 3),
+            previous: new SiteMetrics(visits: 29, pageViews: 37, bounceRate: 0.79, averageTimeOnSite: 2),
+            daily: ['2026-11-01' => new SiteMetrics(visits: 2), '2026-11-02' => new SiteMetrics(visits: 4)],
+        )) as $tile) {
+            $tiles[$tile->key] = $tile;
+        }
+
+        self::assertSame(['visits', 'pageViews', 'bounceRate', 'averageTimeOnSite'], array_keys($tiles));
+        self::assertNull($tiles['visits']->trend);
+        self::assertSame('0,29 100,1', $tiles['visits']->sparklineLine);
+        self::assertSame('+6', $tiles['pageViews']->trend);
+        self::assertSame('positive', $tiles['pageViews']->trendRating);
+        self::assertSame('72.0 %', $tiles['bounceRate']->value);
+        self::assertSame('positive', $tiles['bounceRate']->trendRating);
+        self::assertSame('0:03', $tiles['averageTimeOnSite']->value);
     }
 
     /**

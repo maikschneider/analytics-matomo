@@ -1,0 +1,57 @@
+[
+	[
+		{
+			"label": "/",
+			"nb_hits": 40,
+			"url": "https://example.com/",
+			"Actions_PageUrl": "/"
+		},
+		{
+			"label": "/about",
+			"nb_hits": 20,
+			"url": "http://example.com/about",
+			"Actions_PageUrl": "/about"
+		},
+		{
+			"label": "/products/",
+			"nb_hits": 15,
+			"url": "https://shop.example.org/products/",
+			"Actions_PageUrl": "/products/"
+		},
+		{
+			"label": "/de/ueber-uns",
+			"nb_hits": 10,
+			"url": "https://example.com/de/ueber-uns",
+			"Actions_PageUrl": "/de/ueber-uns"
+		},
+		{
+			"label": "/videos.php",
+			"nb_hits": 5,
+			"url": "https://example.com/videos.php",
+			"Actions_PageUrl": "/videos.php"
+		},
+		{
+			"label": "/",
+			"nb_hits": 3,
+			"url": "https://www.virtual-drums.com/",
+			"Actions_PageUrl": "/"
+		}
+	],
+	[
+		{
+			"label": "/",
+			"nb_hits": 50,
+			"url": "https://example.com/",
+			"Actions_PageUrl": "/"
+		},
+		{
+			"label": "/about",
+			"nb_hits": 10,
+			"url": "http://example.com/about",
+			"Actions_PageUrl": "/about"
+		}
+	],
+	{
+		"value": 100
+	}
+]

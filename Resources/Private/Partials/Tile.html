@@ -1,0 +1,36 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+<div class="tx-analytics-matomo-metric tx-analytics-matomo-metric--{tile.key}" tabindex="0">
+    <span class="tx-analytics-matomo-icon" aria-hidden="true"><core:icon identifier="{tile.icon}" size="medium" /></span>
+    <span class="tx-analytics-matomo-value-row">
+        <span class="tx-analytics-matomo-value">{tile.value}</span>
+        <f:if condition="{tile.trend}">
+            <span
+                class="tx-analytics-matomo-trend tx-analytics-matomo-trend--{tile.trendRating}"
+                title="{f:translate(key: '{ll}:bar.trend', arguments: {0: days})}"
+            >
+                <core:icon identifier="{tile.trendIcon}" size="small" />
+                {tile.trend}
+            </span>
+        </f:if>
+    </span>
+    <span class="tx-analytics-matomo-label"><f:translate key="{ll}:metric.{tile.key}" /></span>
+    <div class="tx-analytics-matomo-tooltip" role="tooltip">
+        <div class="tx-analytics-matomo-tooltip-title"><f:translate key="{ll}:metric.{tile.key}" /></div>
+        <p class="tx-analytics-matomo-tooltip-description"><f:translate key="{ll}:{f:if(condition: descriptionPrefix, then: descriptionPrefix, else: 'metric')}.{tile.key}.description" /></p>
+        <f:if condition="{tile.sparklineLine}">
+            <svg class="tx-analytics-matomo-sparkline" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true">
+                <polygon class="tx-analytics-matomo-sparkline-area" points="{tile.sparklineArea}" />
+                <polyline class="tx-analytics-matomo-sparkline-line" points="{tile.sparklineLine}" />
+            </svg>
+            <div class="tx-analytics-matomo-sparkline-legend">
+                <span><f:translate key="{ll}:bar.daysAgo" arguments="{0: days}" /></span>
+                <span><f:translate key="{ll}:bar.today" /></span>
+            </div>
+        </f:if>
+    </div>
+</div>
+</html>

@@ -123,6 +123,146 @@
 				<source>Allows the Matomo dashboard widgets with the numbers of whole sites.</source>
 				<target>Erlaubt die Matomo-Dashboard-Widgets mit den Zahlen ganzer Websites.</target>
 			</trans-unit>
+			<trans-unit id="widget.group" resname="widget.group">
+				<source>Matomo</source>
+				<target>Matomo</target>
+			</trans-unit>
+			<trans-unit id="widget.preset.title" resname="widget.preset.title">
+				<source>Matomo overview</source>
+				<target>Matomo-Übersicht</target>
+			</trans-unit>
+			<trans-unit id="widget.preset.description" resname="widget.preset.description">
+				<source>Key figures, visitors over time, top pages and traffic sources from Matomo.</source>
+				<target>Kennzahlen, Besuche im Zeitverlauf, Top-Seiten und Zugriffsquellen aus Matomo.</target>
+			</trans-unit>
+			<trans-unit id="widget.performance" resname="widget.performance">
+				<source>Site performance</source>
+				<target>Website-Performance</target>
+			</trans-unit>
+			<trans-unit id="widget.performance.description" resname="widget.performance.description">
+				<source>Visits, page views, bounce rate and visit duration of a site, compared with the period before.</source>
+				<target>Besuche, Seitenaufrufe, Absprungrate und Besuchsdauer einer Website im Vergleich zum Zeitraum davor.</target>
+			</trans-unit>
+			<trans-unit id="widget.traffic" resname="widget.traffic">
+				<source>Visits over time</source>
+				<target>Besuche im Zeitverlauf</target>
+			</trans-unit>
+			<trans-unit id="widget.traffic.description" resname="widget.traffic.description">
+				<source>Visits, visitors, new and returning visits per day.</source>
+				<target>Besuche, Besucher, neue und wiederkehrende Besuche pro Tag.</target>
+			</trans-unit>
+			<trans-unit id="widget.traffic.chart" resname="widget.traffic.chart">
+				<source>Visits per day of the last %s days</source>
+				<target>Besuche pro Tag der letzten %s Tage</target>
+			</trans-unit>
+			<trans-unit id="widget.topPages" resname="widget.topPages">
+				<source>Top pages</source>
+				<target>Top-Seiten</target>
+			</trans-unit>
+			<trans-unit id="widget.topPages.description" resname="widget.topPages.description">
+				<source>The most viewed pages of a site with their share and trend.</source>
+				<target>Die meistaufgerufenen Seiten einer Website mit Anteil und Trend.</target>
+			</trans-unit>
+			<trans-unit id="widget.channel" resname="widget.channel">
+				<source>Channels</source>
+				<target>Kanäle</target>
+			</trans-unit>
+			<trans-unit id="widget.channel.description" resname="widget.channel.description">
+				<source>Where visitors come from: search engines, websites, direct entry, campaigns and more.</source>
+				<target>Woher Besucher kommen: Suchmaschinen, Websites, direkte Zugriffe, Kampagnen und mehr.</target>
+			</trans-unit>
+			<trans-unit id="widget.devices" resname="widget.devices">
+				<source>Devices</source>
+				<target>Geräte</target>
+			</trans-unit>
+			<trans-unit id="widget.devices.description" resname="widget.devices.description">
+				<source>Visits by device type.</source>
+				<target>Besuche nach Gerätetyp.</target>
+			</trans-unit>
+			<trans-unit id="widget.browsers" resname="widget.browsers">
+				<source>Browsers</source>
+				<target>Browser</target>
+			</trans-unit>
+			<trans-unit id="widget.browsers.description" resname="widget.browsers.description">
+				<source>Visits by browser.</source>
+				<target>Besuche nach Browser.</target>
+			</trans-unit>
+			<trans-unit id="widget.countries" resname="widget.countries">
+				<source>Countries</source>
+				<target>Länder</target>
+			</trans-unit>
+			<trans-unit id="widget.countries.description" resname="widget.countries.description">
+				<source>Visits by country.</source>
+				<target>Besuche nach Land.</target>
+			</trans-unit>
+			<trans-unit id="widget.site" resname="widget.site">
+				<source>Site</source>
+				<target>Website</target>
+			</trans-unit>
+			<trans-unit id="widget.page" resname="widget.page">
+				<source>Page</source>
+				<target>Seite</target>
+			</trans-unit>
+			<trans-unit id="widget.change" resname="widget.change">
+				<source>Change</source>
+				<target>Veränderung</target>
+			</trans-unit>
+			<trans-unit id="widget.other" resname="widget.other">
+				<source>Other</source>
+				<target>Sonstige</target>
+			</trans-unit>
+			<trans-unit id="widget.noData" resname="widget.noData">
+				<source>No visits in this period.</source>
+				<target>Keine Besuche in diesem Zeitraum.</target>
+			</trans-unit>
+			<trans-unit id="widget.noSite" resname="widget.noSite">
+				<source>No site with a Matomo connection is available to you.</source>
+				<target>Ihnen steht keine Website mit Matomo-Anbindung zur Verfügung.</target>
+			</trans-unit>
+			<trans-unit id="widget.noAccess" resname="widget.noAccess">
+				<source>You are not allowed to view site statistics.</source>
+				<target>Sie dürfen keine Website-Statistiken ansehen.</target>
+			</trans-unit>
+			<trans-unit id="metric.visits" resname="metric.visits">
+				<source>Visits</source>
+				<target>Besuche</target>
+			</trans-unit>
+			<trans-unit id="siteMetric.visits.description" resname="siteMetric.visits.description">
+				<source>Number of visits to the site. A visit ends after 30 minutes without activity.</source>
+				<target>Anzahl der Besuche der Website. Ein Besuch endet nach 30 Minuten ohne Aktivität.</target>
+			</trans-unit>
+			<trans-unit id="metric.pageViews" resname="metric.pageViews">
+				<source>Page views</source>
+				<target>Seitenaufrufe</target>
+			</trans-unit>
+			<trans-unit id="siteMetric.pageViews.description" resname="siteMetric.pageViews.description">
+				<source>Number of pages viewed on the site.</source>
+				<target>Anzahl der aufgerufenen Seiten der Website.</target>
+			</trans-unit>
+			<trans-unit id="metric.averageTimeOnSite" resname="metric.averageTimeOnSite">
+				<source>Avg. visit duration</source>
+				<target>Ø Besuchsdauer</target>
+			</trans-unit>
+			<trans-unit id="siteMetric.averageTimeOnSite.description" resname="siteMetric.averageTimeOnSite.description">
+				<source>Average time a visit lasts.</source>
+				<target>Durchschnittliche Dauer eines Besuchs.</target>
+			</trans-unit>
+			<trans-unit id="metric.visitors" resname="metric.visitors">
+				<source>Visitors</source>
+				<target>Besucher</target>
+			</trans-unit>
+			<trans-unit id="metric.newVisits" resname="metric.newVisits">
+				<source>New visits</source>
+				<target>Neue Besuche</target>
+			</trans-unit>
+			<trans-unit id="metric.returningVisits" resname="metric.returningVisits">
+				<source>Returning visits</source>
+				<target>Wiederkehrende Besuche</target>
+			</trans-unit>
+			<trans-unit id="siteMetric.bounceRate.description" resname="siteMetric.bounceRate.description">
+				<source>Share of visits that left the site after one page.</source>
+				<target>Anteil der Besuche, die die Website nach einer Seite verlassen haben.</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

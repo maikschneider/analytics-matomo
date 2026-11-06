@@ -1,0 +1,165 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+<f:layout name="Widget/Widget" />
+
+<f:section name="main">
+    <div class="tx-analytics-matomo-widget tx-analytics-matomo-widget--{report}">
+        <f:if condition="{selection}">
+            <f:then>
+                <f:render partial="Widget/Toolbar" arguments="{selection: selection, periods: periods, ll: ll}" />
+                <f:if condition="{failed}">
+                    <f:then>
+                        <div class="callout callout-danger" role="alert">
+                            <div class="callout-body">
+                                <f:translate key="{ll}:bar.error" />
+                                <f:if condition="{errorMessage}"><br><small>{errorMessage}</small></f:if>
+                            </div>
+                        </div>
+                    </f:then>
+                    <f:else if="{isEmpty}">
+                        <p class="tx-analytics-matomo-widget-empty"><f:translate key="{ll}:widget.noData" /></p>
+                    </f:else>
+                    <f:else>
+                        <f:render section="{report}" arguments="{_all}" />
+                    </f:else>
+                </f:if>
+            </f:then>
+            <f:else if="{hasPermission}">
+                <p class="tx-analytics-matomo-widget-empty"><f:translate key="{ll}:widget.noSite" /></p>
+            </f:else>
+            <f:else>
+                <p class="tx-analytics-matomo-widget-empty"><f:translate key="{ll}:widget.noAccess" /></p>
+            </f:else>
+        </f:if>
+    </div>
+</f:section>
+
+<f:section name="footer">
+    <f:if condition="{reportUrl}">
+        <a class="widget-cta" href="{reportUrl}" target="_blank" rel="noopener noreferrer">
+            <core:icon identifier="actions-window-open" size="small" />
+            <f:translate key="{ll}:bar.openMatomo" />
+        </a>
+    </f:if>
+</f:section>
+
+<f:section name="performance">
+    <div class="tx-analytics-matomo tx-analytics-matomo--grid">
+        <f:for each="{tiles}" as="tile">
+            <f:render partial="Tile" arguments="{tile: tile, days: selection.period.days, ll: ll, descriptionPrefix: 'siteMetric'}" />
+        </f:for>
+    </div>
+</f:section>
+
+<f:section name="traffic">
+    <dl class="tx-analytics-matomo-totals">
+        <f:for each="{totals}" as="total" key="metric">
+            <div>
+                <dt><f:translate key="{ll}:metric.{metric}" /></dt>
+                <dd>{total -> f:format.number(decimals: 0, thousandsSeparator: ' ')}</dd>
+            </div>
+        </f:for>
+    </dl>
+    <div class="widget-chart tx-analytics-matomo-chart">
+        <canvas aria-label="{f:translate(key: '{ll}:widget.traffic.chart', arguments: {0: selection.period.days})}" role="img"></canvas>
+    </div>
+</f:section>
+
+<f:section name="topPages">
+    <table class="table table-sm tx-analytics-matomo-table">
+        <thead>
+            <tr>
+                <th scope="col"><f:translate key="{ll}:widget.page" /></th>
+                <th scope="col" class="text-end"><f:translate key="{ll}:metric.views" /></th>
+                <th scope="col" class="text-end"><f:translate key="{ll}:widget.change" /></th>
+            </tr>
+        </thead>
+        <tbody>
+            <f:for each="{pages}" as="page">
+                <tr>
+                    <td>
+                        <div class="tx-analytics-matomo-page">
+                            <span title="{page.languageTitle}"><core:icon identifier="{page.flag}" size="small" /></span>
+                            <f:if condition="{page.pageModuleUrl}">
+                                <f:then>
+                                    <a href="{page.pageModuleUrl}" title="{page.url}">{page.title}</a>
+                                    <small class="text-variant">{page.path}</small>
+                                </f:then>
+                                <f:else>
+                                    <span title="{page.url}">{page.path}</span>
+                                </f:else>
+                            </f:if>
+                        </div>
+                        <f:render section="ShareBar" arguments="{width: page.shareWidth}" />
+                    </td>
+                    <td class="text-end">
+                        {page.views}
+                        <small class="d-block text-variant">{page.share}</small>
+                    </td>
+                    <td class="text-end">
+                        <f:render section="Change" arguments="{change: page.change, rating: page.changeRating}" />
+                    </td>
+                </tr>
+            </f:for>
+        </tbody>
+    </table>
+</f:section>
+
+<f:section name="channel"><f:render section="Breakdown" arguments="{_all}" /></f:section>
+<f:section name="devices"><f:render section="Breakdown" arguments="{_all}" /></f:section>
+<f:section name="browsers"><f:render section="Breakdown" arguments="{_all}" /></f:section>
+<f:section name="countries"><f:render section="Breakdown" arguments="{_all}" /></f:section>
+
+<f:section name="Breakdown">
+    <div class="tx-analytics-matomo-breakdown{f:if(condition: isDoughnut, then: ' tx-analytics-matomo-breakdown--doughnut')}">
+        <f:if condition="{isDoughnut}">
+            <div class="widget-chart tx-analytics-matomo-doughnut">
+                <canvas aria-hidden="true"></canvas>
+            </div>
+        </f:if>
+        <table class="table table-sm tx-analytics-matomo-table">
+            <thead>
+                <tr>
+                    <th scope="col"><span class="visually-hidden"><f:translate key="{ll}:widget.{report}" /></span></th>
+                    <th scope="col" class="text-end"><f:translate key="{ll}:metric.visits" /></th>
+                    <th scope="col" class="text-end"><f:translate key="{ll}:widget.change" /></th>
+                </tr>
+            </thead>
+            <tbody>
+                <f:for each="{rows}" as="row">
+                    <tr>
+                        <td>
+                            <span class="tx-analytics-matomo-swatch" style="--tx-analytics-matomo-swatch: {row.color}"></span>
+                            {row.label}
+                            <f:if condition="{isDoughnut}">
+                                <f:else><f:render section="ShareBar" arguments="{width: row.shareWidth, color: row.color}" /></f:else>
+                            </f:if>
+                        </td>
+                        <td class="text-end">
+                            {row.visits}
+                            <small class="d-block text-variant">{row.share}</small>
+                        </td>
+                        <td class="text-end">
+                            <f:render section="Change" arguments="{change: row.shareChange, rating: row.shareChangeRating}" />
+                        </td>
+                    </tr>
+                </f:for>
+            </tbody>
+        </table>
+    </div>
+</f:section>
+
+<f:section name="ShareBar">
+    <span class="tx-analytics-matomo-share" aria-hidden="true"><span style="width: {width}%{f:if(condition: color, then: '; background: {color}')}"></span></span>
+</f:section>
+
+<f:section name="Change">
+    <f:if condition="{change}">
+        <f:then><span class="tx-analytics-matomo-trend tx-analytics-matomo-trend--{rating}">{change}</span></f:then>
+        <f:else><span class="text-variant">–</span></f:else>
+    </f:if>
+</f:section>
+</html>

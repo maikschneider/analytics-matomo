@@ -93,6 +93,111 @@
 			<trans-unit id="permission.siteStatistics.description" resname="permission.siteStatistics.description">
 				<source>Allows the Matomo dashboard widgets with the numbers of whole sites.</source>
 			</trans-unit>
+			<trans-unit id="widget.group" resname="widget.group">
+				<source>Matomo</source>
+			</trans-unit>
+			<trans-unit id="widget.preset.title" resname="widget.preset.title">
+				<source>Matomo overview</source>
+			</trans-unit>
+			<trans-unit id="widget.preset.description" resname="widget.preset.description">
+				<source>Key figures, visitors over time, top pages and traffic sources from Matomo.</source>
+			</trans-unit>
+			<trans-unit id="widget.performance" resname="widget.performance">
+				<source>Site performance</source>
+			</trans-unit>
+			<trans-unit id="widget.performance.description" resname="widget.performance.description">
+				<source>Visits, page views, bounce rate and visit duration of a site, compared with the period before.</source>
+			</trans-unit>
+			<trans-unit id="widget.traffic" resname="widget.traffic">
+				<source>Visits over time</source>
+			</trans-unit>
+			<trans-unit id="widget.traffic.description" resname="widget.traffic.description">
+				<source>Visits, visitors, new and returning visits per day.</source>
+			</trans-unit>
+			<trans-unit id="widget.traffic.chart" resname="widget.traffic.chart">
+				<source>Visits per day of the last %s days</source>
+			</trans-unit>
+			<trans-unit id="widget.topPages" resname="widget.topPages">
+				<source>Top pages</source>
+			</trans-unit>
+			<trans-unit id="widget.topPages.description" resname="widget.topPages.description">
+				<source>The most viewed pages of a site with their share and trend.</source>
+			</trans-unit>
+			<trans-unit id="widget.channel" resname="widget.channel">
+				<source>Channels</source>
+			</trans-unit>
+			<trans-unit id="widget.channel.description" resname="widget.channel.description">
+				<source>Where visitors come from: search engines, websites, direct entry, campaigns and more.</source>
+			</trans-unit>
+			<trans-unit id="widget.devices" resname="widget.devices">
+				<source>Devices</source>
+			</trans-unit>
+			<trans-unit id="widget.devices.description" resname="widget.devices.description">
+				<source>Visits by device type.</source>
+			</trans-unit>
+			<trans-unit id="widget.browsers" resname="widget.browsers">
+				<source>Browsers</source>
+			</trans-unit>
+			<trans-unit id="widget.browsers.description" resname="widget.browsers.description">
+				<source>Visits by browser.</source>
+			</trans-unit>
+			<trans-unit id="widget.countries" resname="widget.countries">
+				<source>Countries</source>
+			</trans-unit>
+			<trans-unit id="widget.countries.description" resname="widget.countries.description">
+				<source>Visits by country.</source>
+			</trans-unit>
+			<trans-unit id="widget.site" resname="widget.site">
+				<source>Site</source>
+			</trans-unit>
+			<trans-unit id="widget.page" resname="widget.page">
+				<source>Page</source>
+			</trans-unit>
+			<trans-unit id="widget.change" resname="widget.change">
+				<source>Change</source>
+			</trans-unit>
+			<trans-unit id="widget.other" resname="widget.other">
+				<source>Other</source>
+			</trans-unit>
+			<trans-unit id="widget.noData" resname="widget.noData">
+				<source>No visits in this period.</source>
+			</trans-unit>
+			<trans-unit id="widget.noSite" resname="widget.noSite">
+				<source>No site with a Matomo connection is available to you.</source>
+			</trans-unit>
+			<trans-unit id="widget.noAccess" resname="widget.noAccess">
+				<source>You are not allowed to view site statistics.</source>
+			</trans-unit>
+			<trans-unit id="metric.visits" resname="metric.visits">
+				<source>Visits</source>
+			</trans-unit>
+			<trans-unit id="siteMetric.visits.description" resname="siteMetric.visits.description">
+				<source>Number of visits to the site. A visit ends after 30 minutes without activity.</source>
+			</trans-unit>
+			<trans-unit id="metric.pageViews" resname="metric.pageViews">
+				<source>Page views</source>
+			</trans-unit>
+			<trans-unit id="siteMetric.pageViews.description" resname="siteMetric.pageViews.description">
+				<source>Number of pages viewed on the site.</source>
+			</trans-unit>
+			<trans-unit id="metric.averageTimeOnSite" resname="metric.averageTimeOnSite">
+				<source>Avg. visit duration</source>
+			</trans-unit>
+			<trans-unit id="siteMetric.averageTimeOnSite.description" resname="siteMetric.averageTimeOnSite.description">
+				<source>Average time a visit lasts.</source>
+			</trans-unit>
+			<trans-unit id="metric.visitors" resname="metric.visitors">
+				<source>Visitors</source>
+			</trans-unit>
+			<trans-unit id="metric.newVisits" resname="metric.newVisits">
+				<source>New visits</source>
+			</trans-unit>
+			<trans-unit id="metric.returningVisits" resname="metric.returningVisits">
+				<source>Returning visits</source>
+			</trans-unit>
+			<trans-unit id="siteMetric.bounceRate.description" resname="siteMetric.bounceRate.description">
+				<source>Share of visits that left the site after one page.</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

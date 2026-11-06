@@ -1,0 +1,46 @@
+[
+	[
+		{
+			"label": "Suchmaschinen",
+			"nb_visits": 23,
+			"segment": "referrerType==search",
+			"referrer_type": 2,
+			"idsubdatatable": 2
+		},
+		{
+			"label": "Direkte Zugriffe",
+			"nb_visits": 5,
+			"segment": "referrerType==direct",
+			"referrer_type": 1
+		},
+		{
+			"label": "KI-Assistenten",
+			"nb_visits": 1,
+			"segment": "referrerType==ai",
+			"referrer_type": 8,
+			"idsubdatatable": 8
+		}
+	],
+	[
+		{
+			"label": "Direkte Zugriffe",
+			"nb_visits": 14,
+			"segment": "referrerType==direct",
+			"referrer_type": 1
+		},
+		{
+			"label": "Suchmaschinen",
+			"nb_visits": 14,
+			"segment": "referrerType==search",
+			"referrer_type": 2,
+			"idsubdatatable": 2
+		},
+		{
+			"label": "Webseiten",
+			"nb_visits": 1,
+			"segment": "referrerType==website",
+			"referrer_type": 3,
+			"idsubdatatable": 3
+		}
+	]
+]
