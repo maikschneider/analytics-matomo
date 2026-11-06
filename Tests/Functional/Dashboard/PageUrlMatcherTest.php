@@ -44,6 +44,14 @@ final class PageUrlMatcherTest extends FunctionalTestCase
         yield 'trailing slash missing' => ['shop', 'https://shop.example.org/products', 11, 0];
         yield 'language on its own domain' => ['shop', 'https://shop.example.de/produkte/', 11, 1];
         yield 'untranslated page shown in fallback language' => ['shop', 'https://shop.example.de/imprint', 13, 1];
+        yield 'page id parameter' => ['main', 'https://example.com/?id=2&utm_source=newsletter', 2, 0];
+        yield 'site base without host' => ['trial', 'https://www.trial.example.net/about', 31, 0];
+    }
+
+    #[Test]
+    public function matchIgnoresMalformedUrls(): void
+    {
+        self::assertNull((new PageUrlMatcher())->match($this->get(SiteFinder::class)->getSiteByIdentifier('main'), 'http:///about'));
     }
 
     #[Test]

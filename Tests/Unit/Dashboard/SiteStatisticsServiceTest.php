@@ -79,6 +79,15 @@ final class SiteStatisticsServiceTest extends UnitTestCase
     }
 
     #[Test]
+    public function getTrafficSubtractsReturningFromAllVisits(): void
+    {
+        $traffic = $this->subject('SyntheticTrafficWithReturningVisits')->getTraffic($this->configuration(), $this->period());
+
+        self::assertSame([2, 0, 1, 3, 0, 7, 1], $traffic->returningVisits);
+        self::assertSame([4, 1, 1, 5, 1, 0, 3], $traffic->newVisits);
+    }
+
+    #[Test]
     public function getTrafficFillsDaysWithoutVisits(): void
     {
         $traffic = $this->subject('EmptyTraffic')->getTraffic($this->configuration(), Period::lastDays(7, new \DateTimeImmutable('2001-01-07')));
@@ -161,6 +170,17 @@ final class SiteStatisticsServiceTest extends UnitTestCase
         $this->expectExceptionMessage("requires 'view' access");
 
         $this->subject('ErrorNoViewAccess')->getTraffic($this->configuration(), $this->period());
+    }
+
+    #[Test]
+    public function resultsFetchedWithOneTokenNeverAnswerAnotherToken(): void
+    {
+        $subject = $this->subject('SitePerformance');
+
+        $subject->getPerformance(new MatomoConfiguration('https://matomo.example.com', 3, 'token-with-view-access'), $this->period());
+        $subject->getPerformance(new MatomoConfiguration('https://matomo.example.com', 3, 'other-token'), $this->period());
+
+        self::assertSame('other-token', $this->sentBody['token_auth']);
     }
 
     private function subject(string $fixture): SiteStatisticsService

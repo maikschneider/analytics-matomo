@@ -218,19 +218,20 @@ final class MatomoWidget implements WidgetInterface, RequestAwareWidgetInterface
         $pages = [];
         foreach ($this->statisticsService->getTopPages($selection->configuration, $selection->period) as $page) {
             $match = $this->pageUrlMatcher->match($selection->site, $page->url);
-            if ($match === null) {
+            if ($match === null || !$backendUser->checkLanguageAccess($match->language->getLanguageId())) {
                 continue;
             }
-            $record = null;
-            if ($match->pageId !== null && $backendUser->checkLanguageAccess($match->language->getLanguageId())) {
-                $record = BackendUtility::readPageAccess($match->pageId, $backendUser->getPagePermsClause(Permission::PAGE_SHOW)) ?: null;
+            $record = $match->pageId === null ? false : BackendUtility::readPageAccess($match->pageId, $backendUser->getPagePermsClause(Permission::PAGE_SHOW));
+            // URLs without a readable page, e.g. of other systems on the same domain, only for admins
+            if ($record === false && !$backendUser->isAdmin()) {
+                continue;
             }
             $path = parse_url($page->url, PHP_URL_PATH);
             $pages[] = [
                 'url' => $page->url,
                 'path' => is_string($path) && $path !== '' ? $path : '/',
-                'title' => $record['title'] ?? '',
-                'pageModuleUrl' => $record === null ? '' : (string)$this->uriBuilder->buildUriFromRoute('web_layout', ['id' => $match->pageId]),
+                'title' => $record === false ? '' : (string)($record['title'] ?? ''),
+                'pageModuleUrl' => $record === false ? '' : (string)$this->uriBuilder->buildUriFromRoute('web_layout', ['id' => $match->pageId]),
                 'flag' => $match->language->getFlagIdentifier(),
                 'languageTitle' => $match->language->getTitle(),
                 'views' => $page->views,

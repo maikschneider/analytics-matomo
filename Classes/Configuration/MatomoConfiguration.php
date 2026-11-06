@@ -27,6 +27,14 @@ final readonly class MatomoConfiguration
         return rtrim($this->url, '/') . '/index.php';
     }
 
+    /**
+     * Includes a hash of the token: data fetched with one token must never answer a request with another.
+     */
+    public function getCacheIdentifier(): string
+    {
+        return hash('sha256', implode("\n", [$this->url, $this->idSite, $this->tokenAuth, $this->demo ? 'demo' : '']));
+    }
+
     public function getReportUrl(int $days): string
     {
         if ($this->demo) {

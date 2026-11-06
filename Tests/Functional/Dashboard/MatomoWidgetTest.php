@@ -106,13 +106,14 @@ final class MatomoWidgetTest extends FunctionalTestCase
     }
 
     #[Test]
-    public function topPagesShowsNoTitleOfPagesInLanguagesTheEditorMayNotSee(): void
+    public function topPagesListsOnlyPagesAndLanguagesTheEditorMayAccess(): void
     {
         $html = $this->render(5, 'analyticsMatomoTopPages', 'TopPagesMainSite');
 
         self::assertStringContainsString('>About</a>', $html);
-        // Editor 5 may only edit the default language
-        self::assertStringContainsString('<span title="https://example.com/de/ueber-uns">/de/ueber-uns</span>', $html);
+        // Editor 5 may only edit the default language and may not see pages without a page record
+        self::assertStringNotContainsString('ueber-uns', $html);
+        self::assertStringNotContainsString('videos.php', $html);
     }
 
     #[Test]

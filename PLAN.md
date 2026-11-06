@@ -104,7 +104,7 @@ Without an own URL, URL and site ID are taken **together** from the first connec
 
 Token: a Matomo user with **view** access to the one site; put it in `settings.yaml` as `%env(MATOMO_TOKEN)%` (resolved by TYPO3 13.4 and 14). The token is sent in the POST body only, redirects are not followed (a 307/308 would resend it), and it is masked in error messages. The token of EXT:matomo_widgets is only sent to the Matomo of EXT:matomo_widgets.
 
-Access is opt-in per backend group: `analytics_matomo:pageStatistics` for the bar, `analytics_matomo:siteStatistics` for the widgets; admins have both. The bar route inherits access from `web_layout`; on top, the page must be readable (`readPageAccess` with `PAGE_SHOW`, incl. web mounts) and the language allowed (`checkLanguageAccess`). Widgets offer only sites whose root page the user may see, and link top pages only if the page and its language are accessible. Matomo error details are shown to admins only.
+Access is opt-in per backend group: `analytics_matomo:pageStatistics` for the bar, `analytics_matomo:siteStatistics` for the widgets; admins have both. The bar route inherits access from `web_layout`; on top, the page must be readable (`readPageAccess` with `PAGE_SHOW`, incl. web mounts) and the language allowed (`checkLanguageAccess`). Widgets offer only sites whose root page the user may see. Top pages list only pages and languages the user may access (URLs without a page: admins only). Site-wide numbers cover the whole Matomo site: TYPO3 sites sharing one Matomo site share their numbers (no segments, see above), so one Matomo site per TYPO3 site is recommended when editors of different sites must not see each other's numbers. Matomo error details are shown to admins only. Cache entries are keyed by a hash of URL, site ID and token, so data fetched with one token never answers a request made with another.
 
 ### Decision: no dependency on pagemachine/matomo-tracking
 
@@ -112,7 +112,7 @@ Access is opt-in per backend group: `analytics_matomo:pageStatistics` for the ba
 
 ## Caching
 
-TYPO3 cache `analytics_matomo` (default `VariableFrontend` + database backend), `defaultLifetime` 3600 s, overridable in `$GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['analytics_matomo']`. Key: view, Matomo URL, site ID, page URL or report, period (which contains today's date), language. Errors are not cached. Matomo's own freshness depends on its archiving (cron vs. browser), so ~1 h staleness is fine.
+TYPO3 cache `analytics_matomo` (default `VariableFrontend` + database backend), `defaultLifetime` 3600 s, overridable in `$GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['analytics_matomo']`. Key: view, hash of Matomo URL + site ID + token, page URL or report, period (which contains today's date), language. Errors are not cached. Matomo's own freshness depends on its archiving (cron vs. browser), so ~1 h staleness is fine.
 
 ## Version matrix
 

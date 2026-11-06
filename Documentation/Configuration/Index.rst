@@ -86,6 +86,13 @@ section :guilabel:`Analytics for Matomo`:
 Administrators always have both. Error details from Matomo are shown to
 administrators only.
 
+The widgets of a site show the numbers of its Matomo site. If several TYPO3
+sites track into the same Matomo site, their visits, channels, devices and so on
+are shown together; only :guilabel:`Top pages` is limited to the URLs of the
+selected site. Use one Matomo site per TYPO3 site if editors of one site must
+not see the numbers of another. Top pages lists only pages and languages the
+user may access; URLs without a page are shown to administrators only.
+
 Caching
 =======
 

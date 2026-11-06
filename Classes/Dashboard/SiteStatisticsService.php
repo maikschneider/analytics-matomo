@@ -279,6 +279,6 @@ final readonly class SiteStatisticsService
      */
     private function key(string $report, MatomoConfiguration $configuration, Period $period): array
     {
-        return ['site', $report, $configuration->url, $configuration->idSite, $period->toMatomoDate()];
+        return ['site', $report, $configuration->getCacheIdentifier(), $period->toMatomoDate()];
     }
 }

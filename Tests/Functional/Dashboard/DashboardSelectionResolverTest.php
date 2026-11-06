@@ -70,11 +70,10 @@ final class DashboardSelectionResolverTest extends FunctionalTestCase
     #[Test]
     public function saveStoresTheSelectionOfTheUser(): void
     {
-        $user = $this->setUpBackendUser(1);
         $subject = $this->get(DashboardSelectionResolver::class);
 
-        self::assertTrue($subject->save($user, 'shop', 30));
-        $selection = $subject->resolve($user);
+        self::assertTrue($subject->save($this->setUpBackendUser(1), 'shop', 30));
+        $selection = $subject->resolve($this->setUpBackendUser(1));
 
         self::assertNotNull($selection);
         self::assertSame('shop', $selection->site->getIdentifier());

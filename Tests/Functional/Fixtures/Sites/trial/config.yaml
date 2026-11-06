@@ -1,4 +1,4 @@
-base: 'https://trial.example.net/'
+base: /
 rootPageId: 30
 dependencies:
   - maikschneider/analytics-matomo

@@ -32,7 +32,7 @@ final readonly class PageStatisticsService
         $period = Period::lastDays($days, $now);
 
         return $this->cache->remember(
-            ['page', $configuration->url, $configuration->idSite, $pageUrl, $period->toMatomoDate()],
+            ['page', $configuration->getCacheIdentifier(), $pageUrl, $period->toMatomoDate()],
             fn (): PageStatistics => $this->fetch($configuration, $pageUrl, $period),
         );
     }
