@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace MaikSchneider\AnalyticsMatomo\Tests\Unit\Statistics;
 
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
-use MaikSchneider\AnalyticsMatomo\Statistics\StatisticsCache;
+use MaikSchneider\AnalyticsMatomo\Tests\Unit\InMemoryCacheTrait;
 use PHPUnit\Framework\Attributes\Test;
-use TYPO3\CMS\Core\Cache\Backend\TransientMemoryBackend;
-use TYPO3\CMS\Core\Cache\Frontend\VariableFrontend;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 final class StatisticsCacheTest extends UnitTestCase
 {
+    use InMemoryCacheTrait;
+
     protected bool $resetSingletonInstances = true;
 
     private int $calls = 0;
@@ -20,7 +20,7 @@ final class StatisticsCacheTest extends UnitTestCase
     #[Test]
     public function buildsOncePerKey(): void
     {
-        $subject = new StatisticsCache(new VariableFrontend('test', new TransientMemoryBackend()));
+        $subject = $this->createStatisticsCache();
         $build = fn (): array => ['call' => ++$this->calls];
 
         $first = $subject->remember(['a', 1], $build);
@@ -33,7 +33,7 @@ final class StatisticsCacheTest extends UnitTestCase
     #[Test]
     public function doesNotCacheFailures(): void
     {
-        $subject = new StatisticsCache(new VariableFrontend('test', new TransientMemoryBackend()));
+        $subject = $this->createStatisticsCache();
         $calls = 0;
         $build = static function () use (&$calls): never {
             $calls++;

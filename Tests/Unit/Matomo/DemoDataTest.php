@@ -10,15 +10,15 @@ use MaikSchneider\AnalyticsMatomo\Dashboard\SiteStatisticsService;
 use MaikSchneider\AnalyticsMatomo\Matomo\DemoData;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoClient;
 use MaikSchneider\AnalyticsMatomo\Statistics\Period;
-use MaikSchneider\AnalyticsMatomo\Statistics\StatisticsCache;
+use MaikSchneider\AnalyticsMatomo\Tests\Unit\InMemoryCacheTrait;
 use PHPUnit\Framework\Attributes\Test;
-use TYPO3\CMS\Core\Cache\Backend\TransientMemoryBackend;
-use TYPO3\CMS\Core\Cache\Frontend\VariableFrontend;
 use TYPO3\CMS\Core\Http\RequestFactory;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 final class DemoDataTest extends UnitTestCase
 {
+    use InMemoryCacheTrait;
+
     protected bool $resetSingletonInstances = true;
 
     private MatomoConfiguration $configuration;
@@ -79,7 +79,7 @@ final class DemoDataTest extends UnitTestCase
     {
         $service = new SiteStatisticsService(
             new MatomoClient($this->createMock(RequestFactory::class)),
-            new StatisticsCache(new VariableFrontend('test', new TransientMemoryBackend())),
+            $this->createStatisticsCache(),
         );
 
         $performance = $service->getPerformance($this->configuration, $this->period);

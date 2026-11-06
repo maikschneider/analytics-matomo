@@ -9,9 +9,8 @@ use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoClient;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageMetrics;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageStatisticsService;
-use MaikSchneider\AnalyticsMatomo\Statistics\StatisticsCache;
+use MaikSchneider\AnalyticsMatomo\Tests\Unit\InMemoryCacheTrait;
 use PHPUnit\Framework\Attributes\Test;
-use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\DateTimeAspect;
 use TYPO3\CMS\Core\Http\RequestFactory;
@@ -21,6 +20,8 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 final class PageStatisticsServiceTest extends UnitTestCase
 {
+    use InMemoryCacheTrait;
+
     protected bool $resetSingletonInstances = true;
 
     #[Test]
@@ -83,17 +84,7 @@ final class PageStatisticsServiceTest extends UnitTestCase
         $context = new Context();
         $context->setAspect('date', new DateTimeAspect(new \DateTimeImmutable('2026-11-06 14:30:00')));
 
-        /** @var array<string, mixed> $entries */
-        $entries = [];
-        $cache = $this->createMock(FrontendInterface::class);
-        $cache->method('get')->willReturnCallback(static function (string $identifier) use (&$entries): mixed {
-            return $entries[$identifier] ?? false;
-        });
-        $cache->method('set')->willReturnCallback(static function (string $identifier, mixed $data) use (&$entries): void {
-            $entries[$identifier] = $data;
-        });
-
-        return new PageStatisticsService(new MatomoClient($requestFactory), $context, new StatisticsCache($cache));
+        return new PageStatisticsService(new MatomoClient($requestFactory), $context, $this->createStatisticsCache());
     }
 
     private function response(string $body): Response
