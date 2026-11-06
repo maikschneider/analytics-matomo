@@ -5,10 +5,12 @@
 ,3,1,"Über uns","/ueber-uns",1,1,2,1,1,31,1,0
 ,4,1,"Storage","/storage",254,0,0,1,0,31,31,0
 "be_groups"
-,"uid","pid","title","allowed_languages"
-,1,0,"Editors English only","0"
+,"uid","pid","title","allowed_languages","custom_options"
+,1,0,"Editors English only","0",""
+,2,0,"Page statistics","","analytics_matomo:pageStatistics"
 "be_users"
 ,"uid","pid","username","admin","usergroup","db_mountpoints"
 ,1,0,"admin",1,"",""
-,2,0,"editor",0,"","1"
-,3,0,"english-editor",0,"1","1"
+,2,0,"editor",0,"2","1"
+,3,0,"english-editor",0,"1,2","1"
+,4,0,"editor-without-statistics",0,"1","1"

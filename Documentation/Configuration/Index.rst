@@ -61,8 +61,21 @@ tracking token.
 Access
 ======
 
-Editors see the bar for pages they may show in the Page module and languages
-they may edit. Error details from Matomo are shown to administrators only.
+Statistics are opt-in per backend group. Grant them in the backend group
+record, tab :guilabel:`Access Rights`, field :guilabel:`Custom module options`,
+section :guilabel:`Analytics for Matomo`:
+
+:guilabel:`View page statistics` (`analytics_matomo:pageStatistics`)
+    The statistics bar in the Page module. Editors see it only for pages they
+    may show and languages they may edit.
+
+:guilabel:`View site statistics` (`analytics_matomo:siteStatistics`)
+    The dashboard widgets. Editors see only sites whose root page they may
+    show. The widgets themselves are granted as usual via
+    :guilabel:`Dashboard widgets`.
+
+Administrators always have both. Error details from Matomo are shown to
+administrators only.
 
 Caching
 =======

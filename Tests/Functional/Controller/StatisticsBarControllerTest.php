@@ -135,6 +135,13 @@ final class StatisticsBarControllerTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function returnsNotFoundWithoutPageStatisticsPermission(): void
+    {
+        self::assertSame(404, $this->callController(4, ['pageId' => '2'])->getStatusCode());
+        self::assertSame([], $this->sentRequests);
+    }
+
+    #[Test]
     public function hidesErrorDetailsFromEditors(): void
     {
         $this->matomoStatus = 401;

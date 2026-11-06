@@ -54,6 +54,22 @@ final class StatisticsBarListenerTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function addsNothingWithoutPageStatisticsPermission(): void
+    {
+        $GLOBALS['BE_USER'] = $this->setUpBackendUser(4);
+
+        self::assertSame('', $this->dispatch(2, [0]));
+    }
+
+    #[Test]
+    public function addsBarForEditorsWithPageStatisticsPermission(): void
+    {
+        $GLOBALS['BE_USER'] = $this->setUpBackendUser(3);
+
+        self::assertStringContainsString('tx-analytics-matomo--loading', $this->dispatch(2, [0]));
+    }
+
+    #[Test]
     public function addsNothingInLanguageComparison(): void
     {
         self::assertSame('', $this->dispatch(2, [0, 1]));

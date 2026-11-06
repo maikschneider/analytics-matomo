@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MaikSchneider\AnalyticsMatomo\Statistics;
 
+use MaikSchneider\AnalyticsMatomo\Authorization\StatisticsPermission;
 use MaikSchneider\AnalyticsMatomo\Configuration\MatomoConfigurationResolver;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
@@ -14,8 +15,9 @@ use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Type\Bitmask\Permission;
 
 /**
- * Decides whether statistics are shown for a page: the backend user may see
- * the page, the page has a frontend URL and its site has a Matomo connection.
+ * Decides whether statistics are shown for a page: the backend user has the page
+ * statistics permission and may see the page and language, the page has a
+ * frontend URL and its site has a Matomo connection.
  */
 final readonly class PageTargetResolver
 {
@@ -34,10 +36,10 @@ final readonly class PageTargetResolver
 
     public function resolve(int $pageId, int $languageId): ?PageTarget
     {
-        if ($pageId <= 0) {
+        $backendUser = $this->getBackendUser();
+        if ($pageId <= 0 || !StatisticsPermission::isGranted($backendUser, StatisticsPermission::PAGE)) {
             return null;
         }
-        $backendUser = $this->getBackendUser();
         $page = BackendUtility::readPageAccess($pageId, $backendUser->getPagePermsClause(Permission::PAGE_SHOW));
         if (!is_array($page) || in_array((int)($page['doktype'] ?? 0), self::DOKTYPES_WITHOUT_URL, true)) {
             return null;

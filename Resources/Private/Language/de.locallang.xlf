@@ -103,6 +103,26 @@
 				<source>Token of a Matomo user with view access to this site. Use an environment variable, e.g. %env(MATOMO_TOKEN)%, instead of the plain token.</source>
 				<target>Token eines Matomo-Benutzers mit Lesezugriff auf diese Website. Nutzen Sie eine Umgebungsvariable, z. B. %env(MATOMO_TOKEN)%, statt des Tokens im Klartext.</target>
 			</trans-unit>
+			<trans-unit id="permission.header" resname="permission.header">
+				<source>Analytics for Matomo</source>
+				<target>Analytics for Matomo</target>
+			</trans-unit>
+			<trans-unit id="permission.pageStatistics" resname="permission.pageStatistics">
+				<source>View page statistics</source>
+				<target>Seitenstatistiken ansehen</target>
+			</trans-unit>
+			<trans-unit id="permission.pageStatistics.description" resname="permission.pageStatistics.description">
+				<source>Shows the Matomo statistics of the current page in the Page module.</source>
+				<target>Zeigt die Matomo-Statistiken der aktuellen Seite im Seitenmodul.</target>
+			</trans-unit>
+			<trans-unit id="permission.siteStatistics" resname="permission.siteStatistics">
+				<source>View site statistics</source>
+				<target>Website-Statistiken ansehen</target>
+			</trans-unit>
+			<trans-unit id="permission.siteStatistics.description" resname="permission.siteStatistics.description">
+				<source>Allows the Matomo dashboard widgets with the numbers of whole sites.</source>
+				<target>Erlaubt die Matomo-Dashboard-Widgets mit den Zahlen ganzer Websites.</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

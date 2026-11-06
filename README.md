@@ -22,6 +22,7 @@ Shows Matomo statistics of the current page directly in the TYPO3 Page module: p
 * Statistics bar above the page content, loaded asynchronously, so a slow Matomo never slows down the Page module
 * Periods of 7, 14 and 30 days, link to the full report in Matomo
 * Uses the URL of the selected language
+* Opt-in per backend group: separate permissions for page and site statistics
 * One HTTP request per page and period, cached for an hour
 * Reuses the Matomo URL and site ID of EXT:matomo_integration, EXT:matomo_widgets or EXT:matomo_tracking
 
