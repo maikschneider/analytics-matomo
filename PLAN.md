@@ -4,7 +4,7 @@ Show Matomo statistics in the TYPO3 backend — a statistics bar for the current
 
 Research behind this plan: TYPO3GmbH/analytics 1.1.1 (`2cd555b`), pagemachine/typo3-matomo-tracking 2.0.0 (`0567f8c`), brotkrueml/typo3-matomo-widgets and matomo_integration, Matomo Reporting API checked live against demo.matomo.org (Matomo 6.0.0-rc1).
 
-Work is tracked as [GitHub issues](https://github.com/maikschneider/analytics-matomo/issues) in the milestones [0.2.0](https://github.com/maikschneider/analytics-matomo/milestone/1), [0.3.0](https://github.com/maikschneider/analytics-matomo/milestone/2) and [1.0.0](https://github.com/maikschneider/analytics-matomo/milestone/3).
+Work is tracked as [GitHub issues](https://github.com/maikschneider/analytics-matomo/issues) in the milestones listed under [Roadmap](#roadmap).
 
 ## Feature parity with TYPO3GmbH/analytics
 
@@ -122,9 +122,19 @@ TYPO3 cache `analytics_matomo` (default `VariableFrontend` + database backend), 
 | TYPO3 | 13.4, 14.3 | v13 reads language/view from module data, v14 from `PageContext`; requires EXT:dashboard |
 | Matomo | 5.x, 6.x | API surface is long-standing; checked live against 6.0.0-rc1 only ([#15](https://github.com/maikschneider/analytics-matomo/issues/15)) |
 
-## Milestones
+## Roadmap
 
-1. **0.1 — statistics bar**: config + fallbacks, client, bar with 4 tiles, period select, link to Matomo, caching, tests, CI. *Done.*
-2. **0.2.0 — parity with t3g/analytics**: strict SCA (#1), permissions (#4), parity matrix (#3), dashboard widgets (#5–#9), demo data (#10), fixtures (#11). *Done.*
-3. **0.3.0**: native widget settings on v14 (#12), connection status in the Reports module (#13), Transitions (#14).
-4. **1.0.0**: verify against real Matomo 5 + 6 with a view token (#15), TER + Packagist release after Maik's go (#16).
+All planned features must work with Matomo core (no premium plugins) and a view-only token.
+
+| Milestone | Scope |
+|---|---|
+| 0.1 | Statistics bar: config + fallbacks, client, 4 tiles, period select, caching, CI. *Done.* |
+| [0.2.0](https://github.com/maikschneider/analytics-matomo/milestone/1) | Parity with t3g/analytics: strict SCA, permissions, dashboard widgets, demo data, fixtures (#1–#11). *Done.* |
+| [0.3.0](https://github.com/maikschneider/analytics-matomo/milestone/2) | v14 widget settings (#12), health check (#13), Transitions (#14) with outlinks/downloads (#18), per-feature permissions (#17), token check (#19) |
+| [0.4.0](https://github.com/maikschneider/analytics-matomo/milestone/4) | Editor insights: page speed (#20), languages (#21), goals (#22), trending pages (#23), site search (#24), reading time (#25) |
+| [0.5.0](https://github.com/maikschneider/analytics-matomo/milestone/5) | Content workflow: URL-to-page mapper (#26), annotations (#27), page tree badges (#28), content cleanup (#29) |
+| [0.6.0](https://github.com/maikschneider/analytics-matomo/milestone/6) | Admin monitoring: multi-site overview (#30), anomaly alerts (#31), weekly digest (#32) |
+| [1.0.0](https://github.com/maikschneider/analytics-matomo/milestone/3) | Real Matomo 5 + 6 with a view token (#15), site-side setup docs (#33), first TER + Packagist release (#16) |
+| [Backlog](https://github.com/maikschneider/analytics-matomo/milestone/7) | 404 → redirect suggestions (#34) |
+
+Not planned, as Matomo core has no built-in report for them or a view token can't read them: consent rate (declined visitors send nothing), scroll depth and media clicks (only custom events without a per-page report; Heatmaps and Media Analytics are premium), exact archiving status (needs a superuser token).
