@@ -130,8 +130,9 @@ are granted in the backend group record, tab :guilabel:`Access Rights`, field
 :guilabel:`Custom module options`, section :guilabel:`Analytics for Matomo`:
 
 :guilabel:`View page statistics` (`analytics_matomo:pageStatistics`)
-    The statistics bar in the Page module. Editors see it only for pages they
-    may show and languages they may edit.
+    The statistics bar in the Page module and the views in the page tree and
+    List module. Editors see it only for pages they may show and languages
+    they may edit.
 
 :guilabel:`View site statistics` (`analytics_matomo:siteStatistics`)
     The dashboard widgets. Editors see only sites whose root page they may

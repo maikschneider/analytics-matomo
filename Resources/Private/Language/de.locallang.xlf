@@ -139,6 +139,10 @@
 				<source>Lists pages without views and old pages with traffic in the Matomo module (Behaviour).</source>
 				<target>Listet im Matomo-Modul (Verhalten) Seiten ohne Aufrufe und alte Seiten mit Aufrufen.</target>
 			</trans-unit>
+			<trans-unit id="pageViews.title" resname="pageViews.title">
+				<source>Matomo: %1$s views in the last %2$d days, %3$s in the %2$d days before</source>
+				<target>Matomo: %1$s Aufrufe in den letzten %2$d Tagen, %3$s in den %2$d Tagen davor</target>
+			</trans-unit>
 			<trans-unit id="widget.group" resname="widget.group">
 				<source>Matomo</source>
 				<target>Matomo</target>

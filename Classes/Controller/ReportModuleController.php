@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace MaikSchneider\AnalyticsMatomo\Controller;
 
+use MaikSchneider\AnalyticsMatomo\Authorization\StatisticsPermission;
 use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelection;
 use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelectionResolver;
+use MaikSchneider\AnalyticsMatomo\EventListener\PageViewsListener;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
 use MaikSchneider\AnalyticsMatomo\Module\AllSitesService;
 use MaikSchneider\AnalyticsMatomo\Module\ContentReviewService;
@@ -35,7 +37,9 @@ use TYPO3\CMS\Backend\Attribute\AsController;
 use TYPO3\CMS\Backend\Module\ModuleData;
 use TYPO3\CMS\Backend\Module\ModuleInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Backend\Template\Components\ButtonBar;
 use TYPO3\CMS\Backend\Template\Components\Buttons\DropDown\DropDownRadio;
+use TYPO3\CMS\Backend\Template\Components\Buttons\DropDown\DropDownToggle;
 use TYPO3\CMS\Backend\Template\Components\Buttons\DropDownButton;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
@@ -43,6 +47,8 @@ use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Http\Response;
+use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Imaging\IconSize;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Site\SiteFinder;
@@ -82,6 +88,7 @@ final readonly class ReportModuleController
         private SegmentService $segmentService,
         private AllSitesService $allSitesService,
         private ContentReviewService $contentReviewService,
+        private IconFactory $iconFactory,
     ) {
     }
 
@@ -112,6 +119,7 @@ final readonly class ReportModuleController
             'title' => $this->translate($pages[$report] ?? self::LABELS . 'section.' . $section),
             'll' => self::LABELS,
             'pageId' => $pageId,
+            'refreshPageTree' => $this->settingsMenu($template, $route, $pageId, $parameters, $user),
         ];
 
         if ($pageId === 0) {
@@ -566,6 +574,34 @@ final readonly class ReportModuleController
             ->withHeader('Content-Type', 'text/csv; charset=utf-8')
             ->withHeader('Content-Disposition', 'attachment; filename="' . preg_replace('/[^A-Za-z0-9_.-]/', '_', $name) . '.csv"')
             ->withHeader('Cache-Control', 'no-store');
+    }
+
+    /**
+     * Personal settings of the user; saving one returns true, as the page tree then has to reload
+     *
+     * @param array<string, mixed> $parameters
+     */
+    private function settingsMenu(ModuleTemplate $template, string $route, int $pageId, array $parameters, BackendUserAuthentication $user): bool
+    {
+        if (!StatisticsPermission::isGranted($user, StatisticsPermission::PAGE)) {
+            return false;
+        }
+        $changed = isset($parameters['pageTreeViews']);
+        if ($changed) {
+            $user->uc['analytics_matomo'][PageViewsListener::USER_SETTING] = (bool)$parameters['pageTreeViews'];
+            $user->writeUC();
+            $this->pageRenderer->loadJavaScriptModule('@maikschneider/analytics-matomo/module-filters.js');
+        }
+        $enabled = PageViewsListener::isEnabled($user);
+        $button = GeneralUtility::makeInstance(DropDownButton::class)
+            ->setLabel($this->label('control.settings'))
+            ->setIcon($this->iconFactory->getIcon('actions-cog', IconSize::SMALL))
+            ->addItem(GeneralUtility::makeInstance(DropDownToggle::class)
+                ->setLabel($this->label('settings.pageTreeViews'))
+                ->setActive($enabled)
+                ->setHref((string)$this->uriBuilder->buildUriFromRoute($route, ['id' => $pageId, 'pageTreeViews' => $enabled ? 0 : 1])));
+        $template->getDocHeaderComponent()->getButtonBar()->addButton($button, ButtonBar::BUTTON_POSITION_RIGHT);
+        return $changed;
     }
 
     /**

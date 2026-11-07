@@ -186,6 +186,25 @@ access from the Page module, so a slow or unreachable Matomo never slows down
 the module. Pages without a frontend URL (folders, sys folders, links) get no
 bar.
 
+Views in the page tree
+======================
+
+:guilabel:`Settings > Show views in the page tree` in the Matomo Analytics
+module shows the page views of the last 30 days next to every page in the page
+tree, and as a button to page details in the List module. An arrow marks pages
+that rose or fell against the 30 days before, with the thresholds of trending
+pages; the tooltip shows both numbers. Views of all languages the user may
+access are added up. A dash means unknown: Matomo truncated its page report and
+the page may be among the cut rows. For at most 20 visible pages per request,
+unknown counts fall back to a bulk lookup of the page's canonical URLs in its
+accessible translations. The result is cached per URL, not tree level. A failed
+fallback keeps the dash. Folders, shortcuts and links get no views.
+
+The setting is per user and off by default. It needs the page statistics
+permission. One cached request per site and hour answers every tree level; when
+Matomo is unreachable, the tree shows no views and asks again after five
+minutes.
+
 Dashboard widgets
 =================
 
