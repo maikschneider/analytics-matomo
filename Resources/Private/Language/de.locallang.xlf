@@ -171,38 +171,6 @@
 				<source>The most viewed pages of a site with their share and trend.</source>
 				<target>Die meistaufgerufenen Seiten einer Website mit Anteil und Trend.</target>
 			</trans-unit>
-			<trans-unit id="widget.channel" resname="widget.channel">
-				<source>Channels</source>
-				<target>Kanäle</target>
-			</trans-unit>
-			<trans-unit id="widget.channel.description" resname="widget.channel.description">
-				<source>Where visitors come from: search engines, websites, direct entry, campaigns and more.</source>
-				<target>Woher Besucher kommen: Suchmaschinen, Websites, direkte Zugriffe, Kampagnen und mehr.</target>
-			</trans-unit>
-			<trans-unit id="widget.devices" resname="widget.devices">
-				<source>Devices</source>
-				<target>Geräte</target>
-			</trans-unit>
-			<trans-unit id="widget.devices.description" resname="widget.devices.description">
-				<source>Visits by device type.</source>
-				<target>Besuche nach Gerätetyp.</target>
-			</trans-unit>
-			<trans-unit id="widget.browsers" resname="widget.browsers">
-				<source>Browsers</source>
-				<target>Browser</target>
-			</trans-unit>
-			<trans-unit id="widget.browsers.description" resname="widget.browsers.description">
-				<source>Visits by browser.</source>
-				<target>Besuche nach Browser.</target>
-			</trans-unit>
-			<trans-unit id="widget.countries" resname="widget.countries">
-				<source>Countries</source>
-				<target>Länder</target>
-			</trans-unit>
-			<trans-unit id="widget.countries.description" resname="widget.countries.description">
-				<source>Visits by country.</source>
-				<target>Besuche nach Land.</target>
-			</trans-unit>
 			<trans-unit id="widget.site" resname="widget.site">
 				<source>Site</source>
 				<target>Website</target>
@@ -211,13 +179,13 @@
 				<source>Page</source>
 				<target>Seite</target>
 			</trans-unit>
+			<trans-unit id="widget.details" resname="widget.details">
+				<source>Details</source>
+				<target>Details</target>
+			</trans-unit>
 			<trans-unit id="widget.change" resname="widget.change">
 				<source>Change</source>
 				<target>Veränderung</target>
-			</trans-unit>
-			<trans-unit id="widget.other" resname="widget.other">
-				<source>Other</source>
-				<target>Sonstige</target>
 			</trans-unit>
 			<trans-unit id="widget.noData" resname="widget.noData">
 				<source>No visits in this period.</source>

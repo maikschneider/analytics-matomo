@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace MaikSchneider\AnalyticsMatomo\Tests\Unit\Dashboard;
 
 use MaikSchneider\AnalyticsMatomo\Configuration\MatomoConfiguration;
-use MaikSchneider\AnalyticsMatomo\Dashboard\Breakdown;
 use MaikSchneider\AnalyticsMatomo\Dashboard\SiteStatisticsService;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoClient;
@@ -115,52 +114,6 @@ final class SiteStatisticsServiceTest extends UnitTestCase
     public function getTopPagesOfAPeriodWithoutVisitsIsEmpty(): void
     {
         self::assertSame([], $this->subject('EmptyTopPages')->getTopPages($this->configuration(), $this->period()));
-    }
-
-    #[Test]
-    public function getBreakdownSendsTheLanguageAndComparesShares(): void
-    {
-        $breakdown = $this->subject('Referrers.getReferrerType')->getBreakdown($this->configuration(), $this->period(), Breakdown::CHANNEL, 'de');
-
-        self::assertSame('de', $this->sentBody['language']);
-        self::assertSame(29, $breakdown->total);
-        self::assertSame(['Suchmaschinen', 'Direkte Zugriffe', 'KI-Assistenten'], array_column($breakdown->rows, 'label'));
-        self::assertSame(23, $breakdown->rows[0]->visits);
-        self::assertEqualsWithDelta(23 / 29, $breakdown->rows[0]->share, 0.0001);
-        // 14 of 29 visits before: +31.0 percentage points
-        self::assertEqualsWithDelta(23 / 29 - 14 / 29, $breakdown->rows[0]->shareChange, 0.0001);
-        self::assertNull($breakdown->rows[2]->shareChange);
-    }
-
-    #[Test]
-    public function getBreakdownGroupsTheRestAsOtherAndSkipsRowsWithoutVisits(): void
-    {
-        $browsers = $this->subject('DevicesDetection.getBrowsers')->getBreakdown($this->configuration(), $this->period(), Breakdown::BROWSERS, 'de');
-
-        self::assertSame(['Chrome', 'Chrome Mobile', 'Microsoft Edge', 'Safari', ''], array_column($browsers->rows, 'label'));
-        self::assertTrue($browsers->rows[4]->isOther);
-        self::assertSame(3, $browsers->rows[4]->visits);
-
-        $devices = $this->subject('DevicesDetection.getType')->getBreakdown($this->configuration(), $this->period(), Breakdown::DEVICES, 'de');
-
-        self::assertSame(['Desktop', 'Smartphone', 'Tablet', 'TV'], array_column($devices->rows, 'label'));
-    }
-
-    #[Test]
-    public function getBreakdownOfAPeriodWithoutVisitsIsEmpty(): void
-    {
-        $breakdown = $this->subject('EmptyBreakdown')->getBreakdown($this->configuration(), $this->period(), Breakdown::COUNTRIES, 'de');
-
-        self::assertSame(0, $breakdown->total);
-        self::assertSame([], $breakdown->rows);
-    }
-
-    #[Test]
-    public function getBreakdownRejectsUnknownReports(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-
-        $this->subject('EmptyBreakdown')->getBreakdown($this->configuration(), $this->period(), 'Live.getLastVisitsDetails', 'de');
     }
 
     #[Test]

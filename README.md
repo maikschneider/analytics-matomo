@@ -20,7 +20,8 @@ Shows Matomo statistics in the TYPO3 backend: a statistics bar for the current p
 ## ✨ Features
 
 * Statistics bar above the page content: page views, bounce rate, average time on page and exit rate with trend and sparkline, loaded asynchronously, so a slow Matomo never slows down the Page module
-* Dashboard widgets: site performance, visits over time, top pages (linked to the Page module), channels, devices, browsers and countries, plus the dashboard preset **Matomo overview**
+* Matomo Analytics backend module with Visitors, Behaviour and Acquisition reports for the selected site, page subtree and language
+* Dashboard widgets: site performance, visits over time and top pages, each linking to its module report, plus the dashboard preset **Matomo overview**
 * Several sites per Matomo instance: all widgets show the site and period chosen by the editor, top pages only list URLs of that site
 * Periods of 7, 14 and 30 days, link to the full report in Matomo
 * Uses the URL of the selected language

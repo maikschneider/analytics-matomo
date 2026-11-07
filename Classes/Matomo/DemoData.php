@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace MaikSchneider\AnalyticsMatomo\Matomo;
 
 use MaikSchneider\AnalyticsMatomo\Configuration\MatomoConfiguration;
-use MaikSchneider\AnalyticsMatomo\Dashboard\Breakdown;
 
 /**
  * Generated Reporting API answers for trying out the extension without a Matomo
@@ -163,7 +162,6 @@ final readonly class DemoData
             'Actions.get' => ['nb_pageviews' => $this->pageViews($site, $dates)],
             'Actions.getPageUrl' => [$this->pageRow($site, (string)($request['pageUrl'] ?? ''), $dates)],
             'Actions.getPageUrls' => $this->pageUrls($site, $pageUrls, $dates, (int)($request['filter_limit'] ?? -1)),
-            Breakdown::CHANNEL, Breakdown::DEVICES, Breakdown::BROWSERS, Breakdown::COUNTRIES => $this->breakdown($site, $method, $dates),
             default => throw new MatomoApiException('The demo data have no answer for ' . $method, 1793960301),
         };
     }
@@ -389,21 +387,6 @@ final readonly class DemoData
         $rows = array_map(fn (string $url): array => $this->pageRow($site, $url, $dates), $pageUrls);
         usort($rows, static fn (array $a, array $b): int => $b['nb_hits'] <=> $a['nb_hits']);
         return $limit > 0 ? array_slice($rows, 0, $limit) : $rows;
-    }
-
-    /**
-     * @param list<string> $dates
-     * @return list<array{label: string, nb_visits: int}>
-     */
-    private function breakdown(string $site, string $method, array $dates): array
-    {
-        $rows = [];
-        foreach ($this->labels($method) as $label => $percent) {
-            $label = (string)$label;
-            $rows[] = ['label' => $label, 'nb_visits' => $this->labelVisits($site, $label, $percent, $dates)];
-        }
-        usort($rows, static fn (array $a, array $b): int => $b['nb_visits'] <=> $a['nb_visits']);
-        return $rows;
     }
 
     /**

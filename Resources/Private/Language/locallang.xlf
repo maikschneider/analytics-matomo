@@ -129,41 +129,17 @@
 			<trans-unit id="widget.topPages.description" resname="widget.topPages.description">
 				<source>The most viewed pages of a site with their share and trend.</source>
 			</trans-unit>
-			<trans-unit id="widget.channel" resname="widget.channel">
-				<source>Channels</source>
-			</trans-unit>
-			<trans-unit id="widget.channel.description" resname="widget.channel.description">
-				<source>Where visitors come from: search engines, websites, direct entry, campaigns and more.</source>
-			</trans-unit>
-			<trans-unit id="widget.devices" resname="widget.devices">
-				<source>Devices</source>
-			</trans-unit>
-			<trans-unit id="widget.devices.description" resname="widget.devices.description">
-				<source>Visits by device type.</source>
-			</trans-unit>
-			<trans-unit id="widget.browsers" resname="widget.browsers">
-				<source>Browsers</source>
-			</trans-unit>
-			<trans-unit id="widget.browsers.description" resname="widget.browsers.description">
-				<source>Visits by browser.</source>
-			</trans-unit>
-			<trans-unit id="widget.countries" resname="widget.countries">
-				<source>Countries</source>
-			</trans-unit>
-			<trans-unit id="widget.countries.description" resname="widget.countries.description">
-				<source>Visits by country.</source>
-			</trans-unit>
 			<trans-unit id="widget.site" resname="widget.site">
 				<source>Site</source>
 			</trans-unit>
 			<trans-unit id="widget.page" resname="widget.page">
 				<source>Page</source>
 			</trans-unit>
+			<trans-unit id="widget.details" resname="widget.details">
+				<source>Details</source>
+			</trans-unit>
 			<trans-unit id="widget.change" resname="widget.change">
 				<source>Change</source>
-			</trans-unit>
-			<trans-unit id="widget.other" resname="widget.other">
-				<source>Other</source>
 			</trans-unit>
 			<trans-unit id="widget.noData" resname="widget.noData">
 				<source>No visits in this period.</source>

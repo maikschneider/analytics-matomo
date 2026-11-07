@@ -121,24 +121,3 @@
     border-radius: inherit;
     background: var(--typo3-text-color-primary);
 }
-
-.tx-analytics-matomo-swatch {
-    display: inline-block;
-    width: .625rem;
-    height: .625rem;
-    margin-inline-end: .25rem;
-    border-radius: 50%;
-    background: var(--tx-analytics-matomo-swatch);
-}
-
-.tx-analytics-matomo-breakdown--doughnut {
-    display: grid;
-    grid-template-columns: minmax(6rem, 10rem) minmax(0, 1fr);
-    gap: 1rem;
-    align-items: center;
-}
-
-.tx-analytics-matomo-doughnut {
-    position: relative;
-    aspect-ratio: 1;
-}

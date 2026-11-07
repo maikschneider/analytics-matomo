@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace MaikSchneider\AnalyticsMatomo\Dashboard\Widget;
 
 use MaikSchneider\AnalyticsMatomo\Authorization\StatisticsPermission;
-use MaikSchneider\AnalyticsMatomo\Dashboard\Breakdown;
 use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelection;
 use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelectionResolver;
 use MaikSchneider\AnalyticsMatomo\Dashboard\SiteStatisticsService;
@@ -40,15 +39,14 @@ final class MatomoWidget implements WidgetInterface, RequestAwareWidgetInterface
     public const REPORT_PERFORMANCE = 'performance';
     public const REPORT_TRAFFIC = 'traffic';
     public const REPORT_TOP_PAGES = 'topPages';
-    private const BREAKDOWN_REPORTS = [
-        'channel' => Breakdown::CHANNEL,
-        'devices' => Breakdown::DEVICES,
-        'browsers' => Breakdown::BROWSERS,
-        'countries' => Breakdown::COUNTRIES,
+    /** Module section and report page with the details of each widget */
+    private const DETAILS = [
+        self::REPORT_PERFORMANCE => ['analytics_matomo_visitors', 'overview'],
+        self::REPORT_TRAFFIC => ['analytics_matomo_visitors', 'overview'],
+        self::REPORT_TOP_PAGES => ['analytics_matomo_behaviour', 'pages'],
     ];
-    private const DOUGHNUT_REPORTS = ['devices', 'browsers'];
     private const TOP_PAGES = 10;
-    private const CHART_COLORS = ['#ff8700', '#0078e6', '#79a548', '#a855f7', '#8a8a8a'];
+    private const CHART_COLORS = ['#ff8700', '#0078e6', '#79a548', '#a855f7'];
 
     private ?ServerRequestInterface $request = null;
 
@@ -94,6 +92,10 @@ final class MatomoWidget implements WidgetInterface, RequestAwareWidgetInterface
         ];
         if ($selection !== null) {
             $variables['reportUrl'] = $selection->configuration->getReportUrl($selection->period);
+            [$module, $page] = self::DETAILS[$report] ?? ['', ''];
+            if ($module !== '' && $backendUser->check('modules', 'analytics_matomo') && $backendUser->check('modules', $module)) {
+                $variables['detailsUrl'] = (string)$this->uriBuilder->buildUriFromRoute($module, ['report' => $page]);
+            }
             try {
                 $variables += $this->loadReport($report, $selection);
             } catch (MatomoApiException $e) {
@@ -147,7 +149,7 @@ final class MatomoWidget implements WidgetInterface, RequestAwareWidgetInterface
     public function getJavaScriptModuleInstructions(): array
     {
         $instructions = [JavaScriptModuleInstruction::create('@maikschneider/analytics-matomo/dashboard-widget.js')];
-        if (($this->options['report'] ?? '') === self::REPORT_TRAFFIC || in_array($this->options['report'] ?? '', self::DOUGHNUT_REPORTS, true)) {
+        if (($this->options['report'] ?? '') === self::REPORT_TRAFFIC) {
             $instructions[] = JavaScriptModuleInstruction::create('@typo3/dashboard/contrib/chartjs.js');
             $instructions[] = JavaScriptModuleInstruction::create('@typo3/dashboard/chart-initializer.js');
         }
@@ -175,32 +177,6 @@ final class MatomoWidget implements WidgetInterface, RequestAwareWidgetInterface
         if ($report === self::REPORT_TOP_PAGES) {
             $pages = $this->topPages($selection);
             return ['pages' => $pages, 'isEmpty' => $pages === []];
-        }
-        if (isset(self::BREAKDOWN_REPORTS[$report])) {
-            $breakdown = $this->statisticsService->getBreakdown($selection->configuration, $selection->period, self::BREAKDOWN_REPORTS[$report], $this->getLanguageCode());
-            $rows = [];
-            foreach ($breakdown->rows as $index => $row) {
-                $rows[] = [
-                    'label' => $row->isOther ? $this->getLanguageService()->sL('LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:widget.other') : $row->label,
-                    'visits' => $row->visits,
-                    'share' => $this->percent($row->share),
-                    'shareWidth' => round($row->share * 100, 1),
-                    'shareChange' => $row->shareChange === null ? null : $this->signedPoints($row->shareChange),
-                    'shareChangeRating' => $row->shareChange === null || round($row->shareChange, 3) === 0.0 ? null : ($row->shareChange > 0 ? 'positive' : 'negative'),
-                    'color' => self::CHART_COLORS[$index % count(self::CHART_COLORS)],
-                ];
-            }
-            if (in_array($report, self::DOUGHNUT_REPORTS, true) && $rows !== []) {
-                $this->eventData = ['graphConfig' => [
-                    'type' => 'doughnut',
-                    'data' => [
-                        'labels' => array_column($rows, 'label'),
-                        'datasets' => [['data' => array_column($rows, 'visits'), 'backgroundColor' => array_column($rows, 'color')]],
-                    ],
-                    'options' => ['maintainAspectRatio' => false, 'cutout' => '60%', 'plugins' => ['legend' => ['display' => false]]],
-                ]];
-            }
-            return ['rows' => $rows, 'total' => $breakdown->total, 'isEmpty' => $rows === [], 'isDoughnut' => in_array($report, self::DOUGHNUT_REPORTS, true)];
         }
         throw new \InvalidArgumentException('Unknown Matomo widget report "' . $report . '"', 1793960201);
     }
@@ -295,16 +271,6 @@ final class MatomoWidget implements WidgetInterface, RequestAwareWidgetInterface
     private function signedPercent(float $ratio): string
     {
         return ($ratio > 0 ? '+' : '−') . $this->percent(abs($ratio));
-    }
-
-    private function signedPoints(float $ratio): string
-    {
-        return ($ratio > 0 ? '+' : '−') . number_format(abs($ratio) * 100, 1) . ' pp';
-    }
-
-    private function getLanguageCode(): string
-    {
-        return $this->getLanguageService()->getLocale()?->getLanguageCode() ?? 'en';
     }
 
     private function getBackendUser(): BackendUserAuthentication

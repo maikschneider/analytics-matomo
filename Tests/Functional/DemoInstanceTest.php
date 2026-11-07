@@ -138,13 +138,14 @@ final class DemoInstanceTest extends FunctionalTestCase
     public function adminAndEditorGetTheMatomoDashboard(): void
     {
         foreach ([1, self::EDITOR] as $backendUserId) {
-            $dashboards = $this->get(DashboardInitializationService::class)->getDashboardsForUser($this->setUpBackendUser($backendUserId));
+            $GLOBALS['BE_USER'] = $this->setUpBackendUser($backendUserId);
+            $GLOBALS['LANG'] = $this->get(LanguageServiceFactory::class)->createFromUserPreferences($GLOBALS['BE_USER']);
+            $dashboards = $this->get(DashboardInitializationService::class)->getDashboardsForUser($GLOBALS['BE_USER']);
             $dashboard = reset($dashboards);
             self::assertInstanceOf(Dashboard::class, $dashboard);
             $widgets = array_column($dashboard->getWidgetConfig(), 'identifier');
 
-            self::assertContains('analyticsMatomoTopPages', $widgets);
-            self::assertContains('analyticsMatomoCountries', $widgets);
+            self::assertSame(['analyticsMatomoPerformance', 'analyticsMatomoTraffic', 'analyticsMatomoTopPages'], $widgets);
         }
         self::assertSame(['cycles', 'live', 'rental'], array_keys($this->get(DashboardSelectionResolver::class)->getSites($this->setUpBackendUser(self::EDITOR))));
     }

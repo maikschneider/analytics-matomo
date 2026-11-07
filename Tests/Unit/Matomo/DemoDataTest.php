@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace MaikSchneider\AnalyticsMatomo\Tests\Unit\Matomo;
 
 use MaikSchneider\AnalyticsMatomo\Configuration\MatomoConfiguration;
-use MaikSchneider\AnalyticsMatomo\Dashboard\Breakdown;
 use MaikSchneider\AnalyticsMatomo\Dashboard\SiteStatisticsService;
 use MaikSchneider\AnalyticsMatomo\Matomo\DemoData;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoClient;
@@ -117,10 +116,6 @@ final class DemoDataTest extends UnitTestCase
         $pages = $service->getTopPages($this->configuration, $this->period);
         self::assertStringStartsWith('https://example.com/', $pages[0]->url);
         self::assertGreaterThan(0, $pages[0]->previousViews);
-
-        foreach ([Breakdown::CHANNEL, Breakdown::DEVICES, Breakdown::BROWSERS, Breakdown::COUNTRIES] as $breakdown) {
-            self::assertNotSame([], $service->getBreakdown($this->configuration, $this->period, $breakdown, 'en')->rows, $breakdown);
-        }
     }
 
     #[Test]

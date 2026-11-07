@@ -18,7 +18,6 @@ final readonly class SiteStatisticsService
 {
     private const TOP_PAGES_LIMIT = 50;
     private const PREVIOUS_PAGES_LIMIT = 500;
-    private const BREAKDOWN_ROWS = 4;
 
     public function __construct(
         private MatomoClient $client,
@@ -123,62 +122,6 @@ final readonly class SiteStatisticsService
             }
             return $pages;
         });
-    }
-
-    /**
-     * @param string $method one of Breakdown::METHODS
-     * @param string $language language of the labels, e.g. 'de'
-     * @throws MatomoApiException
-     */
-    public function getBreakdown(MatomoConfiguration $configuration, Period $period, string $method, string $language): Breakdown
-    {
-        if (!in_array($method, Breakdown::METHODS, true)) {
-            throw new \InvalidArgumentException('Unknown breakdown report ' . $method, 1793960101);
-        }
-        return $this->cache->remember($this->key($method . '.' . $language, $configuration, $period), function () use ($configuration, $period, $method, $language): Breakdown {
-            $request = ['method' => $method, 'format_metrics' => 0, 'filter_limit' => -1, 'showColumns' => 'nb_visits'];
-            [$current, $previous] = $this->client->bulkRequest($configuration, [
-                $request + $this->range($period),
-                $request + $this->range($period->previous()),
-            ], $language);
-
-            $currentVisits = $this->visitsByLabel($current);
-            $previousVisits = $this->visitsByLabel($previous);
-            $total = array_sum($currentVisits);
-            $previousTotal = array_sum($previousVisits);
-            if ($total === 0) {
-                return new Breakdown(0, []);
-            }
-
-            $rows = [];
-            foreach (array_slice($currentVisits, 0, self::BREAKDOWN_ROWS, true) as $label => $visits) {
-                $share = $visits / $total;
-                $previousShare = ($previousVisits[$label] ?? 0) > 0 ? $previousVisits[$label] / $previousTotal : null;
-                $rows[] = new BreakdownRow((string)$label, $visits, $share, $previousShare === null ? null : $share - $previousShare);
-            }
-            $otherVisits = array_sum(array_slice($currentVisits, self::BREAKDOWN_ROWS));
-            if ($otherVisits > 0) {
-                $rows[] = new BreakdownRow('', $otherVisits, $otherVisits / $total, null, true);
-            }
-            return new Breakdown($total, $rows);
-        });
-    }
-
-    /**
-     * @return array<string, int> visits per label, largest first, without labels without visits
-     * @throws MatomoApiException
-     */
-    private function visitsByLabel(mixed $result): array
-    {
-        $visits = [];
-        foreach ($this->rows($result) as $row) {
-            $count = (int)($row['nb_visits'] ?? 0);
-            if ($count > 0) {
-                $visits[(string)($row['label'] ?? '')] = $count;
-            }
-        }
-        arsort($visits);
-        return $visits;
     }
 
     /**

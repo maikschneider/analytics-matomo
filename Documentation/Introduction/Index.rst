@@ -9,6 +9,8 @@ Introduction
 The extension shows Matomo statistics in the Matomo Analytics backend module,
 a statistics bar in the Page module and widgets on the dashboard.
 
+..  _module:
+
 Matomo Analytics module
 =======================
 
@@ -103,8 +105,11 @@ The widget group :guilabel:`Matomo` offers:
     per day
 *   :guilabel:`Top pages`: the ten most viewed pages with share and trend,
     linked to the Page module
-*   :guilabel:`Channels`, :guilabel:`Devices`, :guilabel:`Browsers` and
-    :guilabel:`Countries`: visits by traffic source
+
+Each widget links to its report page in the :ref:`Matomo Analytics module
+<module>` (:guilabel:`Visitors > Overview` or :guilabel:`Behaviour > Pages`)
+when the user may open that section. Channels, devices, browsers and
+countries are reports in the module.
 
 The dashboard preset :guilabel:`Matomo overview` adds all of them at once.
 

@@ -118,33 +118,36 @@ final class MatomoWidgetTest extends FunctionalTestCase
     }
 
     #[Test]
-    public function devicesSkipTypesWithoutVisitsAndProvideTheDoughnut(): void
+    public function widgetsLinkToTheirModuleReportForUsersWithModuleAccess(): void
     {
-        $widget = $this->widget(1, 'analyticsMatomoDevices');
-        $this->fixture = 'DevicesDetection.getType';
+        $links = [
+            'analyticsMatomoPerformance' => ['SitePerformance', '/module/analytics-matomo/visitors?token=', 'report=overview'],
+            'analyticsMatomoTraffic' => ['Traffic', '/module/analytics-matomo/visitors?token=', 'report=overview'],
+            'analyticsMatomoTopPages' => ['TopPagesMainSite', '/module/analytics-matomo/behaviour?token=', 'report=pages'],
+        ];
+        foreach ($links as $identifier => [$fixture, $route, $report]) {
+            $html = $this->render(1, $identifier, $fixture);
+            self::assertMatchesRegularExpression('#<a class="widget-cta" href="[^"]*' . preg_quote($route, '#') . '[^"]*' . $report . '"#', $html, $identifier);
+            self::assertStringNotContainsString($route, $this->render(5, $identifier, $fixture), $identifier);
+        }
 
-        $html = $widget->renderWidgetContent();
-
-        self::assertStringContainsString('Desktop', $html);
-        self::assertStringNotContainsString('Feature-Phone', $html);
-        self::assertSame('doughnut', $widget->getEventData()['graphConfig']['type']);
-        parse_str((string)$this->sentRequests[0]->getBody(), $body);
-        self::assertSame('en', $body['language']);
+        $this->get(ConnectionPool::class)->getConnectionForTable('be_groups')->update('be_groups', ['groupMods' => 'analytics_matomo,analytics_matomo_behaviour'], ['uid' => 1]);
+        self::assertStringContainsString('/module/analytics-matomo/behaviour?token=', $this->render(5, 'analyticsMatomoTopPages', 'TopPagesMainSite'));
+        self::assertStringNotContainsString('/module/analytics-matomo/visitors?token=', $this->render(5, 'analyticsMatomoPerformance', 'SitePerformance'));
     }
 
     #[Test]
-    public function channelComparesSharesInPercentagePoints(): void
+    public function onlyTheEntryPointWidgetsAreRegistered(): void
     {
-        $html = $this->render(1, 'analyticsMatomoChannel', 'Referrers.getReferrerType');
+        $identifiers = array_filter(array_keys($this->get(WidgetRegistry::class)->getAllWidgets()), static fn (string $identifier): bool => str_starts_with($identifier, 'analyticsMatomo'));
 
-        self::assertStringContainsString('Suchmaschinen', $html);
-        self::assertStringContainsString('+31.0 pp', $html);
+        self::assertSame(['analyticsMatomoPerformance', 'analyticsMatomoTraffic', 'analyticsMatomoTopPages'], array_values($identifiers));
     }
 
     #[Test]
     public function showsAHintWithoutVisits(): void
     {
-        self::assertStringContainsString('No visits in this period.', $this->render(1, 'analyticsMatomoCountries', 'EmptyBreakdown'));
+        self::assertStringContainsString('No visits in this period.', $this->render(1, 'analyticsMatomoTopPages', 'EmptyTopPages'));
     }
 
     #[Test]
@@ -152,15 +155,15 @@ final class MatomoWidgetTest extends FunctionalTestCase
     {
         $this->status = 401;
 
-        self::assertStringContainsString('access for the website id = 1', $this->render(1, 'analyticsMatomoChannel', 'ErrorNoViewAccess'));
-        self::assertStringNotContainsString('access for the website id = 1', $this->render(5, 'analyticsMatomoChannel', 'ErrorNoViewAccess'));
-        self::assertStringContainsString('The statistics could not be loaded from Matomo.', $this->render(5, 'analyticsMatomoChannel', 'ErrorNoViewAccess'));
+        self::assertStringContainsString('access for the website id = 1', $this->render(1, 'analyticsMatomoTraffic', 'ErrorNoViewAccess'));
+        self::assertStringNotContainsString('access for the website id = 1', $this->render(5, 'analyticsMatomoTraffic', 'ErrorNoViewAccess'));
+        self::assertStringContainsString('The statistics could not be loaded from Matomo.', $this->render(5, 'analyticsMatomoTraffic', 'ErrorNoViewAccess'));
     }
 
     #[Test]
     public function showsNothingWithoutSiteStatisticsPermission(): void
     {
-        $identifiers = ['analyticsMatomoPerformance', 'analyticsMatomoTraffic', 'analyticsMatomoTopPages', 'analyticsMatomoChannel', 'analyticsMatomoDevices', 'analyticsMatomoBrowsers', 'analyticsMatomoCountries'];
+        $identifiers = ['analyticsMatomoPerformance', 'analyticsMatomoTraffic', 'analyticsMatomoTopPages'];
         $this->get(ConnectionPool::class)->getConnectionForTable('be_groups')->update('be_groups', [
             'groupMods' => 'analytics_matomo,analytics_matomo_visitors',
             'availableWidgets' => implode(',', $identifiers),

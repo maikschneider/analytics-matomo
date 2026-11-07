@@ -38,6 +38,12 @@
 </f:section>
 
 <f:section name="footer">
+    <f:if condition="{detailsUrl}">
+        <a class="widget-cta" href="{detailsUrl}">
+            <core:icon identifier="content-widget-chart" size="small" />
+            <f:translate key="{ll}:widget.details" />
+        </a>
+    </f:if>
     <f:if condition="{reportUrl}">
         <f:then>
             <a class="widget-cta" href="{reportUrl}" target="_blank" rel="noopener noreferrer">
@@ -113,52 +119,8 @@
     </table>
 </f:section>
 
-<f:section name="channel"><f:render section="Breakdown" arguments="{_all}" /></f:section>
-<f:section name="devices"><f:render section="Breakdown" arguments="{_all}" /></f:section>
-<f:section name="browsers"><f:render section="Breakdown" arguments="{_all}" /></f:section>
-<f:section name="countries"><f:render section="Breakdown" arguments="{_all}" /></f:section>
-
-<f:section name="Breakdown">
-    <div class="tx-analytics-matomo-breakdown{f:if(condition: isDoughnut, then: ' tx-analytics-matomo-breakdown--doughnut')}">
-        <f:if condition="{isDoughnut}">
-            <div class="widget-chart tx-analytics-matomo-doughnut">
-                <canvas aria-hidden="true"></canvas>
-            </div>
-        </f:if>
-        <table class="table table-sm tx-analytics-matomo-table">
-            <thead>
-                <tr>
-                    <th scope="col"><span class="visually-hidden"><f:translate key="{ll}:widget.{report}" /></span></th>
-                    <th scope="col" class="text-end"><f:translate key="{ll}:metric.visits" /></th>
-                    <th scope="col" class="text-end"><f:translate key="{ll}:widget.change" /></th>
-                </tr>
-            </thead>
-            <tbody>
-                <f:for each="{rows}" as="row">
-                    <tr>
-                        <td>
-                            <span class="tx-analytics-matomo-swatch" style="--tx-analytics-matomo-swatch: {row.color}"></span>
-                            {row.label}
-                            <f:if condition="{isDoughnut}">
-                                <f:else><f:render section="ShareBar" arguments="{width: row.shareWidth, color: row.color}" /></f:else>
-                            </f:if>
-                        </td>
-                        <td class="text-end">
-                            {row.visits}
-                            <small class="d-block text-variant">{row.share}</small>
-                        </td>
-                        <td class="text-end">
-                            <f:render section="Change" arguments="{change: row.shareChange, rating: row.shareChangeRating}" />
-                        </td>
-                    </tr>
-                </f:for>
-            </tbody>
-        </table>
-    </div>
-</f:section>
-
 <f:section name="ShareBar">
-    <span class="tx-analytics-matomo-share" aria-hidden="true"><span style="width: {width}%{f:if(condition: color, then: '; background: {color}')}"></span></span>
+    <span class="tx-analytics-matomo-share" aria-hidden="true"><span style="width: {width}%"></span></span>
 </f:section>
 
 <f:section name="Change">
