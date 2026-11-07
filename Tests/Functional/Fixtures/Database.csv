@@ -1,16 +1,18 @@
 "pages"
-,"uid","pid","title","slug","doktype","sys_language_uid","l10n_parent","perms_userid","perms_groupid","perms_user","perms_group","perms_everybody"
-,1,0,"Root","/",1,0,0,1,1,31,1,0
-,2,1,"About","/about",1,0,0,1,1,31,1,0
-,3,1,"Über uns","/ueber-uns",1,1,2,1,1,31,1,0
-,4,1,"Storage","/storage",254,0,0,1,0,31,31,0
-,10,0,"Shop","/",1,0,0,1,1,31,1,0
-,11,10,"Products","/products/",1,0,0,1,1,31,1,0
-,12,10,"Produkte","/produkte/",1,1,11,1,1,31,1,0
-,13,10,"Imprint","/imprint",1,0,0,1,1,31,1,0
-,20,0,"Unconfigured","/",1,0,0,1,1,31,1,0
-,30,0,"Trial","/",1,0,0,1,0,31,0,0
-,31,30,"About the trial","/about",1,0,0,1,0,31,0,0
+,"uid","pid","title","slug","doktype","sys_language_uid","l10n_parent","perms_userid","perms_groupid","perms_user","perms_group","perms_everybody","hidden"
+,1,0,"Root","/",1,0,0,1,1,31,1,0,0
+,2,1,"About","/about",1,0,0,1,1,31,1,0,0
+,3,1,"Über uns","/ueber-uns",1,1,2,1,1,31,1,0,0
+,4,1,"Storage","/storage",254,0,0,1,0,31,31,0,0
+,5,1,"Summer sale","/summer-sale",1,0,0,1,1,31,1,0,1
+,6,1,"Sommerschlussverkauf","/sommerschlussverkauf",1,1,5,1,1,31,1,0,1
+,10,0,"Shop","/",1,0,0,1,1,31,1,0,0
+,11,10,"Products","/products/",1,0,0,1,1,31,1,0,0
+,12,10,"Produkte","/produkte/",1,1,11,1,1,31,1,0,0
+,13,10,"Imprint","/imprint",1,0,0,1,1,31,1,0,0
+,20,0,"Unconfigured","/",1,0,0,1,1,31,1,0,0
+,30,0,"Trial","/",1,0,0,1,0,31,0,0,0
+,31,30,"About the trial","/about",1,0,0,1,0,31,0,0,0
 "be_groups"
 ,"uid","pid","title","allowed_languages","custom_options","availableWidgets"
 ,1,0,"Editors English only","0","",""
