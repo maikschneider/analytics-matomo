@@ -1,0 +1,161 @@
+[
+	{
+		"label": "Direct Entry",
+		"nb_visits": 610,
+		"nb_actions": 901,
+		"max_actions": 19,
+		"sum_visit_length": 5262,
+		"bounce_count": 505,
+		"nb_visits_converted": 116,
+		"sum_daily_nb_uniq_visitors": 590,
+		"sum_daily_nb_users": 0,
+		"goals": {
+			"idgoal=1": {
+				"nb_conversions": 91,
+				"nb_visits_converted": 91,
+				"revenue": 0
+			},
+			"idgoal=2": {
+				"nb_conversions": 54,
+				"nb_visits_converted": 54,
+				"revenue": 0
+			}
+		},
+		"nb_conversions": 145,
+		"revenue": 0,
+		"nb_visits_percent_of_total": 0.485,
+		"nb_actions_percent_of_total": 0.484,
+		"nb_visits_converted_percent_of_total": 0.58,
+		"nb_conversions_percent_of_total": 0.614,
+		"bounce_count_percent_of_total": 0.505,
+		"revenue_percent_of_total": 0,
+		"segment": "referrerType==direct",
+		"referrer_type": 1
+	},
+	{
+		"label": "Search Engines",
+		"nb_visits": 597,
+		"nb_actions": 876,
+		"max_actions": 12,
+		"sum_visit_length": 15133,
+		"bounce_count": 455,
+		"nb_visits_converted": 71,
+		"sum_daily_nb_uniq_visitors": 562,
+		"sum_daily_nb_users": 0,
+		"goals": {
+			"idgoal=1": {
+				"nb_conversions": 51,
+				"nb_visits_converted": 51,
+				"revenue": 0
+			},
+			"idgoal=2": {
+				"nb_conversions": 27,
+				"nb_visits_converted": 27,
+				"revenue": 0
+			}
+		},
+		"nb_conversions": 78,
+		"revenue": 0,
+		"nb_visits_percent_of_total": 0.475,
+		"nb_actions_percent_of_total": 0.471,
+		"nb_visits_converted_percent_of_total": 0.355,
+		"nb_conversions_percent_of_total": 0.331,
+		"bounce_count_percent_of_total": 0.455,
+		"revenue_percent_of_total": 0,
+		"segment": "referrerType==search",
+		"referrer_type": 2,
+		"idsubdatatable": 2
+	},
+	{
+		"label": "Websites",
+		"nb_visits": 26,
+		"nb_actions": 44,
+		"max_actions": 13,
+		"sum_visit_length": 243,
+		"bounce_count": 22,
+		"nb_visits_converted": 4,
+		"sum_daily_nb_uniq_visitors": 26,
+		"sum_daily_nb_users": 0,
+		"goals": {
+			"idgoal=1": {
+				"nb_conversions": 3,
+				"nb_visits_converted": 3,
+				"revenue": 0
+			},
+			"idgoal=2": {
+				"nb_conversions": 1,
+				"nb_visits_converted": 1,
+				"revenue": 0
+			}
+		},
+		"nb_conversions": 4,
+		"revenue": 0,
+		"nb_visits_percent_of_total": 0.021,
+		"nb_actions_percent_of_total": 0.024,
+		"nb_visits_converted_percent_of_total": 0.02,
+		"nb_conversions_percent_of_total": 0.017,
+		"bounce_count_percent_of_total": 0.022,
+		"revenue_percent_of_total": 0,
+		"segment": "referrerType==website",
+		"referrer_type": 3,
+		"idsubdatatable": 3
+	},
+	{
+		"label": "AI Assistants",
+		"nb_visits": 23,
+		"nb_actions": 36,
+		"max_actions": 6,
+		"sum_visit_length": 551,
+		"bounce_count": 17,
+		"nb_visits_converted": 8,
+		"sum_daily_nb_uniq_visitors": 23,
+		"sum_daily_nb_users": 0,
+		"goals": {
+			"idgoal=2": {
+				"nb_conversions": 3,
+				"nb_visits_converted": 3,
+				"revenue": 0
+			}
+		},
+		"nb_conversions": 3,
+		"revenue": 0,
+		"nb_visits_percent_of_total": 0.018,
+		"nb_actions_percent_of_total": 0.019,
+		"nb_visits_converted_percent_of_total": 0.04,
+		"nb_conversions_percent_of_total": 0.013,
+		"bounce_count_percent_of_total": 0.017,
+		"revenue_percent_of_total": 0,
+		"segment": "referrerType==ai",
+		"referrer_type": 8,
+		"idsubdatatable": 8
+	},
+	{
+		"label": "Campaigns",
+		"goals": {
+			"idgoal=2": {
+				"nb_conversions": 6,
+				"nb_visits_converted": 6,
+				"revenue": 0
+			}
+		},
+		"nb_conversions": 6,
+		"revenue": 0,
+		"nb_visits": 2,
+		"nb_actions": 4,
+		"max_actions": 3,
+		"sum_visit_length": 75,
+		"bounce_count": 1,
+		"nb_visits_converted": 1,
+		"sum_daily_nb_uniq_visitors": 2,
+		"sum_daily_nb_users": 0,
+		"nb_visits_percent_of_total": 0.002,
+		"nb_actions_percent_of_total": 0.002,
+		"nb_visits_converted_percent_of_total": 0.005,
+		"nb_conversions_percent_of_total": 0.025,
+		"bounce_count_percent_of_total": 0.001,
+		"revenue_percent_of_total": 0,
+		"segment": "referrerType==campaign",
+		"referrer_type": 6,
+		"idsubdatatable": 6
+	}
+]

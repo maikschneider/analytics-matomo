@@ -26,4 +26,6 @@ Each response is wrapped in a list, matching the bulk client's decoded result. M
 
 `Goals.json` holds recorded answers of site 3 for 2026-10-27,2026-11-02 (anonymous bulk request, `format_metrics=0`): `Goals.getGoals`, `Goals.get` as range and per day, for all goals and per goal, and `Referrers.getReferrerType` and flat `Actions.getEntryPageUrls` with `idGoal=1`. Matomo sums the daily rates of the nested `goals` columns on range periods (`nb_conversions_entry_rate` is 0.7 for 2 conversions in 25 entrances). `SyntheticGoalEntryPages.json` is the recorded entry-page answer with the URLs of the functional test site.
 
+`GoalChannelsAttribution.json` is a recorded `Referrers.getReferrerType` of site 3 with `idGoal=2`, `period=range`, `date=2026-01-01,2026-11-06`, `format_metrics=0`, `filter_limit=-1` (anonymous request). Matomo credits conversions to the referrer saved with them, so its campaigns row has 6 conversions of goal 2 (also 6 visits converted) in 2 visits.
+
 `Trending.json` holds the flat `Actions.getPageUrls` of site 3 for 2026-10-27,2026-11-02 (`current`) and the week before (`previous`), reduced to `nb_hits` (`showColumns=nb_hits`). `SyntheticTrending.json` maps such rows to the test site, with a rising, a new, a falling, a vanished page and pages below the thresholds.

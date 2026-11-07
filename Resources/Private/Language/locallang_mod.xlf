@@ -213,6 +213,8 @@
 			<trans-unit id="column.nb_visits" resname="column.nb_visits"><source>Visits</source></trans-unit>
 			<trans-unit id="column.nb_conversions" resname="column.nb_conversions"><source>Conversions</source></trans-unit>
 			<trans-unit id="column.conversion_rate" resname="column.conversion_rate"><source>Conversion rate</source></trans-unit>
+			<trans-unit id="column.conversion_share" resname="column.conversion_share"><source>Share of conversions</source></trans-unit>
+			<trans-unit id="column.conversion_share.description" resname="column.conversion_share.description"><source>The channel's share of the goal's conversions. Matomo credits a conversion to the channel saved with it, which can be the channel of an earlier visit, so conversions are not divided by the visits of the period.</source></trans-unit>
 			<trans-unit id="column.revenue" resname="column.revenue"><source>Revenue</source></trans-unit>
 			<trans-unit id="column.entryPage" resname="column.entryPage"><source>Entry page</source></trans-unit>
 			<trans-unit id="column.entry_nb_visits" resname="column.entry_nb_visits"><source>Entrances</source></trans-unit>

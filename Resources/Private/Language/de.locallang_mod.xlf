@@ -259,6 +259,8 @@
 			<trans-unit id="column.nb_visits" resname="column.nb_visits"><source>Visits</source><target>Besuche</target></trans-unit>
 			<trans-unit id="column.nb_conversions" resname="column.nb_conversions"><source>Conversions</source><target>Konversionen</target></trans-unit>
 			<trans-unit id="column.conversion_rate" resname="column.conversion_rate"><source>Conversion rate</source><target>Konversionsrate</target></trans-unit>
+			<trans-unit id="column.conversion_share" resname="column.conversion_share"><source>Share of conversions</source><target>Anteil an Konversionen</target></trans-unit>
+			<trans-unit id="column.conversion_share.description" resname="column.conversion_share.description"><source>The channel's share of the goal's conversions. Matomo credits a conversion to the channel saved with it, which can be the channel of an earlier visit, so conversions are not divided by the visits of the period.</source><target>Anteil des Kanals an den Konversionen des Ziels. Matomo rechnet eine Konversion dem mit ihr gespeicherten Kanal zu, der auch der eines früheren Besuchs sein kann; daher werden Konversionen nicht durch die Besuche des Zeitraums geteilt.</target></trans-unit>
 			<trans-unit id="column.revenue" resname="column.revenue"><source>Revenue</source><target>Umsatz</target></trans-unit>
 			<trans-unit id="column.entryPage" resname="column.entryPage"><source>Entry page</source><target>Einstiegsseite</target></trans-unit>
 			<trans-unit id="column.entry_nb_visits" resname="column.entry_nb_visits"><source>Entrances</source><target>Einstiege</target></trans-unit>

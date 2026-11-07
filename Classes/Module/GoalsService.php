@@ -94,8 +94,8 @@ final readonly class GoalsService
             $reports = $goalId === null
                 ? [$table('goals', fn (string $range): array => array_map(fn (int $id): array => ['label' => $goals[$id]] + $this->object($results[$range . 'Goal' . $id]), array_keys($goals)))]
                 : [
-                    $table('channels', fn (string $range): array => $this->goalRows($results[$range . 'Channels'], $goalId)),
-                    $table('entryPages', fn (string $range): array => $this->goalRows($results[$range . 'EntryPages'], $goalId)),
+                    $table('channels', fn (string $range): array => self::channelRows($results[$range . 'Channels'], $goalId)),
+                    $table('entryPages', fn (string $range): array => self::goalRows($results[$range . 'EntryPages'], $goalId)),
                 ];
             return [
                 'current' => $this->object($results['current']),
@@ -120,7 +120,7 @@ final readonly class GoalsService
                 'label' => ['column.channelType', 'string'],
                 'nb_visits' => ['column.nb_visits', 'number'],
                 'nb_conversions' => ['column.nb_conversions', 'number'],
-                'conversion_rate' => ['column.conversion_rate', 'percent'],
+                'conversion_share' => ['column.conversion_share', 'percent', 'column.conversion_share.description'],
                 'revenue' => ['column.revenue', 'money'],
             ]],
             default => ['module' => 'Actions', 'action' => 'getEntryPageUrls', 'rows' => 'url', 'title' => 'report.goalEntryPages', 'columns' => [
@@ -134,11 +134,28 @@ final readonly class GoalsService
     }
 
     /**
-     * Rows with the metrics of one goal next to their own, and a conversion rate per visit
+     * Channels with their share of the goal's conversions. Matomo attributes a
+     * conversion to the referrer saved with it, which may be of an earlier visit,
+     * while the visits of a channel are those of the period: dividing the two is
+     * no share of visits and can exceed 100 %, so conversions are compared with
+     * each other only.
+     *
+     * @see https://matomo.org/faq/general/faq_117/
+     * @return list<array<string, mixed>>
+     */
+    public static function channelRows(mixed $result, int $goalId): array
+    {
+        $rows = self::goalRows($result, $goalId);
+        $total = array_sum(array_column($rows, 'nb_conversions'));
+        return array_map(static fn (array $row): array => $row + ['conversion_share' => $total > 0 ? $row['nb_conversions'] / $total : 0], $rows);
+    }
+
+    /**
+     * Rows with the metrics of one goal next to their own
      *
      * @return list<array<string, mixed>>
      */
-    private function goalRows(mixed $result, int $goalId): array
+    private static function goalRows(mixed $result, int $goalId): array
     {
         $rows = [];
         foreach (is_array($result) ? $result : [] as $row) {
@@ -147,9 +164,7 @@ final readonly class GoalsService
             }
             $goal = $row['goals']['idgoal=' . $goalId] ?? [];
             $row = (is_array($goal) ? $goal : []) + $row;
-            $visits = (int)($row['nb_visits'] ?? 0);
             $row['nb_conversions'] = (int)($goal['nb_conversions'] ?? 0);
-            $row['conversion_rate'] = $visits > 0 ? $row['nb_conversions'] / $visits : 0;
             // Matomo sums the daily rates of a range, so they are computed here
             $entries = (int)($row['entry_nb_visits'] ?? 0);
             $row['nb_conversions_entry'] = (int)($goal['nb_conversions_entry'] ?? 0);

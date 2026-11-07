@@ -63,8 +63,11 @@ Every other report page shows one or more Matomo reports as tables:
 :guilabel:`Goals`
     Conversions, conversion rate and revenue of all goals with their
     evolution, and one page per goal with conversions by channel and by entry
-    page. Revenue is hidden while it is zero. Goals are created in Matomo; a
-    Matomo site without goals shows where to create them.
+    page. Channels show their share of the goal's conversions rather than a
+    rate per visit: Matomo credits a conversion to the channel saved with it,
+    which can be the channel of an earlier visit. Revenue is hidden while it is
+    zero. Goals are created in Matomo; a Matomo site without goals shows where
+    to create them.
 
 Column headings and metric documentation come from Matomo in the backend user's
 language. Click a column heading to sort, search labels, or browse 25 rows per

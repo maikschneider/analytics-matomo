@@ -116,6 +116,25 @@ final class GoalsTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function channelsShowTheirShareOfTheGoalsConversions(): void
+    {
+        $this->fixtures['goal2Channels'] = json_decode((string)file_get_contents(__DIR__ . '/../../Fixtures/Matomo/GoalChannelsAttribution.json'), true, flags: JSON_THROW_ON_ERROR);
+        $this->fixtures['goal2EntryPages'] = $this->fixtures['goal1EntryPages'];
+        $this->fixtures['goal2Days'] = $this->fixtures['goal1Days'];
+        $html = (string)$this->render(1, ['id' => '1', 'report' => 'goal2'], 'goals')->getBody();
+        [$channels] = explode('Conversions by entry page', $html);
+
+        self::assertStringContainsString('Share of conversions', $channels);
+        // Matomo credits 6 of the goal's 91 conversions to the campaigns of 2 visits
+        self::assertMatchesRegularExpression('#Campaigns\s*</td>\s*<td[^>]*>\s*2\s*</td>\s*<td[^>]*>\s*6\s*</td>\s*<td[^>]*>\s*6.6 %\s*</td>#', $channels);
+        preg_match_all('#([\d.,]+) %#', $channels, $percentages);
+        self::assertNotEmpty($percentages[1]);
+        foreach ($percentages[1] as $percentage) {
+            self::assertLessThanOrEqual(100, (float)str_replace(',', '', $percentage));
+        }
+    }
+
+    #[Test]
     public function goalEntryPagesShowEditorsOnlyPagesTheyMaySee(): void
     {
         $html = (string)$this->render(3, ['id' => '1', 'report' => 'goal1'], 'goals')->getBody();
