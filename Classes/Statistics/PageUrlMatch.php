@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MaikSchneider\AnalyticsMatomo\Dashboard;
+namespace MaikSchneider\AnalyticsMatomo\Statistics;
 
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 

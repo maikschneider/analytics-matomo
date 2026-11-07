@@ -52,7 +52,7 @@ Dashboard
   MatomoWidget (one class, option "report" = performance|traffic|topPages|channel|devices|browsers|countries)
     DashboardSelectionResolver: permission, sites with connection + readable root page, site/period from uc
     SiteStatisticsService ─► StatisticsCache ─► MatomoClient (1 bulk POST per widget)
-    PageUrlMatcher: Matomo URL → site language + page (top pages)
+    PageUrlMapper: Matomo URL → site language + page (top pages)
   dashboard-widget.js ─► POST /typo3/ajax/analytics-matomo/dashboard-selection, then refreshes all Matomo widgets
 ```
 
@@ -72,7 +72,7 @@ The backend module (milestone 0.3.0 on) is designed in [MODULE.md](MODULE.md#tec
 | `Statistics\TileFactory` | view model of the metric tiles (bar and site performance) |
 | `Dashboard\SiteStatisticsService` | API calls of the widgets |
 | `Dashboard\DashboardSelectionResolver` | sites a user may choose, stored selection |
-| `Dashboard\PageUrlMatcher` | URL of a top page → site language and page |
+| `Statistics\PageUrlMapper` | Matomo URL → site language and page (incl. hidden pages, scheme-less labels, double slashes, encoded slugs); report rows by page, "unknown" when Matomo cut the report at its row limit |
 | `Dashboard\Widget\MatomoWidget` | all widgets |
 
 No Extbase, no TCA, no database tables of our own (only the cache tables TYPO3 creates for the cache). Therefore no tca_api.

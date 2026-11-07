@@ -1,0 +1,22 @@
+[
+	[
+		{
+			"label": "/",
+			"nb_hits": 40,
+			"url": "https://example.com/",
+			"Actions_PageUrl": "/"
+		},
+		{
+			"label": "/about",
+			"nb_hits": 20,
+			"url": "https://example.com/about",
+			"Actions_PageUrl": "/about"
+		},
+		{
+			"label": "/news/ - Others",
+			"nb_hits": 12,
+			"Actions_PageUrl": "/news/ - Others",
+			"is_summary": true
+		}
+	]
+]

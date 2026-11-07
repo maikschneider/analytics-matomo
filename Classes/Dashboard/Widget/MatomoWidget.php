@@ -8,10 +8,10 @@ use MaikSchneider\AnalyticsMatomo\Authorization\StatisticsPermission;
 use MaikSchneider\AnalyticsMatomo\Dashboard\Breakdown;
 use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelection;
 use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelectionResolver;
-use MaikSchneider\AnalyticsMatomo\Dashboard\PageUrlMatcher;
 use MaikSchneider\AnalyticsMatomo\Dashboard\SiteStatisticsService;
 use MaikSchneider\AnalyticsMatomo\Dashboard\Traffic;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
+use MaikSchneider\AnalyticsMatomo\Statistics\PageUrlMapper;
 use MaikSchneider\AnalyticsMatomo\Statistics\Period;
 use MaikSchneider\AnalyticsMatomo\Statistics\TileFactory;
 use Psr\Http\Message\ServerRequestInterface;
@@ -65,7 +65,7 @@ final class MatomoWidget implements WidgetInterface, RequestAwareWidgetInterface
         private readonly DashboardSelectionResolver $selectionResolver,
         private readonly SiteStatisticsService $statisticsService,
         private readonly TileFactory $tileFactory,
-        private readonly PageUrlMatcher $pageUrlMatcher,
+        private readonly PageUrlMapper $pageUrlMapper,
         private readonly ViewFactoryInterface $viewFactory,
         private readonly UriBuilder $uriBuilder,
         private readonly LoggerInterface $logger,
@@ -217,7 +217,7 @@ final class MatomoWidget implements WidgetInterface, RequestAwareWidgetInterface
         $backendUser = $this->getBackendUser();
         $pages = [];
         foreach ($this->statisticsService->getTopPages($selection->configuration, $selection->period) as $page) {
-            $match = $this->pageUrlMatcher->match($selection->site, $page->url);
+            $match = $this->pageUrlMapper->match($selection->site, $page->url);
             if ($match === null || !$backendUser->checkLanguageAccess($match->language->getLanguageId())) {
                 continue;
             }
