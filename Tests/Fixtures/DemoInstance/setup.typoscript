@@ -1,0 +1,30 @@
+page = PAGE
+page {
+  10 = TEXT
+  10 {
+    field = title
+    htmlSpecialChars = 1
+    wrap = <h1>|</h1>
+  }
+
+  20 = CONTENT
+  20 {
+    table = tt_content
+    select {
+      orderBy = sorting
+      where = {#colPos}=0
+    }
+    renderObj = COA
+    renderObj {
+      10 = TEXT
+      10 {
+        field = header
+        htmlSpecialChars = 1
+        wrap = <h2>|</h2>
+      }
+
+      20 = TEXT
+      20.field = bodytext
+    }
+  }
+}

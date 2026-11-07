@@ -15,11 +15,12 @@ final readonly class MatomoConfiguration
     }
 
     /**
-     * Generated statistics instead of a Matomo connection; the URL is the base of the site.
+     * Generated statistics instead of a Matomo connection; the URL is the base
+     * of the site, the site ID its root page.
      */
-    public static function demo(string $siteUrl): self
+    public static function demo(string $siteUrl, int $rootPageId): self
     {
-        return new self($siteUrl, 0, '', true);
+        return new self($siteUrl, $rootPageId, '', true);
     }
 
     public function getApiUrl(): string

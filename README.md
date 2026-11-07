@@ -61,7 +61,7 @@ Use the token of a Matomo user with view access to this one site.
 
 ## 🧑‍💻 Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md). `ddev init-typo3` sets up a demo instance with two sites, three languages, an editor and demo data to click through.
 
 ## ⭐ License
 

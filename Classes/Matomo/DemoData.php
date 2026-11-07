@@ -9,18 +9,27 @@ use MaikSchneider\AnalyticsMatomo\Dashboard\Breakdown;
 
 /**
  * Generated Reporting API answers for trying out the extension without a Matomo
- * instance. Numbers depend only on method, URL and date, so they stay the same
- * on every reload and a range is the sum of its days.
+ * instance. Numbers depend only on site, method, URL and date, so they stay the
+ * same on every reload and a range is the sum of its days. Top pages are the
+ * pages of the site; deeper pages get fewer views.
  */
 final readonly class DemoData
 {
-    private const PATHS = ['', 'about', 'products', 'news', 'contact', 'jobs', 'blog', 'imprint'];
+    private const FALLBACK_PATHS = ['', 'about', 'products', 'news', 'contact', 'jobs', 'blog', 'imprint'];
     private const LABELS = [
         Breakdown::CHANNEL => ['Search Engines' => 52, 'Direct Entry' => 24, 'Websites' => 13, 'Social Networks' => 8, 'Campaigns' => 3],
         Breakdown::DEVICES => ['Desktop' => 58, 'Smartphone' => 36, 'Tablet' => 5, 'Phablet' => 1],
         Breakdown::BROWSERS => ['Chrome' => 46, 'Safari' => 24, 'Firefox' => 12, 'Microsoft Edge' => 10, 'Samsung Internet' => 5, 'Opera' => 3],
         Breakdown::COUNTRIES => ['Germany' => 61, 'Austria' => 12, 'Switzerland' => 10, 'United States' => 7, 'Netherlands' => 6, 'France' => 4],
     ];
+    /** Daily views of a page by the number of segments of its path */
+    private const PAGE_HITS = [[25, 60], [5, 20], [3, 12]];
+    private const DEEP_PAGE_HITS = [2, 6];
+
+    public function __construct(
+        private ?DemoPageUrls $pageUrls = null,
+    ) {
+    }
 
     /**
      * @param list<array<string, int|string>> $requests
@@ -28,42 +37,51 @@ final readonly class DemoData
      */
     public function results(array $requests, MatomoConfiguration $configuration): array
     {
-        return array_map(fn (array $request): mixed => $this->result($request, $configuration->url), $requests);
+        $pageUrls = [];
+        if (in_array('Actions.getPageUrls', array_column($requests, 'method'), true)) {
+            $pageUrls = $this->pageUrls?->get($configuration->idSite) ?? [];
+            if ($pageUrls === []) {
+                $pageUrls = array_map(static fn (string $path): string => rtrim($configuration->url, '/') . '/' . $path, self::FALLBACK_PATHS);
+            }
+        }
+        return array_map(fn (array $request): mixed => $this->result($request, $configuration->url, $pageUrls), $requests);
     }
 
     /**
      * @param array<string, int|string> $request
+     * @param list<string> $pageUrls
      */
-    private function result(array $request, string $baseUrl): mixed
+    private function result(array $request, string $site, array $pageUrls): mixed
     {
         $dates = $this->dates((string)($request['date'] ?? ''));
         if (($request['period'] ?? '') === 'day') {
             $result = [];
             foreach ($dates as $date) {
-                $result[$date] = $this->report($request, [$date], $baseUrl);
+                $result[$date] = $this->report($request, [$date], $site, $pageUrls);
             }
             return $result;
         }
-        return $this->report($request, $dates, $baseUrl);
+        return $this->report($request, $dates, $site, $pageUrls);
     }
 
     /**
      * @param array<string, int|string> $request
      * @param list<string> $dates
+     * @param list<string> $pageUrls
      * @return array<mixed>
      */
-    private function report(array $request, array $dates, string $baseUrl): array
+    private function report(array $request, array $dates, string $site, array $pageUrls): array
     {
         $method = (string)($request['method'] ?? '');
-        $visits = $this->sum($dates, static fn (string $date, self $demo): int => $demo->visits($date));
+        $visits = $this->sum($dates, fn (string $date): int => $this->visits($site, $date));
 
         return match ($method) {
-            'VisitsSummary.get' => $this->visitsSummary($dates, $visits),
+            'VisitsSummary.get' => $this->visitsSummary($site, $dates, $visits),
             'VisitFrequency.get' => ['nb_visits_returning' => intdiv($visits * 3, 10)],
-            'Actions.get' => ['nb_pageviews' => $this->pageViews($dates)],
-            'Actions.getPageUrl' => [$this->pageRow((string)($request['pageUrl'] ?? ''), $dates)],
-            'Actions.getPageUrls' => $this->pageUrls($baseUrl, $dates, (int)($request['filter_limit'] ?? -1)),
-            Breakdown::CHANNEL, Breakdown::DEVICES, Breakdown::BROWSERS, Breakdown::COUNTRIES => $this->breakdown($method, $dates),
+            'Actions.get' => ['nb_pageviews' => $this->pageViews($site, $dates)],
+            'Actions.getPageUrl' => [$this->pageRow($site, (string)($request['pageUrl'] ?? ''), $dates)],
+            'Actions.getPageUrls' => $this->pageUrls($site, $pageUrls, $dates, (int)($request['filter_limit'] ?? -1)),
+            Breakdown::CHANNEL, Breakdown::DEVICES, Breakdown::BROWSERS, Breakdown::COUNTRIES => $this->breakdown($site, $method, $dates),
             default => throw new MatomoApiException('The demo data have no answer for ' . $method, 1793960301),
         };
     }
@@ -72,15 +90,16 @@ final readonly class DemoData
      * @param list<string> $dates
      * @return array<string, int|float>
      */
-    private function visitsSummary(array $dates, int $visits): array
+    private function visitsSummary(string $site, array $dates, int $visits): array
     {
-        $bounces = $this->sum($dates, static fn (string $date, self $demo): int => intdiv($demo->visits($date) * $demo->between('bounce' . $date, 35, 55), 100));
-        $length = $this->sum($dates, static fn (string $date, self $demo): int => $demo->visits($date) * $demo->between('length' . $date, 90, 240));
+        $bounceRate = $this->between('bounce' . $site, 30, 60);
+        $bounces = $this->sum($dates, fn (string $date): int => intdiv($this->visits($site, $date) * $this->between('bounce' . $site . $date, $bounceRate - 8, $bounceRate + 8), 100));
+        $length = $this->sum($dates, fn (string $date): int => $this->visits($site, $date) * $this->between('length' . $site . $date, 90, 240));
 
         return [
             'nb_uniq_visitors' => intdiv($visits * 4, 5),
             'nb_visits' => $visits,
-            'nb_actions' => $this->pageViews($dates),
+            'nb_actions' => $this->pageViews($site, $dates),
             'bounce_count' => $bounces,
             'sum_visit_length' => $length,
             'bounce_rate' => $visits > 0 ? round($bounces / $visits, 2) : 0,
@@ -92,11 +111,15 @@ final readonly class DemoData
      * @param list<string> $dates
      * @return array<string, int|float|string>
      */
-    private function pageRow(string $url, array $dates): array
+    private function pageRow(string $site, string $url, array $dates): array
     {
-        $hits = $this->sum($dates, static fn (string $date, self $demo): int => $demo->between($url . $date, 2, 40));
+        $path = (string)parse_url($url, PHP_URL_PATH);
+        [$min, $max] = self::PAGE_HITS[count(array_filter(explode('/', $path), static fn (string $segment): bool => $segment !== ''))] ?? self::DEEP_PAGE_HITS;
+        // Some pages are more popular than others of the same depth
+        $percent = $this->between('popularity' . $url, 30, 100) * $this->scale($site);
+        $hits = $this->sum($dates, fn (string $date): int => intdiv($this->between($url . $date, $min, $max) * $percent + 5000, 10000));
         return [
-            'label' => (string)parse_url($url, PHP_URL_PATH),
+            'label' => $path,
             'url' => $url,
             'nb_hits' => $hits,
             'bounce_rate' => $this->between('bounce' . $url, 20, 70) / 100,
@@ -106,15 +129,13 @@ final readonly class DemoData
     }
 
     /**
+     * @param list<string> $pageUrls
      * @param list<string> $dates
      * @return list<array<string, int|float|string>>
      */
-    private function pageUrls(string $baseUrl, array $dates, int $limit): array
+    private function pageUrls(string $site, array $pageUrls, array $dates, int $limit): array
     {
-        $rows = [];
-        foreach (self::PATHS as $path) {
-            $rows[] = $this->pageRow(rtrim($baseUrl, '/') . '/' . $path, $dates);
-        }
+        $rows = array_map(fn (string $url): array => $this->pageRow($site, $url, $dates), $pageUrls);
         usort($rows, static fn (array $a, array $b): int => $b['nb_hits'] <=> $a['nb_hits']);
         return $limit > 0 ? array_slice($rows, 0, $limit) : $rows;
     }
@@ -123,11 +144,11 @@ final readonly class DemoData
      * @param list<string> $dates
      * @return list<array{label: string, nb_visits: int}>
      */
-    private function breakdown(string $method, array $dates): array
+    private function breakdown(string $site, string $method, array $dates): array
     {
         $rows = [];
         foreach (self::LABELS[$method] as $label => $percent) {
-            $visits = $this->sum($dates, static fn (string $date, self $demo): int => intdiv($demo->visits($date) * $percent * $demo->between($label . $date, 80, 120), 10000));
+            $visits = $this->sum($dates, fn (string $date): int => intdiv($this->visits($site, $date) * $percent * $this->between($label . $site . $date, 70, 130), 10000));
             $rows[] = ['label' => $label, 'nb_visits' => $visits];
         }
         usort($rows, static fn (array $a, array $b): int => $b['nb_visits'] <=> $a['nb_visits']);
@@ -137,24 +158,32 @@ final readonly class DemoData
     /**
      * @param list<string> $dates
      */
-    private function pageViews(array $dates): int
+    private function pageViews(string $site, array $dates): int
     {
-        return $this->sum($dates, static fn (string $date, self $demo): int => intdiv($demo->visits($date) * $demo->between('actions' . $date, 150, 260), 100));
+        return $this->sum($dates, fn (string $date): int => intdiv($this->visits($site, $date) * $this->between('actions' . $site . $date, 300, 450), 100));
     }
 
-    private function visits(string $date): int
+    private function visits(string $site, string $date): int
     {
         $weekend = (int)(new \DateTimeImmutable($date))->format('N') >= 6;
-        return $this->between('visits' . $date, 90, 160) - ($weekend ? 40 : 0);
+        return intdiv(($this->between('visits' . $site . $date, 90, 160) - ($weekend ? 40 : 0)) * $this->scale($site), 100);
+    }
+
+    /**
+     * Traffic of a site in percent of an average one, so every site has its own numbers
+     */
+    private function scale(string $site): int
+    {
+        return $this->between('scale' . $site, 60, 250);
     }
 
     /**
      * @param list<string> $dates
-     * @param \Closure(string, self): int $perDay
+     * @param \Closure(string): int $perDay
      */
     private function sum(array $dates, \Closure $perDay): int
     {
-        return array_sum(array_map(fn (string $date): int => $perDay($date, $this), $dates));
+        return array_sum(array_map($perDay, $dates));
     }
 
     private function between(string $seed, int $min, int $max): int

@@ -1,0 +1,127 @@
+"pages"
+,"uid","pid","sorting","title","slug","doktype","sys_language_uid","l10n_parent","l10n_source","is_siteroot","hidden","nav_hide","shortcut","perms_userid","perms_groupid","perms_user","perms_group","perms_everybody","fe_group"
+,1,0,256,"Elbe Cycles","/",1,0,0,0,1,0,0,0,1,1,31,31,1,""
+,2,1,256,"Bikes","/bikes",1,0,0,0,0,0,0,0,1,1,31,31,1,""
+,3,2,256,"City bikes","/bikes/city-bikes",1,0,0,0,0,0,0,0,1,1,31,31,1,""
+,4,2,512,"E-bikes","/bikes/e-bikes",1,0,0,0,0,0,0,0,1,1,31,31,1,""
+,5,4,256,"Cargo e-bikes","/bikes/e-bikes/cargo",1,0,0,0,0,0,0,0,1,1,31,31,1,""
+,6,5,256,"Long John 2026","/bikes/e-bikes/cargo/long-john-2026",1,0,0,0,0,0,0,0,1,1,31,31,1,""
+,7,2,768,"Gravel bikes","/bikes/gravel",1,0,0,0,0,0,0,0,1,1,31,31,1,""
+,8,1,512,"Workshop","/workshop",1,0,0,0,0,0,0,0,1,1,31,31,1,""
+,9,8,256,"Repair prices","/workshop/prices",1,0,0,0,0,0,0,0,1,1,31,31,1,""
+,10,8,512,"Book a service","/workshop/booking",1,0,0,0,0,0,0,0,1,1,31,31,1,""
+,11,1,768,"Tours","/tours",1,0,0,0,0,0,0,0,1,1,31,31,1,""
+,12,11,256,"Elbe Cycle Route","/tours/elbe-cycle-route",1,0,0,0,0,0,0,0,1,1,31,31,1,""
+,13,11,512,"Saxon Switzerland","/tours/saxon-switzerland",1,0,0,0,0,0,0,0,1,1,31,31,1,""
+,14,1,1024,"News","/news",1,0,0,0,0,0,0,0,1,1,31,31,1,""
+,15,14,256,"Spring opening","/news/spring-opening",1,0,0,0,0,0,0,0,1,1,31,31,1,""
+,16,14,512,"New cargo bikes in store","/news/new-cargo-bikes",1,0,0,0,0,0,0,0,1,1,31,31,1,""
+,17,1,1280,"About us","/about-us",1,0,0,0,0,0,0,0,1,1,31,31,1,""
+,18,1,1536,"Contact","/contact",1,0,0,0,0,0,0,0,1,1,31,31,1,""
+,19,1,1792,"Shop","/shop",4,0,0,0,0,0,0,2,1,1,31,31,1,""
+,20,1,2048,"Summer sale","/summer-sale",1,0,0,0,0,1,0,0,1,1,31,31,1,""
+,21,1,2304,"Imprint","/imprint",1,0,0,0,0,0,0,0,1,1,31,31,1,""
+,22,1,2560,"Privacy","/privacy",1,0,0,0,0,0,0,0,1,1,31,31,1,""
+,23,1,2816,"Page not found","/404",1,0,0,0,0,0,1,0,1,1,31,31,1,""
+,24,1,3072,"Storage","/storage",254,0,0,0,0,0,0,0,1,1,31,31,1,""
+,25,1,3328,"Customer area","/customer-area",1,0,0,0,0,0,0,0,1,1,31,31,1,"-2"
+,101,0,256,"Elbe Cycles","/",1,1,1,1,1,0,0,0,1,1,31,31,1,""
+,102,1,256,"Fahrräder","/fahrraeder",1,1,2,2,0,0,0,0,1,1,31,31,1,""
+,103,2,256,"Stadträder","/fahrraeder/stadtraeder",1,1,3,3,0,0,0,0,1,1,31,31,1,""
+,104,2,512,"E-Bikes","/fahrraeder/e-bikes",1,1,4,4,0,0,0,0,1,1,31,31,1,""
+,105,4,256,"Lasten-E-Bikes","/fahrraeder/e-bikes/lastenraeder",1,1,5,5,0,0,0,0,1,1,31,31,1,""
+,108,1,512,"Werkstatt","/werkstatt",1,1,8,8,0,0,0,0,1,1,31,31,1,""
+,109,8,256,"Reparaturpreise","/werkstatt/preise",1,1,9,9,0,0,0,0,1,1,31,31,1,""
+,111,1,768,"Touren","/touren",1,1,11,11,0,0,0,0,1,1,31,31,1,""
+,112,11,256,"Elberadweg","/touren/elberadweg",1,1,12,12,0,0,0,0,1,1,31,31,1,""
+,113,11,512,"Sächsische Schweiz","/touren/sächsische-schweiz",1,1,13,13,0,0,0,0,1,1,31,31,1,""
+,117,1,1280,"Über uns","/über-uns",1,1,17,17,0,0,0,0,1,1,31,31,1,""
+,118,1,1536,"Kontakt","/kontakt",1,1,18,18,0,0,0,0,1,1,31,31,1,""
+,121,1,2304,"Impressum","/impressum",1,1,21,21,0,0,0,0,1,1,31,31,1,""
+,122,1,2560,"Datenschutz","/datenschutz",1,1,22,22,0,0,0,0,1,1,31,31,1,""
+,123,1,2816,"Seite nicht gefunden","/404",1,1,23,23,0,0,1,0,1,1,31,31,1,""
+,201,0,256,"Elbe Cycles","/",1,2,1,1,1,0,0,0,1,1,31,31,1,""
+,211,1,768,"Circuits","/circuits",1,2,11,11,0,0,0,0,1,1,31,31,1,""
+,30,0,512,"Velo Verleih Dresden","/",1,0,0,0,1,0,0,0,1,1,31,31,1,""
+,31,30,256,"Mieträder","/mietraeder",1,0,0,0,0,0,0,0,1,1,31,31,1,""
+,32,31,256,"Tagesmiete","/mietraeder/tagesmiete",1,0,0,0,0,0,0,0,1,1,31,31,1,""
+,33,31,512,"Wochenmiete","/mietraeder/wochenmiete",1,0,0,0,0,0,0,0,1,1,31,31,1,""
+,34,30,512,"Gruppen & Firmen","/gruppen-und-firmen",1,0,0,0,0,0,0,0,1,1,31,31,1,""
+,35,30,768,"Häufige Fragen","/faq",1,0,0,0,0,0,0,0,1,1,31,31,1,""
+,36,30,1024,"Kontakt","/kontakt",1,0,0,0,0,0,0,0,1,1,31,31,1,""
+,37,30,1280,"Impressum","/impressum",1,0,0,0,0,0,0,0,1,1,31,31,1,""
+,38,30,1536,"Seite nicht gefunden","/404",1,0,0,0,0,0,1,0,1,1,31,31,1,""
+,130,0,512,"Velo Rental Dresden","/",1,1,30,30,1,0,0,0,1,1,31,31,1,""
+,131,30,256,"Rental bikes","/rental-bikes",1,1,31,31,0,0,0,0,1,1,31,31,1,""
+,132,31,256,"Day rental","/rental-bikes/day",1,1,32,32,0,0,0,0,1,1,31,31,1,""
+,134,30,512,"Groups & companies","/groups",1,1,34,34,0,0,0,0,1,1,31,31,1,""
+,135,30,768,"FAQ","/faq",1,1,35,35,0,0,0,0,1,1,31,31,1,""
+,136,30,1024,"Contact","/contact",1,1,36,36,0,0,0,0,1,1,31,31,1,""
+,138,30,1536,"Page not found","/404",1,1,38,38,0,0,1,0,1,1,31,31,1,""
+,50,0,768,"Matomo live demo","/",1,0,0,0,1,0,0,0,1,1,31,31,1,""
+"tt_content"
+,"uid","pid","sorting","CType","header","bodytext","colPos","sys_language_uid","l18n_parent","l10n_source"
+,1,1,256,"text","Bikes, repairs and tours from Dresden","<p>Elbe Cycles has been selling and repairing bikes in Dresden-Neustadt since 1998. Come by for a test ride along the river.</p>",0,0,0,0
+,2,1,512,"text","This week in the workshop","<p>Same-day repairs for flat tyres and brakes. Book a full service online and pick up your bike the next morning.</p>",0,0,0,0
+,3,1,768,"header","Open Monday to Saturday, 9:00–19:00","",0,0,0,0
+,4,2,256,"text","Find the right bike","<p>City, e-bikes and gravel: our team helps you choose and adjusts every bike to your height.</p>",0,0,0,0
+,5,3,256,"text","City bikes","<p>Robust bikes with hub gears, lights and racks for daily trips through the city.</p>",0,0,0,0
+,6,4,256,"text","E-bikes","<p>Motors from Bosch and Shimano, batteries up to 750 Wh and a free first service after 500 km.</p>",0,0,0,0
+,7,5,256,"text","Cargo e-bikes","<p>Carry two kids or a week of groceries. Test them on our cargo track behind the shop.</p>",0,0,0,0
+,8,6,256,"text","Long John 2026","<p>The new Long John has a lower loading area, hydraulic disc brakes and a rain cover for the box.</p>",0,0,0,0
+,9,7,256,"text","Gravel bikes","<p>Light frames, wide tyres, ready for the forest tracks of the Dresdner Heide.</p>",0,0,0,0
+,10,8,256,"text","Our workshop","<p>Six mechanics, all brands, e-bike diagnosis included.</p>",0,0,0,0
+,11,9,256,"text","Repair prices","<p>Flat tyre from 15 EUR, brake service 35 EUR, full service 89 EUR.</p>",0,0,0,0
+,12,10,256,"text","Book a service","<p>Choose a date, drop off your bike before 10:00 and get it back the same day.</p>",0,0,0,0
+,13,11,256,"text","Guided tours","<p>Half-day and weekend tours along the Elbe, bikes and helmets included.</p>",0,0,0,0
+,14,12,256,"text","Elbe Cycle Route","<p>From Dresden to Meissen in 30 km, flat and family-friendly, with a stop at a vineyard.</p>",0,0,0,0
+,15,13,256,"text","Saxon Switzerland","<p>Sandstone rocks, the Bastei bridge and a ferry back across the Elbe: 60 km for fit riders.</p>",0,0,0,0
+,16,14,256,"text","News","<p>Events, new bikes and opening hours.</p>",0,0,0,0
+,17,15,256,"text","Spring opening","<p>Free bike check and coffee on the first Saturday in March.</p>",0,0,0,0
+,18,16,256,"text","New cargo bikes in store","<p>Three new cargo bike models are ready for test rides.</p>",0,0,0,0
+,19,17,256,"text","About us","<p>A team of twelve cyclists who love fixing things.</p>",0,0,0,0
+,20,18,256,"text","Contact","<p>Elbe Cycles, Alaunstraße 1, 01099 Dresden, phone 0351 123456.</p>",0,0,0,0
+,21,20,256,"text","Summer sale","<p>Up to 30 % off 2025 models. Not published yet.</p>",0,0,0,0
+,22,21,256,"text","Imprint","<p>Elbe Cycles GmbH, Alaunstraße 1, 01099 Dresden.</p>",0,0,0,0
+,23,22,256,"text","Privacy","<p>We count visits with Matomo, without cookies.</p>",0,0,0,0
+,24,23,256,"text","Page not found","<p>This page does not exist (anymore). Try the <a href=""/"">home page</a>.</p>",0,0,0,0
+,25,24,256,"header","Records of the site live here","",0,0,0,0
+,26,25,256,"text","Customer area","<p>Your orders and service appointments, for logged-in customers only.</p>",0,0,0,0
+,101,1,256,"text","Fahrräder, Reparaturen und Touren aus Dresden","<p>Elbe Cycles verkauft und repariert seit 1998 Fahrräder in der Dresdner Neustadt. Kommen Sie zur Probefahrt an der Elbe vorbei.</p>",0,1,1,1
+,102,1,512,"text","Diese Woche in der Werkstatt","<p>Platten und Bremsen reparieren wir am selben Tag. Buchen Sie eine Inspektion online.</p>",0,1,2,2
+,104,2,256,"text","Das richtige Rad finden","<p>Stadtrad, E-Bike oder Gravel: Wir beraten Sie und stellen jedes Rad auf Ihre Größe ein.</p>",0,1,4,4
+,105,3,256,"text","Stadträder","<p>Robuste Räder mit Nabenschaltung, Licht und Gepäckträger.</p>",0,1,5,5
+,106,4,256,"text","E-Bikes","<p>Motoren von Bosch und Shimano, Akkus bis 750 Wh.</p>",0,1,6,6
+,107,5,256,"text","Lasten-E-Bikes","<p>Zwei Kinder oder der Wocheneinkauf: Testen Sie sie auf unserer Strecke.</p>",0,1,7,7
+,110,8,256,"text","Unsere Werkstatt","<p>Sechs Mechaniker, alle Marken, E-Bike-Diagnose inklusive.</p>",0,1,10,10
+,111,9,256,"text","Reparaturpreise","<p>Platten ab 15 EUR, Bremsen 35 EUR, Inspektion 89 EUR.</p>",0,1,11,11
+,113,11,256,"text","Geführte Touren","<p>Halbtags- und Wochenendtouren an der Elbe, Rad und Helm inklusive.</p>",0,1,13,13
+,114,12,256,"text","Elberadweg","<p>Von Dresden nach Meißen in 30 km, flach und familienfreundlich.</p>",0,1,14,14
+,115,13,256,"text","Sächsische Schweiz","<p>Sandstein, Basteibrücke und mit der Fähre zurück: 60 km für Geübte.</p>",0,1,15,15
+,119,17,256,"text","Über uns","<p>Zwölf Radfahrerinnen und Radfahrer, die gerne schrauben.</p>",0,1,19,19
+,120,18,256,"text","Kontakt","<p>Elbe Cycles, Alaunstraße 1, 01099 Dresden, Telefon 0351 123456.</p>",0,1,20,20
+,122,21,256,"text","Impressum","<p>Elbe Cycles GmbH, Alaunstraße 1, 01099 Dresden.</p>",0,1,22,22
+,123,22,256,"text","Datenschutz","<p>Wir zählen Besuche mit Matomo, ohne Cookies.</p>",0,1,23,23
+,124,23,256,"text","Seite nicht gefunden","<p>Diese Seite gibt es nicht (mehr). Zur <a href=""/de/"">Startseite</a>.</p>",0,1,24,24
+,201,1,256,"text","Vélos, réparations et circuits à Dresde","<p>Les autres pages de ce site sont en anglais.</p>",0,2,1,1
+,213,11,256,"text","Circuits guidés","<p>Circuits d'une demi-journée le long de l'Elbe, vélo et casque compris.</p>",0,2,13,13
+,301,30,256,"text","Räder mieten in Dresden","<p>Stadträder, E-Bikes und Tandems ab 12 EUR am Tag, direkt am Hauptbahnhof.</p>",0,0,0,0
+,302,31,256,"text","Unsere Mieträder","<p>40 Räder in allen Größen, Kindersitze und Anhänger auf Anfrage.</p>",0,0,0,0
+,303,32,256,"text","Tagesmiete","<p>Stadtrad 12 EUR, E-Bike 29 EUR, Rückgabe bis 20:00.</p>",0,0,0,0
+,304,33,256,"text","Wochenmiete","<p>Sieben Tage zum Preis von fünf, inklusive Schloss und Reparaturset.</p>",0,0,0,0
+,305,34,256,"text","Gruppen & Firmen","<p>Ausflüge für bis zu 30 Personen, auf Wunsch mit Guide.</p>",0,0,0,0
+,306,35,256,"text","Häufige Fragen","<p>Brauche ich einen Ausweis? Ja, bitte bringen Sie ihn mit.</p>",0,0,0,0
+,307,36,256,"text","Kontakt","<p>Velo Verleih Dresden, Wiener Platz 4, 01069 Dresden.</p>",0,0,0,0
+,308,37,256,"text","Impressum","<p>Velo Verleih Dresden UG, Wiener Platz 4, 01069 Dresden.</p>",0,0,0,0
+,309,38,256,"text","Seite nicht gefunden","<p>Diese Seite gibt es nicht. Zur <a href=""/"">Startseite</a>.</p>",0,0,0,0
+,401,30,256,"text","Rent a bike in Dresden","<p>City bikes, e-bikes and tandems from 12 EUR a day, right at the main station.</p>",0,1,301,301
+,402,31,256,"text","Our rental bikes","<p>40 bikes in all sizes, child seats and trailers on request.</p>",0,1,302,302
+,403,32,256,"text","Day rental","<p>City bike 12 EUR, e-bike 29 EUR, return by 20:00.</p>",0,1,303,303
+,405,34,256,"text","Groups & companies","<p>Trips for up to 30 people, with a guide if you like.</p>",0,1,305,305
+,406,35,256,"text","FAQ","<p>Do I need an ID? Yes, please bring it along.</p>",0,1,306,306
+,407,36,256,"text","Contact","<p>Velo Verleih Dresden, Wiener Platz 4, 01069 Dresden.</p>",0,1,307,307
+,409,38,256,"text","Page not found","<p>This page does not exist. Go to the <a href=""/en/"">home page</a>.</p>",0,1,309,309
+,501,50,256,"text","Real statistics from demo.matomo.org","<p>This site is not in demo data mode: its base is a domain tracked by the public Matomo demo, so the statistics bar shows real numbers for this page.</p>",0,0,0,0
+"be_groups"
+,"uid","pid","title","description","db_mountpoints","groupMods","tables_select","tables_modify","pagetypes_select","non_exclude_fields","explicit_allowdeny","allowed_languages","custom_options","availableWidgets","TSconfig"
+,1,0,"Editors","Page module, dashboard and both Matomo statistics permissions","1,30,50","web_layout,web_list,records,dashboard","pages,tt_content","pages,tt_content","1,4,254","pages:hidden,pages:nav_hide,tt_content:hidden","tt_content:CType:header,tt_content:CType:text","0,1,2","analytics_matomo:pageStatistics,analytics_matomo:siteStatistics","analyticsMatomoPerformance,analyticsMatomoTraffic,analyticsMatomoTopPages,analyticsMatomoChannel,analyticsMatomoDevices,analyticsMatomoBrowsers,analyticsMatomoCountries","options.dashboard.dashboardPresetsForNewUsers = analyticsMatomoOverview"

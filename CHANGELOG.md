@@ -14,6 +14,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Site set with the settings `analyticsMatomo.url`, `analyticsMatomo.idSite` and `analyticsMatomo.tokenAuth`, with fallbacks to EXT:matomo_integration, EXT:matomo_widgets and EXT:matomo_tracking.
 - Matomo Reporting API client: one `API.getBulkRequest` POST per page and period, token in the request body, cached for an hour.
 - Dashboard widgets in the group **Matomo**: site performance, visits over time, top pages, channels, devices, browsers and countries, and the dashboard preset **Matomo overview**. All widgets share the site and period chosen by the user; only sites with a Matomo connection whose root page the user may see are offered.
-- Site setting `analyticsMatomo.demoData`: generated statistics instead of a Matomo connection, marked with a badge, to try out the extension.
+- Site setting `analyticsMatomo.demoData`: generated statistics instead of a Matomo connection, marked with a badge, to try out the extension. Top pages are the pages of the site in every language, numbers differ by page, language and site.
 - Backend group permissions `analytics_matomo:pageStatistics` (Page module bar) and `analytics_matomo:siteStatistics` (dashboard widgets); admins always have both.
 - Unit and functional tests, quality tooling and CI for PHP 8.2–8.4 on TYPO3 13.4 and 14.3.

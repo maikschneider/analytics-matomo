@@ -109,9 +109,9 @@ final class MatomoConfigurationResolverTest extends UnitTestCase
             'settings' => ['analyticsMatomo' => ['demoData' => true, 'url' => 'https://own.example.com', 'idSite' => 7, 'tokenAuth' => 'own-token']],
         ]);
 
-        self::assertEquals(MatomoConfiguration::demo('https://example.com/'), $this->subject()->resolve($site));
+        self::assertEquals(MatomoConfiguration::demo('https://example.com/', 1), $this->subject()->resolve($site));
         self::assertEquals(
-            MatomoConfiguration::demo('https://example.com/'),
+            MatomoConfiguration::demo('https://example.com/', 1),
             $this->subject()->resolve(new Site('main', 1, ['base' => 'https://example.com/', 'settings' => ['analyticsMatomo' => ['demoData' => true]]]))
         );
     }

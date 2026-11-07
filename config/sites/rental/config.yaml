@@ -1,0 +1,35 @@
+# Page URLs end with a slash on this site
+base: 'https://rental.analytics-matomo.ddev.site/'
+rootPageId: 30
+dependencies:
+  - maikschneider/analytics-matomo
+languages:
+  -
+    title: Deutsch
+    enabled: true
+    languageId: 0
+    base: /
+    locale: de_DE.UTF-8
+    navigationTitle: Deutsch
+    flag: de
+  -
+    title: English
+    enabled: true
+    languageId: 1
+    base: /en/
+    locale: en_GB.UTF-8
+    navigationTitle: English
+    flag: gb
+    fallbackType: strict
+errorHandling:
+  -
+    errorCode: 404
+    errorHandler: Page
+    errorContentSource: 't3://page?uid=38'
+routeEnhancers:
+  PageTypeSuffix:
+    type: PageType
+    default: /
+    index: ''
+    map:
+      /: 0

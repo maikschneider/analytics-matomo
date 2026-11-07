@@ -28,7 +28,7 @@ final class DemoDataTest extends UnitTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->configuration = MatomoConfiguration::demo('https://example.com/');
+        $this->configuration = MatomoConfiguration::demo('https://example.com/', 1);
         $this->period = Period::lastDays(7, new \DateTimeImmutable('2026-11-06'));
     }
 
@@ -72,6 +72,30 @@ final class DemoDataTest extends UnitTestCase
         self::assertCount(1, $result);
         self::assertSame('https://example.com/about', $result[0]['url']);
         self::assertGreaterThan(0, $result[0]['nb_hits']);
+    }
+
+    #[Test]
+    public function everySiteHasItsOwnNumbers(): void
+    {
+        $request = ['method' => 'VisitsSummary.get', 'period' => 'range', 'date' => $this->period->toMatomoDate()];
+        $demoData = new DemoData();
+
+        [$main] = $demoData->results([$request], $this->configuration);
+        [$shop] = $demoData->results([$request], MatomoConfiguration::demo('https://shop.example.com/', 10));
+
+        self::assertNotSame($main['nb_visits'], $shop['nb_visits']);
+    }
+
+    #[Test]
+    public function deeperPagesHaveFewerViews(): void
+    {
+        $request = ['method' => 'Actions.getPageUrl', 'period' => 'range', 'date' => $this->period->toMatomoDate()];
+        [[$home], [$deep]] = (new DemoData())->results([
+            $request + ['pageUrl' => 'https://example.com/'],
+            $request + ['pageUrl' => 'https://example.com/bikes/e-bikes/cargo/long-john/'],
+        ], $this->configuration);
+
+        self::assertGreaterThan($deep['nb_hits'], $home['nb_hits']);
     }
 
     #[Test]

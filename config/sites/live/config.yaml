@@ -1,7 +1,7 @@
-# Development site: its base is a site tracked by the public Matomo demo, so the
-# Page module shows real statistics for the root page after `ddev init-typo3`.
+# No demo data: the base is a site tracked by the public Matomo demo, so the
+# Page module shows real statistics for this root page.
 base: 'http://www.virtual-drums.com/'
-rootPageId: 1
+rootPageId: 50
 dependencies:
   - maikschneider/analytics-matomo
 languages:

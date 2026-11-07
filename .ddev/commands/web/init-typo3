@@ -2,7 +2,7 @@
 # shellcheck disable=SC2086
 set -e
 
-## Description: Initialize TYPO3 installation
+## Description: Initialize TYPO3 with demo sites, pages and backend users
 ## Usage: init-typo3
 ## Example: ddev init-typo3
 
@@ -12,6 +12,8 @@ readonly dbPassword="db"
 readonly dbName="db"
 readonly dbCredentials="-h${dbHost} -u${dbUser} -p${dbPassword}"
 readonly typo3Binary="/var/www/html/vendor/bin/typo3"
+readonly demoFixture="/var/www/html/Tests/Fixtures/DemoInstance/Database.csv"
+readonly demoPassword='Passw0rd!'
 
 function _progress() {
     printf "%s... " "$1"
@@ -36,7 +38,7 @@ export TYPO3_DB_DBNAME="$dbName"
 export TYPO3_SERVER_TYPE=apache
 export TYPO3_PROJECT_NAME="EXT:analytics_matomo"
 export TYPO3_SETUP_ADMIN_USERNAME=admin
-export TYPO3_SETUP_ADMIN_PASSWORD='Passw0rd!'
+export TYPO3_SETUP_ADMIN_PASSWORD="$demoPassword"
 export TYPO3_SETUP_ADMIN_EMAIL=admin@example.com
 
 _progress "Setting up TYPO3 installation"
@@ -47,6 +49,42 @@ _progress "Updating database schema"
     "$typo3Binary" extension:setup
 _done
 
-_progress "Creating root page of the development site"
-    mysql $dbCredentials "$dbName" -e "INSERT INTO pages (uid, pid, title, slug, doktype, is_siteroot, perms_userid, perms_user, perms_group) VALUES (1, 0, 'Home', '/', 1, 1, 1, 31, 27)"
+# CSV format of the functional test fixtures: a row with the table name, a
+# header row, then the records; every row but the table name starts with an empty cell
+_progress "Importing demo pages, content and backend group"
+    php -- "$dbHost" "$dbUser" "$dbPassword" "$dbName" "$demoFixture" <<'PHP'
+<?php
+[, $host, $user, $password, $database, $fixture] = $argv;
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+$db = new mysqli($host, $user, $password, $database);
+$db->set_charset('utf8mb4');
+$file = new SplFileObject($fixture);
+$file->setFlags(SplFileObject::READ_CSV | SplFileObject::SKIP_EMPTY | SplFileObject::READ_AHEAD | SplFileObject::DROP_NEW_LINE);
+$file->setCsvControl(',', '"', '');
+$table = '';
+$columns = [];
+foreach ($file as $row) {
+    if ($row[0] !== '') {
+        [$table, $columns] = [$row[0], []];
+    } elseif ($columns === []) {
+        $columns = array_slice($row, 1);
+    } else {
+        $placeholders = implode(', ', array_fill(0, count($columns), '?'));
+        $db->execute_query("INSERT INTO `$table` (`" . implode('`, `', $columns) . "`) VALUES ($placeholders)", array_slice($row, 1));
+    }
+}
+PHP
+_done
+
+_progress "Creating backend user \"editor\""
+    TYPO3_BE_USER_PASSWORD="$demoPassword" "$typo3Binary" backend:user:create --no-interaction --quiet \
+        --username=editor --email=editor@example.com --groups=1
+_done
+
+_progress "Giving the admin the Matomo dashboard"
+    mysql $dbCredentials "$dbName" -e "UPDATE be_users SET TSconfig = 'options.dashboard.dashboardPresetsForNewUsers = analyticsMatomoOverview' WHERE username = 'admin'"
+_done
+
+_progress "Flushing caches"
+    "$typo3Binary" cache:flush
 _done

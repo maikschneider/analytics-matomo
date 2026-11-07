@@ -21,7 +21,7 @@ use TYPO3\CMS\Core\Type\Bitmask\Permission;
  */
 final readonly class PageTargetResolver
 {
-    private const DOKTYPES_WITHOUT_URL = [
+    public const DOKTYPES_WITHOUT_URL = [
         PageRepository::DOKTYPE_LINK,
         PageRepository::DOKTYPE_SHORTCUT,
         PageRepository::DOKTYPE_SPACER,
