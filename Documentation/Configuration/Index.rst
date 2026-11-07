@@ -182,7 +182,9 @@ Use the same script as above.
 Caching
 =======
 
-Results are cached for one hour in the cache `analytics_matomo`. Change the
+Results are cached for one hour in the cache `analytics_matomo`, which belongs
+to the `system` cache group: ``vendor/bin/typo3 cache:flush`` and
+:guilabel:`Flush all caches` clear it. Change the
 lifetime in :file:`config/system/additional.php`:
 
 ..  code-block:: php
