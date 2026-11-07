@@ -1,0 +1,246 @@
+[
+	{
+		"website": "Demo Site",
+		"prettyDate": "October 1 – 31, 2026",
+		"metadata": {
+			"category": "Acquisition",
+			"subcategory": "All Channels",
+			"name": "Channel Type",
+			"module": "Referrers",
+			"action": "getReferrerType",
+			"dimension": "Channel Type",
+			"documentation": "This table contains information about the distribution of the channel types.<br /><b>Direct Entry:</b> A visitor has entered the URL in their browser and started browsing on your website - they entered the website directly.<br /><b>Search Engines:</b> A visitor was referred to your website by a search engine. <br /> See the \"Search Engines & Keywords\" report for more details.<br /><b>Websites:</b> The visitor followed a link on another website that led to your site. <br /> See the \"Websites\" report for more details.<br /><b>Campaigns:</b> Visitors that came to your website as the result of a campaign. <br /> See the \"Campaigns\" report for more details.",
+			"metrics": {
+				"nb_visits": "Visits",
+				"nb_actions": "Actions"
+			},
+			"metricsDocumentation": {
+				"nb_visits": "If a visitor comes to your website for the first time or if they visit a page more than 30 minutes after their last page view, this will be recorded as a new visit.",
+				"nb_uniq_visitors": "The number of unduplicated visitors coming to your website. Every user is only counted once, even if they visit the website multiple times a day.",
+				"nb_actions": "The number of actions performed by your visitors. Actions can be page views, internal site searches, downloads or outlinks.",
+				"nb_users": "The number of users logged in your website. It is the number of unique active users that have a User ID set (via the Tracking code function 'setUserId').",
+				"nb_actions_per_visit": "The average number of actions (page views, site searches, downloads or outlinks) that were performed during the visits.",
+				"avg_time_on_site": "The average duration of a visit.",
+				"bounce_rate": "The percentage of visits that only had a single pageview. This means, that the visitor left the website directly from the entrance page.",
+				"conversion_rate": "The percentage of visits that triggered a conversion. The conversion rate is calculated using the number of visits that converted at least one goal. Visits converting multiple goals are only counted once in the conversion rate.",
+				"nb_visits_percent_of_total": "The percentage of the report's total Visits that this row represents.",
+				"nb_actions_percent_of_total": "The percentage of the report's total Actions that this row represents.",
+				"revenue_percent_of_total": "The percentage of the report's total Revenue that this row represents."
+			},
+			"processedMetrics": {
+				"nb_actions_per_visit": "Actions per Visit",
+				"avg_time_on_site": "Avg. Time on Website",
+				"bounce_rate": "Bounce Rate"
+			},
+			"metricTypes": {
+				"nb_visits": "number",
+				"nb_uniq_visitors": "number",
+				"nb_actions": "number",
+				"nb_users": "number",
+				"nb_actions_per_visit": "number",
+				"avg_time_on_site": "duration_s",
+				"bounce_rate": "percent",
+				"conversion_rate": "percent",
+				"nb_visits_percent_of_total": "percent",
+				"nb_actions_percent_of_total": "percent",
+				"revenue_percent_of_total": "percent"
+			},
+			"constantRowsCount": true,
+			"metricsGoal": {
+				"nb_conversions": "Conversions",
+				"revenue": "Revenue"
+			},
+			"processedMetricsGoal": {
+				"revenue_per_visit": "Revenue per Visit"
+			},
+			"metricTypesGoal": {
+				"revenue_per_visit": "money",
+				"nb_conversions": "number",
+				"conversion_rate": "percent",
+				"revenue": "money"
+			},
+			"imageGraphUrl": "index.php?module=API&method=ImageGraph.get&idSite=1&apiModule=Referrers&apiAction=getReferrerType&period=range&date=2026-10-01,2026-10-31",
+			"imageGraphEvolutionUrl": "index.php?module=API&method=ImageGraph.get&idSite=1&apiModule=Referrers&apiAction=getReferrerType&period=day&date=2026-10-01,2026-10-31",
+			"uniqueId": "Referrers_getReferrerType"
+		},
+		"columns": {
+			"label": "Channel Type",
+			"nb_visits": "Visits",
+			"nb_visits_percent_of_total": "Visits (%)",
+			"nb_actions": "Actions",
+			"nb_actions_percent_of_total": "Actions (%)",
+			"nb_actions_per_visit": "Actions per Visit",
+			"avg_time_on_site": "Avg. Time on Website",
+			"bounce_rate": "Bounce Rate",
+			"revenue": "Revenue",
+			"revenue_percent_of_total": "Revenue (%)"
+		},
+		"reportData": [
+			{
+				"label": "Search Engines",
+				"nb_visits": 241403,
+				"nb_actions": 421211,
+				"revenue": 409514.8,
+				"nb_visits_percent_of_total": 0.551,
+				"nb_actions_percent_of_total": 0.413,
+				"revenue_percent_of_total": 0.165,
+				"nb_actions_per_visit": 1.7,
+				"avg_time_on_site": 105,
+				"bounce_rate": 0.74
+			},
+			{
+				"label": "Social Networks",
+				"nb_visits": 58662,
+				"nb_actions": 203604,
+				"revenue": 816231.8999999999,
+				"nb_visits_percent_of_total": 0.134,
+				"nb_actions_percent_of_total": 0.2,
+				"revenue_percent_of_total": 0.329,
+				"nb_actions_per_visit": 3.5,
+				"avg_time_on_site": 332,
+				"bounce_rate": 0.52
+			},
+			{
+				"label": "AI Assistants",
+				"nb_visits": 51750,
+				"nb_actions": 181658,
+				"revenue": 586058.1000000001,
+				"nb_visits_percent_of_total": 0.118,
+				"nb_actions_percent_of_total": 0.178,
+				"revenue_percent_of_total": 0.237,
+				"nb_actions_per_visit": 3.5,
+				"avg_time_on_site": 324,
+				"bounce_rate": 0.45
+			},
+			{
+				"label": "Direct Entry",
+				"nb_visits": 43716,
+				"nb_actions": 50447,
+				"revenue": 22066.40000000001,
+				"nb_visits_percent_of_total": 0.1,
+				"nb_actions_percent_of_total": 0.049,
+				"revenue_percent_of_total": 0.009,
+				"nb_actions_per_visit": 1.2,
+				"avg_time_on_site": 37,
+				"bounce_rate": 0.9
+			},
+			{
+				"label": "Websites",
+				"nb_visits": 42929,
+				"nb_actions": 162222,
+				"revenue": 643665.7000000001,
+				"nb_visits_percent_of_total": 0.098,
+				"nb_actions_percent_of_total": 0.159,
+				"revenue_percent_of_total": 0.26,
+				"nb_actions_per_visit": 3.8,
+				"avg_time_on_site": 384,
+				"bounce_rate": 0.48
+			},
+			{
+				"label": "Campaigns",
+				"revenue": 0,
+				"nb_visits": 4,
+				"nb_actions": 4,
+				"nb_visits_percent_of_total": 0,
+				"nb_actions_percent_of_total": 0,
+				"revenue_percent_of_total": 0,
+				"nb_actions_per_visit": 1,
+				"avg_time_on_site": 0,
+				"bounce_rate": 1
+			}
+		],
+		"reportMetadata": [
+			{
+				"segment": "referrerType==search",
+				"referrer_type": 2
+			},
+			{
+				"segment": "referrerType==social",
+				"referrer_type": 7
+			},
+			{
+				"segment": "referrerType==ai",
+				"referrer_type": 8
+			},
+			{
+				"segment": "referrerType==direct",
+				"referrer_type": 1
+			},
+			{
+				"segment": "referrerType==website",
+				"referrer_type": 3
+			},
+			{
+				"segment": "referrerType==campaign",
+				"referrer_type": 6
+			}
+		],
+		"reportTotal": {
+			"nb_visits": 438464,
+			"nb_actions": 1019146,
+			"max_actions": 74,
+			"sum_visit_length": 79596578,
+			"bounce_count": 291918,
+			"nb_visits_converted": 32409,
+			"goals": {
+				"idgoal=ecommerceAbandonedCart": {
+					"nb_conversions": 45736,
+					"nb_visits_converted": 45736,
+					"revenue": 10138144.2,
+					"items": 73943
+				},
+				"idgoal=ecommerceOrder": {
+					"nb_conversions": 11998,
+					"nb_visits_converted": 11723,
+					"revenue": 2457894.9000000004,
+					"revenue_subtotal": 3215382.9299999997,
+					"revenue_tax": 63016.770000000004,
+					"revenue_shipping": 0,
+					"revenue_discount": 350048.25999999995,
+					"items": 16154
+				},
+				"idgoal=4": {
+					"nb_conversions": 716,
+					"nb_visits_converted": 716,
+					"revenue": 716
+				},
+				"idgoal=5": {
+					"nb_conversions": 778,
+					"nb_visits_converted": 778,
+					"revenue": 3890
+				},
+				"idgoal=6": {
+					"nb_conversions": 1138,
+					"nb_visits_converted": 1138,
+					"revenue": 2276
+				},
+				"idgoal=7": {
+					"nb_conversions": 12760,
+					"nb_visits_converted": 12760,
+					"revenue": 12760
+				},
+				"idgoal=8": {
+					"nb_conversions": 5366,
+					"nb_visits_converted": 5366,
+					"revenue": 0
+				},
+				"idgoal=9": {
+					"nb_conversions": 177,
+					"nb_visits_converted": 127,
+					"revenue": 0
+				},
+				"idgoal=10": {
+					"nb_conversions": 456,
+					"nb_visits_converted": 456,
+					"revenue": 0
+				}
+			},
+			"nb_conversions": 33389,
+			"revenue": 2477536.9000000004,
+			"sum_daily_nb_uniq_visitors": 423231,
+			"sum_daily_nb_users": 173,
+			"nb_actions_per_visit": 2.3
+		},
+		"timerMillis": "213"
+	}
+]

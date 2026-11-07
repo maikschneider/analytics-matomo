@@ -9,6 +9,8 @@ use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelectionResolver;
 use MaikSchneider\AnalyticsMatomo\Dashboard\SiteStatisticsService;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
 use MaikSchneider\AnalyticsMatomo\Module\ReportCatalog;
+use MaikSchneider\AnalyticsMatomo\Module\ReportService;
+use MaikSchneider\AnalyticsMatomo\Module\ReportTableFactory;
 use MaikSchneider\AnalyticsMatomo\Statistics\Period;
 use MaikSchneider\AnalyticsMatomo\Statistics\TileFactory;
 use Psr\Http\Message\ResponseInterface;
@@ -43,6 +45,8 @@ final readonly class ReportModuleController
         private SiteStatisticsService $statisticsService,
         private TileFactory $tileFactory,
         private LoggerInterface $logger,
+        private ReportService $reportService,
+        private ReportTableFactory $tableFactory,
     ) {
     }
 
@@ -59,13 +63,15 @@ final readonly class ReportModuleController
         $route = $module->getIdentifier();
         $section = substr($route, strlen('analytics_matomo_'));
         $pages = $this->catalog->getPages($section);
-        $moduleData->clean('report', array_keys($pages));
+        if ($pages !== []) {
+            $moduleData->clean('report', array_keys($pages));
+        }
         $report = (string)$moduleData->get('report');
         $template = $this->moduleTemplateFactory->create($request);
         $template->setTitle($this->label('mlang_tabs_tab'));
         $template->makeDocHeaderModuleMenu(['id' => $pageId]);
         $variables = [
-            'title' => $this->translate($pages[$report]),
+            'title' => $this->translate($pages[$report] ?? self::LABELS . 'section.' . $section),
             'll' => self::LABELS,
             'pageId' => $pageId,
         ];
@@ -126,17 +132,28 @@ final readonly class ReportModuleController
         $periods[Period::CUSTOM] = self::SHARED_LABELS . 'period.custom';
         $this->addMenu($template, $route, $pageId, 'period', $periods, $selection->period->preset);
         $this->addMenu($template, $route, $pageId, 'compare', ['0' => self::LABELS . 'compare.off', '1' => self::LABELS . 'compare.on'], $selection->compare ? '1' : '0');
-        if ($section === 'visitors' && $report === 'overview') {
-            try {
+        try {
+            if ($section === 'visitors' && $report === 'overview') {
                 $variables['tiles'] = $this->tileFactory->createForSite($this->statisticsService->getPerformance($selection->configuration, $selection->period));
-            } catch (MatomoApiException $exception) {
-                $this->logger->warning('Loading Matomo statistics failed: {message}', [
-                    'message' => $exception->getMessage(),
-                    'site' => $selection->site->getIdentifier(),
-                ]);
-                $variables['emptyMessage'] = $this->translate(self::SHARED_LABELS . 'bar.error');
-                $variables['errorMessage'] = $user->isAdmin() ? $exception->getMessage() : '';
+            } else {
+                $reports = $this->reportService->getReports($selection->configuration, $section, $report, $selection->period, $selection->compare, $GLOBALS['LANG']->getLocale()?->getLanguageCode() ?? 'en');
+                $variables['tables'] = [];
+                $baseUrl = (string)$this->uriBuilder->buildUriFromRoute($route, ['id' => $pageId, 'report' => $report]);
+                $definitions = $this->catalog->getReports($section, $report);
+                foreach ($reports as $index => $data) {
+                    $variables['tables'][] = $this->tableFactory->create($data['current'], $data['previous'], $parameters, $baseUrl, ($definitions[$index]['rows'] ?? '') === 'url' ? $selection->site : null, (int)$moduleData->get('language'), $pageId);
+                }
+                if ($reports === []) {
+                    $variables['emptyMessage'] = $this->label('report.placeholder');
+                }
             }
+        } catch (MatomoApiException $exception) {
+            $this->logger->warning('Loading Matomo statistics failed: {message}', [
+                'message' => $exception->getMessage(),
+                'site' => $selection->site->getIdentifier(),
+            ]);
+            $variables['emptyMessage'] = $this->translate(self::SHARED_LABELS . 'bar.error');
+            $variables['errorMessage'] = $user->isAdmin() ? $exception->getMessage() : '';
         }
         $template->assignMultiple($variables + [
             'sharedLabels' => rtrim(self::SHARED_LABELS, ':'),
@@ -152,6 +169,9 @@ final readonly class ReportModuleController
      */
     private function addMenu(ModuleTemplate $template, string $route, int $pageId, string $parameter, array $options, string $active): void
     {
+        if ($options === []) {
+            return;
+        }
         $button = GeneralUtility::makeInstance(DropDownButton::class)
             ->setLabel($this->label('control.' . $parameter))
             ->setShowLabelText(true)

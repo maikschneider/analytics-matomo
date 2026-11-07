@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Matomo Analytics backend module with page tree, five sections and global report, site, language, period and comparison controls. Site, period and comparison are shared with the dashboard widgets. Custom ranges use native date inputs; report tables and charts follow separately.
+- Generic report tables for Behaviour / Pages, Acquisition / All channels and Visitors / Devices: translated Matomo columns and metric documentation, search, sorting, 25-row paging and comparison with the previous period. URL rows respect page access, site language and the selected page-tree subtree, with links to page details, the Page module, page properties and the frontend. Demo mode supplies all three reports.
+- Matomo Analytics backend module with page tree, five sections and global report, site, language, period and comparison controls. Site, period and comparison are shared with the dashboard widgets. Custom ranges use native date inputs; charts follow separately.
 
 - Statistics bar in the Page module: page views, bounce rate, average time on page and exit rate of the current page and language, with trend against the previous period and a daily sparkline. Loaded via a backend AJAX route that inherits access from the Page module.
 - Periods of 7, 14 and 30 days, link to the Matomo report.

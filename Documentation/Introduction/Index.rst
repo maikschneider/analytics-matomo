@@ -6,8 +6,31 @@
 Introduction
 ============
 
-The extension shows Matomo statistics in two places: a statistics bar in the
-Page module and widgets on the dashboard.
+The extension shows Matomo statistics in the Matomo Analytics backend module,
+a statistics bar in the Page module and widgets on the dashboard.
+
+Matomo Analytics module
+=======================
+
+The module offers tables for :guilabel:`Behaviour > Pages`,
+:guilabel:`Acquisition > All channels` and :guilabel:`Visitors > Devices`.
+Column headings and metric documentation come from Matomo in the backend user's
+language. Click a column heading to sort, search labels, or browse 25 rows per
+page. These controls work on cached data without another Matomo request.
+:guilabel:`Compare` adds percentage changes against the previous period; a dash
+means no comparable previous value is available.
+
+For page URLs, the page tree selects the site and filters to the selected page
+and its descendants. The site root shows the whole site. The language control
+filters URL rows only. Only readable pages and permitted languages are shown;
+URLs without a matching TYPO3 page are visible to administrators only. Row
+links open page details, the Page module, page properties or the frontend.
+A warning indicates when Matomo has truncated a report: missing pages have
+unknown values, not zero visits.
+
+Site, period and comparison are shared with the dashboard widgets. Other module
+sections show an empty state until their reports are available. Demo mode also
+supplies the report tables without contacting Matomo.
 
 Statistics bar
 ==============

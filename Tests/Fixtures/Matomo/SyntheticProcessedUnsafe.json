@@ -1,0 +1,13 @@
+[
+	{
+		"metadata": {
+			"name": "<script>alert(1)</script>",
+			"metricTypes": {"nb_visits": "number"},
+			"metricsDocumentation": {"nb_visits": "\" onmouseover=\"alert(1)"}
+		},
+		"columns": {"label": "<b>Type</b>", "nb_visits": "Visits"},
+		"reportData": [{"label": "<img src=x onerror=alert(1)>", "nb_visits": 1}],
+		"reportMetadata": [],
+		"reportTotal": {"nb_visits": 1}
+	}
+]

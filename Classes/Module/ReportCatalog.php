@@ -4,25 +4,35 @@ declare(strict_types=1);
 
 namespace MaikSchneider\AnalyticsMatomo\Module;
 
+/** @phpstan-type Definition array{module: string, action: string, params?: array<string, int|string>, rows?: string} */
 final readonly class ReportCatalog
 {
     private const PAGES = [
-        'visitors' => ['overview', 'locations', 'devices', 'software', 'times', 'engagement'],
-        'behaviour' => ['pages', 'entryPages', 'exitPages', 'pageTitles', 'siteSearch', 'outlinks', 'downloads', 'events', 'contents', 'performance', 'trendingPages'],
-        'acquisition' => ['channels', 'websites', 'searchEngines', 'socialNetworks', 'aiAssistants', 'campaigns'],
-        'goals' => ['overview'],
-        'page' => ['overview'],
+        'visitors' => [
+            'overview' => ['reports' => []],
+            'devices' => ['reports' => [['module' => 'DevicesDetection', 'action' => 'getType']]],
+        ],
+        'behaviour' => [
+            'pages' => ['reports' => [['module' => 'Actions', 'action' => 'getPageUrls', 'params' => ['flat' => 1], 'rows' => 'url']]],
+        ],
+        'acquisition' => [
+            'channels' => ['reports' => [['module' => 'Referrers', 'action' => 'getReferrerType']]],
+        ],
     ];
 
-    /**
-     * @return array<string, string> report page identifiers and their label references
-     */
+    /** @return array<string, string> */
     public function getPages(string $section): array
     {
         $pages = [];
-        foreach (self::PAGES[$section] ?? [] as $page) {
+        foreach (array_keys(self::PAGES[$section] ?? []) as $page) {
             $pages[$page] = 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang_mod.xlf:report.' . $page;
         }
         return $pages;
+    }
+
+    /** @return list<Definition> */
+    public function getReports(string $section, string $page): array
+    {
+        return self::PAGES[$section][$page]['reports'] ?? [];
     }
 }

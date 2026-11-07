@@ -38,7 +38,7 @@ final readonly class DemoData
     public function results(array $requests, MatomoConfiguration $configuration): array
     {
         $pageUrls = [];
-        if (in_array('Actions.getPageUrls', array_column($requests, 'method'), true)) {
+        if (in_array('Actions.getPageUrls', array_column($requests, 'method'), true) || in_array('getPageUrls', array_column($requests, 'apiAction'), true)) {
             $pageUrls = $this->pageUrls?->get($configuration->idSite) ?? [];
             if ($pageUrls === []) {
                 $pageUrls = array_map(static fn (string $path): string => rtrim($configuration->url, '/') . '/' . $path, self::FALLBACK_PATHS);
@@ -76,6 +76,7 @@ final readonly class DemoData
         $visits = $this->sum($dates, fn (string $date): int => $this->visits($site, $date));
 
         return match ($method) {
+            'API.getProcessedReport' => $this->processedReport($request, $site, $dates, $pageUrls),
             'VisitsSummary.get' => $this->visitsSummary($site, $dates, $visits),
             'VisitFrequency.get' => ['nb_visits_returning' => intdiv($visits * 3, 10)],
             'Actions.get' => ['nb_pageviews' => $this->pageViews($site, $dates)],
@@ -84,6 +85,35 @@ final readonly class DemoData
             Breakdown::CHANNEL, Breakdown::DEVICES, Breakdown::BROWSERS, Breakdown::COUNTRIES => $this->breakdown($site, $method, $dates),
             default => throw new MatomoApiException('The demo data have no answer for ' . $method, 1793960301),
         };
+    }
+
+    /**
+     * @param array<string, int|string> $request
+     * @param list<string> $dates
+     * @param list<string> $pageUrls
+     * @return array<string, mixed>
+     */
+    private function processedReport(array $request, string $site, array $dates, array $pageUrls): array
+    {
+        $method = (string)($request['apiModule'] ?? '') . '.' . (string)($request['apiAction'] ?? '');
+        $isUrl = $method === 'Actions.getPageUrls';
+        $rows = $isUrl ? $this->pageUrls($site, $pageUrls, $dates, -1) : $this->breakdown($site, $method, $dates);
+        $columns = $isUrl ? ['label' => 'Page URL', 'nb_hits' => 'Page views', 'bounce_rate' => 'Bounce rate', 'avg_time_on_page' => 'Average time on page'] : ['label' => 'Type', 'nb_visits' => 'Visits'];
+        $metadata = [];
+        foreach ($rows as &$row) {
+            $metadata[] = isset($row['url']) ? ['url' => $row['url']] : [];
+            unset($row['url']);
+        }
+        unset($row);
+        return [
+            'metadata' => [
+                'name' => $isUrl ? 'Page URLs' : (string)($request['apiModule'] ?? 'Report'),
+                'metricTypes' => ['nb_hits' => 'number', 'nb_visits' => 'number', 'bounce_rate' => 'percent', 'avg_time_on_page' => 'duration_s'],
+                'metricsDocumentation' => ['nb_hits' => 'Number of page views.', 'nb_visits' => 'Number of visits.'],
+            ],
+            'columns' => $columns, 'reportData' => $rows, 'reportMetadata' => $metadata,
+            'reportTotal' => [$isUrl ? 'nb_hits' : 'nb_visits' => array_sum(array_column($rows, $isUrl ? 'nb_hits' : 'nb_visits'))],
+        ];
     }
 
     /**
@@ -147,7 +177,7 @@ final readonly class DemoData
     private function breakdown(string $site, string $method, array $dates): array
     {
         $rows = [];
-        foreach (self::LABELS[$method] as $label => $percent) {
+        foreach (self::LABELS[$method] ?? ['First' => 55, 'Second' => 30, 'Other' => 15] as $label => $percent) {
             $visits = $this->sum($dates, fn (string $date): int => intdiv($this->visits($site, $date) * $percent * $this->between($label . $site . $date, 70, 130), 10000));
             $rows[] = ['label' => $label, 'nb_visits' => $visits];
         }

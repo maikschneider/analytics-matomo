@@ -1,0 +1,41 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<section class="mb-4">
+    <h2>{table.title}</h2>
+    <f:if condition="{table.truncated}"><p class="alert alert-warning"><f:translate key="{ll}table.truncated" /></p></f:if>
+    <form action="{table.searchUrl}" method="get" class="mb-3">
+        <f:for each="{table.searchParameters}" as="value" key="name"><input type="hidden" name="{name}" value="{value}" /></f:for>
+        <input type="hidden" name="sort" value="{table.sort}" />
+        <input type="hidden" name="dir" value="{table.direction}" />
+        <label><f:translate key="{ll}table.search" /> <input type="search" name="q" value="{table.query}" /></label>
+        <button class="btn btn-default" type="submit"><f:translate key="{ll}table.search" /></button>
+    </form>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead><tr>
+                <f:for each="{table.columns}" as="column">
+                    <th scope="col" title="{column.documentation}"><a href="{column.url}">{column.label}</a></th>
+                    <f:if condition="{table.compare} && {column.metric}"><th scope="col"><f:translate key="{ll}table.change" /></th></f:if>
+                </f:for>
+                <f:if condition="{table.urlRows}"><th scope="col"><f:translate key="{ll}table.actions" /></th></f:if>
+            </tr></thead>
+            <tbody>
+                <f:for each="{table.rows}" as="row"><tr>
+                    <f:for each="{row.cells}" as="cell">
+                        <td>{cell.value}</td>
+                        <f:if condition="{table.compare} && {cell.metric}"><td>{cell.change}</td></f:if>
+                    </f:for>
+                    <f:if condition="{table.urlRows}"><td>
+                        <f:for each="{row.actions}" as="action"><a class="btn btn-default btn-sm" href="{action.url}"><f:translate key="{ll}action.{action.key}" /></a> </f:for>
+                    </td></f:if>
+                </tr></f:for>
+            </tbody>
+        </table>
+    </div>
+    <f:if condition="!{table.rows}"><p><f:translate key="{ll}table.empty" /></p></f:if>
+    <nav aria-label="{table.title}">
+        <f:if condition="{table.previousUrl}"><a href="{table.previousUrl}"><f:translate key="{ll}table.previous" /></a></f:if>
+        <span>{table.page} / {table.pages} ({table.total})</span>
+        <f:if condition="{table.nextUrl}"><a href="{table.nextUrl}"><f:translate key="{ll}table.next" /></a></f:if>
+    </nav>
+</section>
+</html>

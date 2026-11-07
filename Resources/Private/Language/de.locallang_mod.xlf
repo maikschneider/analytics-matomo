@@ -187,6 +187,17 @@
 				<source>Campaigns</source>
 				<target>Kampagnen</target>
 			</trans-unit>
+			<trans-unit id="table.truncated"><source>Matomo truncated this report: pages may be missing. Missing values are unknown, not zero.</source><target>Matomo hat diesen Bericht gekürzt: Seiten können fehlen. Fehlende Werte sind unbekannt, nicht null.</target></trans-unit>
+			<trans-unit id="table.search"><source>Search</source><target>Suchen</target></trans-unit>
+			<trans-unit id="table.change"><source>Change</source><target>Änderung</target></trans-unit>
+			<trans-unit id="table.actions"><source>Actions</source><target>Aktionen</target></trans-unit>
+			<trans-unit id="table.empty"><source>No matching rows.</source><target>Keine passenden Zeilen.</target></trans-unit>
+			<trans-unit id="table.previous"><source>Previous</source><target>Zurück</target></trans-unit>
+			<trans-unit id="table.next"><source>Next</source><target>Weiter</target></trans-unit>
+			<trans-unit id="action.details"><source>Page details</source><target>Seitendetails</target></trans-unit>
+			<trans-unit id="action.layout"><source>Page module</source><target>Seitenmodul</target></trans-unit>
+			<trans-unit id="action.edit"><source>Edit page properties</source><target>Seiteneigenschaften bearbeiten</target></trans-unit>
+			<trans-unit id="action.view"><source>View in frontend</source><target>Im Frontend ansehen</target></trans-unit>
 		</body>
 	</file>
 </xliff>

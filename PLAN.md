@@ -73,7 +73,10 @@ The backend module (milestone 0.3.0 on) is designed in [MODULE.md](MODULE.md#tec
 | `Dashboard\SiteStatisticsService` | API calls of the widgets |
 | `Dashboard\DashboardSelectionResolver` | sites a user may choose, stored selection |
 | `Statistics\PageUrlMapper` | Matomo URL → site language and page (incl. hidden pages, scheme-less labels, double slashes, encoded slugs); report rows by page, "unknown" when Matomo cut the report at its row limit |
-| `Module\ReportCatalog` | report pages and labels per backend module section |
+| `Module\ReportCatalog` | data-only report pages, Matomo methods, parameters and URL-row mapping per section |
+| `Module\ReportService` | one cached bulk of processed reports per report page, with previous ranges when comparing; language of the backend user |
+| `Module\ReportTableFactory` | Matomo metadata to table view model, page/language/subtree access filtering, search, sort and 25-row paging in PHP |
+| `Module\MetricFormatter` | raw metric values formatted by Matomo metric type; unknown values remain unknown |
 | `Controller\ReportModuleController` | module docheader, page-tree site, shared selection, report/language module data and empty states |
 | `Dashboard\Widget\MatomoWidget` | all widgets |
 

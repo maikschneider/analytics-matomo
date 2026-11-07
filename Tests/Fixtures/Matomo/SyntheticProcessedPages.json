@@ -1,0 +1,40 @@
+[
+	{
+		"metadata": {
+			"name": "Page URLs",
+			"metricTypes": {"nb_hits": "number"},
+			"metricsDocumentation": {"nb_hits": "Number of page views."}
+		},
+		"columns": {"label": "Page URL", "nb_hits": "Page views"},
+		"reportData": [
+			{"label": "main-about", "nb_hits": 30},
+			{"label": "main-german", "nb_hits": 20},
+			{"label": "hidden-page", "nb_hits": 15},
+			{"label": "child-page", "nb_hits": 10},
+			{"label": "restricted-page", "nb_hits": 8},
+			{"label": "unknown-page", "nb_hits": 6},
+			{"label": "shop-products", "nb_hits": 4},
+			{"label": "shop-german", "nb_hits": 3},
+			{"label": "-1", "nb_hits": 100}
+		],
+		"reportMetadata": [
+			{"url": "https://example.com/about"},
+			{"url": "https://example.com/de/ueber-uns"},
+			{"url": "https://example.com/summer-sale"},
+			{"url": "https://example.com/about/child"},
+			{"url": "https://example.com/restricted"},
+			{"url": "https://example.com/no-page"},
+			{"url": "https://shop.example.org/products/"},
+			{"url": "https://shop.example.de/produkte/"},
+			{"is_summary": true}
+		],
+		"reportTotal": {"nb_hits": 196}
+	},
+	{
+		"metadata": {"name": "Page URLs", "metricTypes": {"nb_hits": "number"}},
+		"columns": {"label": "Page URL", "nb_hits": "Page views"},
+		"reportData": [{"label": "renamed-label", "nb_hits": 20}, {"label": "-1", "nb_hits": 100}],
+		"reportMetadata": [{"url": "https://example.com/about"}, {"is_summary": true}],
+		"reportTotal": {"nb_hits": 120}
+	}
+]

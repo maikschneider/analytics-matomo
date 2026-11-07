@@ -39,7 +39,11 @@
                             </f:for>
                         </dl>
                     </f:then>
-                    <f:else><p class="text-body-secondary"><f:translate key="{ll}report.placeholder" /></p></f:else>
+                    <f:else>
+                        <f:for each="{tables}" as="table">
+                            <f:render partial="Module/ReportTable" arguments="{table: table, ll: ll}" />
+                        </f:for>
+                    </f:else>
                 </f:if>
             </section>
         </f:else>
