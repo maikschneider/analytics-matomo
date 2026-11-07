@@ -70,6 +70,9 @@ jobs:
       - name: Run functional tests
         run: ddev exec vendor/bin/phpunit --testsuite Functional
 
+      - name: Run JavaScript tests
+        run: ddev exec node --test Tests/JavaScript/evolution-chart.test.mjs Tests/JavaScript/module-filters.test.mjs
+
   coverage:
     name: Coverage
     runs-on: ubuntu-latest

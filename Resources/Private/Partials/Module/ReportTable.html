@@ -1,54 +1,73 @@
-<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
-<section class="mb-4">
-    <h2>{table.title}</h2>
-    <f:if condition="{table.truncated}"><p class="alert alert-warning"><f:translate key="{ll}table.truncated" /></p></f:if>
-    <f:if condition="!{table.metricList}">
-        <form action="{table.searchUrl}" method="get" class="mb-3">
-            <f:for each="{table.searchParameters}" as="value" key="name"><input type="hidden" name="{name}" value="{value}" /></f:for>
-            <input type="hidden" name="sort" value="{table.sort}" />
-            <input type="hidden" name="dir" value="{table.direction}" />
-            <label><f:translate key="{ll}table.search" /> <input type="search" name="q" value="{table.query}" /></label>
-            <button class="btn btn-default" type="submit"><f:translate key="{ll}table.search" /></button>
-        </form>
-    </f:if>
-    <div class="table-responsive">
-        <table class="table table-striped table-hover">
-            <thead><tr>
-                <f:if condition="{table.metricList}">
-                    <f:then>
-                        <th scope="col"><f:translate key="{ll}table.metric" /></th>
-                        <th scope="col"><f:translate key="{ll}table.value" /></th>
-                        <f:if condition="{table.compare}"><th scope="col"><f:translate key="{ll}table.change" /></th></f:if>
-                    </f:then>
-                    <f:else>
-                        <f:for each="{table.columns}" as="column">
-                            <th scope="col" title="{column.documentation}"><a href="{column.url}">{column.label}</a></th>
-                            <f:if condition="{table.compare} && {column.metric}"><th scope="col"><f:translate key="{ll}table.change" /></th></f:if>
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers" data-namespace-typo3-fluid="true">
+<section class="card mb-4">
+    <div class="card-header"><h2>{table.title}</h2></div>
+    <div class="card-body">
+        <f:if condition="{table.truncated}"><f:be.infobox state="1"><f:translate key="{ll}table.truncated" /></f:be.infobox></f:if>
+        <f:if condition="!{table.metricList}">
+            <form action="{table.searchUrl}" method="get" class="d-flex flex-wrap gap-2 align-items-end mb-3">
+                <f:for each="{table.searchParameters}" as="value" key="name"><input type="hidden" name="{name}" value="{value}" /></f:for>
+                <input type="hidden" name="sort" value="{table.sort}" />
+                <input type="hidden" name="dir" value="{table.direction}" />
+                <label class="d-block mb-0"><span class="form-label d-block text-nowrap"><f:translate key="{ll}table.search" /></span><input class="form-control" type="search" name="q" value="{table.query}" /></label>
+                <button class="btn btn-default" type="submit"><core:icon identifier="actions-search" size="small" /> <f:translate key="{ll}table.search" /></button>
+            </form>
+        </f:if>
+        <f:if condition="{table.rows}">
+            <f:then>
+                <div class="table-fit table-fit-wrap">
+                    <table class="table table-striped table-hover w-100">
+                        <thead><tr>
+                            <f:if condition="{table.metricList}">
+                                <f:then>
+                                    <th scope="col" class="text-nowrap"><f:translate key="{ll}table.metric" /></th>
+                                    <th scope="col"><f:translate key="{ll}table.value" /></th>
+                                    <f:if condition="{table.compare}"><th scope="col"><f:translate key="{ll}table.change" /></th></f:if>
+                        </f:then>
+                        <f:else>
+                            <f:for each="{table.columns}" as="column">
+                                <f:variable name="sortState" value="none" />
+                                <f:variable name="sortIcon" value="actions-sort-amount" />
+                                <f:if condition="{table.sort} == {column.key}">
+                                    <f:variable name="sortState" value="{f:if(condition: '{table.direction} == asc', then: 'ascending', else: 'descending')}" />
+                                    <f:variable name="sortIcon" value="{f:if(condition: '{table.direction} == asc', then: 'actions-sort-amount-up', else: 'actions-sort-amount-down')}" />
+                                </f:if>
+                                <th scope="col" title="{column.documentation}" aria-sort="{sortState}"><a href="{column.url}">{column.label}</a> <core:icon identifier="{sortIcon}" size="small" /></th>
+                                <f:if condition="{table.compare} && {column.metric}"><th scope="col"><f:translate key="{ll}table.change" /></th></f:if>
+                            </f:for>
+                        </f:else>
+                    </f:if>
+                    <f:if condition="{table.urlRows}"><th scope="col"><f:translate key="{ll}table.actions" /></th></f:if>
+                </tr></thead>
+                <tbody>
+                    <f:for each="{table.rows}" as="row"><tr>
+                        <f:for each="{row.cells}" as="cell">
+                            <td>{cell.value}</td>
+                            <f:if condition="{table.compare} && {cell.metric}"><td>{cell.change}</td></f:if>
                         </f:for>
-                    </f:else>
-                </f:if>
-                <f:if condition="{table.urlRows}"><th scope="col"><f:translate key="{ll}table.actions" /></th></f:if>
-            </tr></thead>
-            <tbody>
-                <f:for each="{table.rows}" as="row"><tr>
-                    <f:for each="{row.cells}" as="cell">
-                        <td>{cell.value}</td>
-                        <f:if condition="{table.compare} && {cell.metric}"><td>{cell.change}</td></f:if>
-                    </f:for>
-                    <f:if condition="{table.urlRows}"><td>
-                        <f:for each="{row.actions}" as="action"><a class="btn btn-default btn-sm" href="{action.url}"><f:translate key="{ll}action.{action.key}" /></a> </f:for>
-                    </td></f:if>
-                </tr></f:for>
-            </tbody>
-        </table>
+                        <f:if condition="{table.urlRows}"><td>
+                            <div class="btn-group" role="group" aria-label="{f:translate(key: '{ll}table.actions')}">
+                                <f:variable name="actionIcons" value="{details: 'actions-document-info', layout: 'actions-page-open', edit: 'actions-document-open', view: 'actions-view'}" />
+                                <f:for each="{row.actions}" as="action"><a class="btn btn-default btn-sm" href="{action.url}" title="{f:translate(key: '{ll}action.{action.key}')}"><core:icon identifier="{actionIcons.{action.key}}" size="small" /><span class="visually-hidden"><f:translate key="{ll}action.{action.key}" /></span></a></f:for>
+                            </div>
+                        </td></f:if>
+                    </tr></f:for>
+                </tbody>
+            </table>
+        </div>
+        <f:if condition="!{table.metricList}">
+            <nav aria-label="{table.title}" class="mt-3">
+                <ul class="pagination mb-0">
+                    <f:if condition="{table.previousUrl}"><li class="page-item"><a class="page-link" href="{table.previousUrl}"><core:icon identifier="actions-chevron-left" size="small" /> <f:translate key="{ll}table.previous" /></a></li></f:if>
+                    <li class="page-item disabled"><span class="page-link">{table.page} / {table.pages} ({table.total})</span></li>
+                    <f:if condition="{table.nextUrl}"><li class="page-item"><a class="page-link" href="{table.nextUrl}"><f:translate key="{ll}table.next" /> <core:icon identifier="actions-chevron-right" size="small" /></a></li></f:if>
+                </ul>
+            </nav>
+        </f:if>
+            </f:then>
+            <f:else>
+                <f:be.infobox state="-1"><f:if condition="{table.emptyMessage}"><f:then>{table.emptyMessage}</f:then><f:else><f:translate key="{ll}table.empty" /></f:else></f:if></f:be.infobox>
+            </f:else>
+        </f:if>
     </div>
-    <f:if condition="!{table.rows}"><p><f:if condition="{table.emptyMessage}"><f:then>{table.emptyMessage}</f:then><f:else><f:translate key="{ll}table.empty" /></f:else></f:if></p></f:if>
-    <f:if condition="!{table.metricList}">
-        <nav aria-label="{table.title}">
-            <f:if condition="{table.previousUrl}"><a href="{table.previousUrl}"><f:translate key="{ll}table.previous" /></a></f:if>
-            <span>{table.page} / {table.pages} ({table.total})</span>
-            <f:if condition="{table.nextUrl}"><a href="{table.nextUrl}"><f:translate key="{ll}table.next" /></a></f:if>
-        </nav>
-    </f:if>
 </section>
 </html>

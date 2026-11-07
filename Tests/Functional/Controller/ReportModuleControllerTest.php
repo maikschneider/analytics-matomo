@@ -97,14 +97,14 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     #[Test]
     public function adminSeesSectionsAndGlobalControls(): void
     {
-        $response = $this->render(1, ['site' => 'trial']);
+        $response = $this->render(1, ['id' => '30']);
         $html = (string)$response->getBody();
 
         self::assertSame(200, $response->getStatusCode());
-        foreach (['Visitors', 'Behaviour', 'Acquisition', 'Goals', 'Page details', 'Report page', 'Site', 'Language', 'All languages', 'Period', 'Compare', 'type="date"', 'value="custom"'] as $label) {
+        foreach (['Visitors', 'Behaviour', 'Acquisition', 'Goals', 'Page details', 'Report page', 'Language', 'All languages', 'Period', 'Compare', 'data-date-type="date"', 'value="custom"'] as $label) {
             self::assertStringContainsString($label, $html);
         }
-        self::assertStringContainsString('site=shop', $html);
+        self::assertStringNotContainsString('site=shop', $html);
         self::assertStringNotContainsString('site=unconfigured', $html);
     }
 
@@ -112,7 +112,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     public function allSectionsRenderTheirOwnReportPages(): void
     {
         foreach (['visitors' => 'Overview', 'behaviour' => 'Pages', 'acquisition' => 'All channels', 'goals' => 'Overview', 'page' => 'Page details'] as $section => $title) {
-            $response = $this->render(1, ['site' => 'trial'], $section);
+            $response = $this->render(1, ['id' => '30'], $section);
             self::assertSame(200, $response->getStatusCode());
             self::assertStringContainsString('<h1>' . $title . '</h1>', (string)$response->getBody());
         }
@@ -122,7 +122,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     #[Test]
     public function overviewRendersTilesChartAndSeparatelyCachedLiveCounters(): void
     {
-        $html = (string)$this->render(1)->getBody();
+        $html = (string)$this->render(1, ['id' => '1'])->getBody();
         self::assertStringContainsString('tx-analytics-matomo-metric--visitors', $html);
         self::assertMatchesRegularExpression('#<script[^>]*src="[^"]*/evolution-chart\.js#', $html);
         self::assertStringContainsString('72.0 %', $html);
@@ -135,7 +135,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
         self::assertSame(12, $chart['metrics']['visits']['current'][0]);
         self::assertNull($chart['metrics']['visits']['current'][2]);
         self::assertArrayNotHasKey('previous', $chart['metrics']['visits']);
-        $this->render(1);
+        $this->render(1, ['id' => '1']);
         self::assertCount(2, $this->sentRequests);
         parse_str((string)$this->sentRequests[0]->getBody(), $body);
         self::assertIsArray($body['urls']);
@@ -153,7 +153,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     #[Test]
     public function overviewComparisonAddsPreviousSeriesAndTileChanges(): void
     {
-        $html = (string)$this->render(1, ['compare' => '1'])->getBody();
+        $html = (string)$this->render(1, ['id' => '1', 'compare' => '1'])->getBody();
         self::assertStringContainsString('tx-analytics-matomo-trend--positive', $html);
         self::assertStringContainsString('+6', $html);
         $chart = $this->chartData($html);
@@ -170,7 +170,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     public function demoOverviewRendersEveryGranularityWithoutHttp(): void
     {
         foreach (['7' => 'day', '90' => 'week', 'custom' => 'month'] as $preset => $granularity) {
-            $html = (string)$this->render(1, ['site' => 'trial', 'period' => (string)$preset, 'from' => '2024-01-01', 'to' => '2026-11-02', 'compare' => '1'])->getBody();
+            $html = (string)$this->render(1, ['id' => '30', 'period' => (string)$preset, 'from' => '2024-01-01', 'to' => '2026-11-02', 'compare' => '1'])->getBody();
             $chart = $this->chartData($html);
             self::assertSame($granularity, $chart['granularity']);
             self::assertGreaterThan(0, $chart['metrics']['visits']['current'][0]);
@@ -189,6 +189,85 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function reportSectionsAndChartLabelUseCoreLayout(): void
+    {
+        foreach (['visitors' => '30', 'page' => '31'] as $section => $id) {
+            $html = (string)$this->render(1, ['id' => $id], $section)->getBody();
+            $document = new \DOMDocument();
+            @$document->loadHTML($html);
+            $xpath = new \DOMXPath($document);
+            self::assertSame(0, (int)$xpath->evaluate('count(//h2[not(ancestor::*[contains(@class,"card")])])'));
+            self::assertSame(1, (int)$xpath->evaluate('count(//label[contains(@class,"text-nowrap") and @for="matomo-chart-metric"])'));
+            self::assertSame(0, (int)$xpath->evaluate('count(//table[not(ancestor::div[contains(@class,"table-fit")])])'));
+        }
+    }
+
+    #[Test]
+    public function emptyReportsShowAnInfoboxInsteadOfAnEmptyTable(): void
+    {
+        $html = (string)$this->render(1, ['id' => '30', 'report' => 'pages', 'q' => 'nothing-matches'], 'behaviour')->getBody();
+        $document = new \DOMDocument();
+        @$document->loadHTML($html);
+        $xpath = new \DOMXPath($document);
+        self::assertSame(0, (int)$xpath->evaluate('count(//table)'));
+        self::assertSame(0, (int)$xpath->evaluate('count(//nav)'));
+        self::assertGreaterThan(0, (int)$xpath->evaluate('count(//*[contains(@class,"callout-info")])'));
+        self::assertStringContainsString('No matching rows.', $html);
+    }
+
+    #[Test]
+    public function reportTablesUseCoreControlsAndAccessibleSortState(): void
+    {
+        $html = (string)$this->render(1, ['id' => '30', 'report' => 'pages', 'sort' => 'label', 'dir' => 'asc'], 'behaviour')->getBody();
+        $document = new \DOMDocument();
+        @$document->loadHTML($html);
+        $xpath = new \DOMXPath($document);
+        self::assertGreaterThan(0, (int)$xpath->evaluate('count(//section[contains(@class,"card")]//input[@type="search" and contains(@class,"form-control")])'));
+        self::assertSame(1, (int)$xpath->evaluate('count(//label/span[contains(@class,"text-nowrap")])'));
+        self::assertGreaterThan(0, (int)$xpath->evaluate('count(//th[@aria-sort="ascending"]//*[@data-identifier="actions-sort-amount-up"])'));
+        self::assertGreaterThan(0, (int)$xpath->evaluate('count(//nav//ul[contains(@class,"pagination")])'));
+        foreach (['actions-search', 'actions-document-info', 'actions-document-open', 'actions-page-open', 'actions-view'] as $icon) {
+            self::assertStringContainsString('data-identifier="' . $icon . '"', $html);
+        }
+    }
+
+    #[Test]
+    public function customRangeUsesCoreStyledDatePickers(): void
+    {
+        $html = (string)$this->render(1, ['id' => '30'])->getBody();
+        $document = new \DOMDocument();
+        @$document->loadHTML($html);
+        $xpath = new \DOMXPath($document);
+        self::assertSame(2, (int)$xpath->evaluate('count(//input[@data-date-type="date" and @type="text" and contains(@class,"form-control")])'));
+        self::assertSame(0, (int)$xpath->evaluate('count(//input[@type="date"])'));
+        self::assertStringContainsString('/module-filters.js', $html);
+        self::assertSame(1, (int)$xpath->evaluate('count(//button[@type="submit"]//*[@data-identifier="actions-check"])'));
+    }
+
+    #[Test]
+    public function missingTreeSelectionNeverFallsBackToTheStoredOrSubmittedSite(): void
+    {
+        $this->get(DashboardSelectionResolver::class)->save($this->setUpBackendUser(1), 'trial');
+        foreach (['visitors', 'behaviour', 'acquisition', 'goals', 'page'] as $section) {
+            $html = (string)$this->render(1, ['site' => 'main'], $section)->getBody();
+            self::assertStringContainsString('Select a page in the page tree', $html);
+            self::assertStringNotContainsString('data-site=', $html);
+            self::assertStringNotContainsString('site=shop', $html);
+        }
+        self::assertSame([], $this->sentRequests);
+    }
+
+    #[Test]
+    public function pageWithoutSiteShowsTheTreeHint(): void
+    {
+        $this->get(ConnectionPool::class)->getConnectionForTable('pages')->insert('pages', ['uid' => 40, 'pid' => 0, 'title' => 'No site']);
+        $html = (string)$this->render(1, ['id' => '40', 'site' => 'main'])->getBody();
+        self::assertStringContainsString('Select a page in the page tree', $html);
+        self::assertStringNotContainsString('data-site=', $html);
+        self::assertSame([], $this->sentRequests);
+    }
+
+    #[Test]
     public function pageTreePicksAndSharesTheSiteInsteadOfTheStoredSite(): void
     {
         $this->get(DashboardSelectionResolver::class)->save($this->setUpBackendUser(1), 'trial');
@@ -204,7 +283,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     #[Test]
     public function periodAndCompareAreSharedWithTheWidgetSelection(): void
     {
-        $this->render(1, ['site' => 'trial', 'period' => 'lastMonth', 'compare' => '1']);
+        $this->render(1, ['id' => '30', 'period' => 'lastMonth', 'compare' => '1']);
         $selection = $this->get(DashboardSelectionResolver::class)->resolve($this->setUpBackendUser(1));
 
         self::assertSame('2026-10-01,2026-10-31', $selection?->period->toMatomoDate());
@@ -240,7 +319,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     #[Test]
     public function moduleAccessAloneAllowsReportsAndSharedSelection(): void
     {
-        $response = $this->render(4, ['site' => 'main', 'period' => 'lastMonth', 'compare' => '1']);
+        $response = $this->render(4, ['id' => '1', 'period' => 'lastMonth', 'compare' => '1']);
         $html = (string)$response->getBody();
 
         self::assertSame(200, $response->getStatusCode());
@@ -259,7 +338,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     {
         $this->get(ConnectionPool::class)->getConnectionForTable('be_groups')->update('be_groups', ['groupMods' => 'analytics_matomo'], ['uid' => 1]);
         foreach (['visitors', 'behaviour', 'acquisition', 'goals', 'page'] as $section) {
-            $response = $this->render(5, ['site' => 'trial'], $section, validate: false);
+            $response = $this->render(5, ['id' => '30'], $section, validate: false);
             self::assertSame(403, $response->getStatusCode());
         }
         self::assertSame([], $this->sentRequests);
@@ -290,7 +369,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     #[Test]
     public function moduleOnlyUserCannotSelectAnInaccessibleSite(): void
     {
-        $html = (string)$this->render(4, ['site' => 'shop'])->getBody();
+        $html = (string)$this->render(4, ['id' => '10'], validate: false)->getBody();
 
         self::assertStringContainsString('No accessible site with a Matomo connection is configured.', $html);
         self::assertSame([], $this->sentRequests);
@@ -307,9 +386,9 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     }
 
     #[Test]
-    public function inaccessibleSiteParameterDoesNotFallBackToAnotherSite(): void
+    public function inaccessibleTreeSiteDoesNotFallBackToAnotherSite(): void
     {
-        $html = (string)$this->render(5, ['site' => 'shop'])->getBody();
+        $html = (string)$this->render(5, ['id' => '10'], validate: false)->getBody();
 
         self::assertStringContainsString('No accessible site with a Matomo connection is configured.', $html);
         self::assertSame([], $this->sentRequests);
@@ -319,7 +398,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     public function reportAndLanguageAreModuleDataAndRestrictedToTheCurrentSite(): void
     {
         $this->fixture = 'ProcessedVisitorsDevices';
-        $html = (string)$this->render(1, ['site' => 'main', 'report' => 'devices', 'language' => '1'])->getBody();
+        $html = (string)$this->render(1, ['id' => '1', 'report' => 'devices', 'language' => '1'])->getBody();
 
         self::assertStringContainsString('data-language="1"', $html);
         self::assertStringContainsString('<h1>Devices</h1>', $html);
@@ -329,7 +408,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
         self::assertSame(1, $stored['language']);
 
         $this->fixture = 'SyntheticOverview';
-        $html = (string)$this->render(5, ['language' => '1'])->getBody();
+        $html = (string)$this->render(5, ['id' => '1', 'language' => '1'])->getBody();
         self::assertStringContainsString('data-language="-1"', $html);
         self::assertStringNotContainsString('language=1', $html);
         self::assertStringContainsString('language=0', $html);
@@ -339,7 +418,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     #[Test]
     public function invalidReportFallsBackToTheSectionDefault(): void
     {
-        $html = (string)$this->render(1, ['site' => 'trial', 'report' => 'missing'], 'behaviour')->getBody();
+        $html = (string)$this->render(1, ['id' => '30', 'report' => 'missing'], 'behaviour')->getBody();
 
         self::assertStringContainsString('<h1>Pages</h1>', $html);
         self::assertSame('pages', $this->setUpBackendUser(1)->getModuleData('analytics_matomo_behaviour')['report']);
@@ -348,7 +427,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     #[Test]
     public function customPeriodMenuOpensTheRangeFormWithoutResettingTheSelection(): void
     {
-        $html = (string)$this->render(1, ['site' => 'trial', 'period' => 'lastMonth'])->getBody();
+        $html = (string)$this->render(1, ['id' => '30', 'period' => 'lastMonth'])->getBody();
 
         self::assertStringContainsString('Period: Last month', $html);
         self::assertStringContainsString('href="#matomo-custom-range"', $html);
@@ -360,8 +439,8 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     {
         $this->status = 401;
         $this->fixture = 'ErrorNoViewAccess';
-        $admin = (string)$this->render(1)->getBody();
-        $editor = (string)$this->render(5)->getBody();
+        $admin = (string)$this->render(1, ['id' => '1'])->getBody();
+        $editor = (string)$this->render(5, ['id' => '1'])->getBody();
 
         self::assertStringContainsString('The statistics could not be loaded from Matomo.', $admin);
         self::assertStringContainsString('access for the website id = 1', $admin);
@@ -371,7 +450,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
         self::assertDoesNotMatchRegularExpression('#<script[^>]*src="[^"]*/evolution-chart\.js#', $editor);
         $this->status = 200;
         $this->fixture = 'SyntheticOverview';
-        $recovered = (string)$this->render(1)->getBody();
+        $recovered = (string)$this->render(1, ['id' => '1'])->getBody();
         self::assertStringContainsString('data-evolution-chart=', $recovered);
         self::assertCount(4, $this->sentRequests);
     }
@@ -388,7 +467,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
         ];
         foreach ($pages as $report => $tables) {
             $this->fixture = 'ProcessedVisitors' . ucfirst($report);
-            $html = (string)$this->render(1, ['site' => 'main', 'report' => $report])->getBody();
+            $html = (string)$this->render(1, ['id' => '1', 'report' => $report])->getBody();
             foreach ($tables as $title => $firstLabel) {
                 self::assertStringContainsString('<h2>' . $title . '</h2>', $html, $report);
                 self::assertStringContainsString('<td>' . $firstLabel . '</td>', $html, $report);
@@ -430,13 +509,13 @@ final class ReportModuleControllerTest extends FunctionalTestCase
         ];
         foreach ($pages as $report => $snippets) {
             $this->fixture = 'ProcessedBehaviour' . ucfirst($report);
-            $html = (string)$this->render(1, ['site' => 'main', 'report' => $report], 'behaviour')->getBody();
+            $html = (string)$this->render(1, ['id' => '1', 'report' => $report], 'behaviour')->getBody();
             foreach ($snippets as $snippet) {
                 self::assertStringContainsString($snippet, $html, $report);
             }
         }
         $this->fixture = 'ProcessedBehaviourEvents';
-        $search = (string)$this->render(1, ['site' => 'main', 'report' => 'events', 'q' => 'nothing-matches'], 'behaviour')->getBody();
+        $search = (string)$this->render(1, ['id' => '1', 'report' => 'events', 'q' => 'nothing-matches'], 'behaviour')->getBody();
         self::assertStringNotContainsString('trackEvent', $search);
         self::assertStringContainsString('No matching rows.', $search);
     }
@@ -453,13 +532,13 @@ final class ReportModuleControllerTest extends FunctionalTestCase
         ];
         foreach ($pages as $report => $snippets) {
             $this->fixture = 'ProcessedAcquisition' . ucfirst($report);
-            $html = (string)$this->render(1, ['site' => 'main', 'report' => $report], 'acquisition')->getBody();
+            $html = (string)$this->render(1, ['id' => '1', 'report' => $report], 'acquisition')->getBody();
             foreach ($snippets as $snippet) {
                 self::assertStringContainsString($snippet, $html, $report);
             }
         }
         $this->fixture = 'SyntheticProcessedCampaigns';
-        $html = (string)$this->render(1, ['site' => 'main', 'report' => 'campaigns'], 'acquisition')->getBody();
+        $html = (string)$this->render(1, ['id' => '1', 'report' => 'campaigns'], 'acquisition')->getBody();
         self::assertStringContainsString('<h2>Campaigns</h2>', $html);
         self::assertStringContainsString('<h2>Campaign keywords</h2>', $html);
         self::assertStringContainsString('<td>spring-sale - newsletter</td>', $html);
@@ -481,18 +560,18 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     {
         $this->fixture = 'ProcessedAcquisitionChannels';
         $this->missingReports = [['Referrers', 'getAIAssistants']];
-        $html = (string)$this->render(1, ['site' => 'main'], 'acquisition')->getBody();
+        $html = (string)$this->render(1, ['id' => '1'], 'acquisition')->getBody();
         self::assertStringContainsString('report=campaigns', $html);
         self::assertStringNotContainsString('report=aiAssistants', $html);
 
-        $direct = (string)$this->render(1, ['site' => 'main', 'report' => 'aiAssistants'], 'acquisition')->getBody();
+        $direct = (string)$this->render(1, ['id' => '1', 'report' => 'aiAssistants'], 'acquisition')->getBody();
         self::assertStringContainsString('<h1>All channels</h1>', $direct);
         self::assertStringNotContainsString('<h2>AI Assistants</h2>', $direct);
 
         $this->missingReports = [['Referrers', 'getCampaigns']];
-        $this->render(1, ['site' => 'main'], 'acquisition');
+        $this->render(1, ['id' => '1'], 'acquisition');
         self::assertCount(2, $this->sentRequests, 'Availability and reports are cached');
-        $this->render(1, ['site' => 'shop', 'report' => 'campaigns'], 'acquisition');
+        $this->render(1, ['id' => '10', 'report' => 'campaigns'], 'acquisition');
         self::assertCount(4, $this->sentRequests, 'Every Matomo site has its own availability');
     }
 
@@ -501,7 +580,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     {
         $this->fixture = 'ProcessedBehaviourSiteSearch';
         $this->missingReports = [['Actions', 'getSiteSearchKeywords']];
-        $html = (string)$this->render(1, ['site' => 'main', 'report' => 'siteSearch'], 'behaviour')->getBody();
+        $html = (string)$this->render(1, ['id' => '1', 'report' => 'siteSearch'], 'behaviour')->getBody();
 
         self::assertStringContainsString('Enable site search in the Matomo website settings', $html);
         self::assertStringNotContainsString('The statistics could not be loaded', $html);
@@ -519,24 +598,24 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     public function siteSearchNeedsItsOwnPermissionAndExplainsTheSetup(): void
     {
         $this->fixture = 'SyntheticProcessedSiteSearch';
-        $admin = (string)$this->render(1, ['site' => 'main', 'report' => 'siteSearch'], 'behaviour')->getBody();
+        $admin = (string)$this->render(1, ['id' => '1', 'report' => 'siteSearch'], 'behaviour')->getBody();
         foreach (['<h2>Site Search Keywords</h2>', '<td>opening hours</td>', '<h2>Search Keywords with No Results</h2>', '<td>parking dresden</td>', '<h2>Search Categories</h2>', 'report=siteSearch'] as $snippet) {
             self::assertStringContainsString($snippet, $admin);
         }
 
         $connection = $this->get(ConnectionPool::class)->getConnectionForTable('be_groups');
         $connection->update('be_groups', ['groupMods' => 'analytics_matomo,analytics_matomo_behaviour'], ['uid' => 1]);
-        $editor = (string)$this->render(5, ['site' => 'main', 'report' => 'siteSearch'], 'behaviour')->getBody();
+        $editor = (string)$this->render(5, ['id' => '1', 'report' => 'siteSearch'], 'behaviour')->getBody();
         self::assertStringNotContainsString('report=siteSearch', $editor);
         self::assertStringNotContainsString('opening hours', $editor);
         self::assertStringContainsString('<h1>Pages</h1>', $editor);
 
         $connection->update('be_groups', ['custom_options' => 'analytics_matomo:siteStatistics,analytics_matomo:siteSearch'], ['uid' => 3]);
-        $granted = (string)$this->render(5, ['site' => 'main', 'report' => 'siteSearch'], 'behaviour')->getBody();
+        $granted = (string)$this->render(5, ['id' => '1', 'report' => 'siteSearch'], 'behaviour')->getBody();
         self::assertStringContainsString('<td>opening hours</td>', $granted);
 
         $this->fixture = 'ProcessedBehaviourSiteSearch';
-        $empty = (string)$this->render(1, ['site' => 'shop', 'report' => 'siteSearch'], 'behaviour')->getBody();
+        $empty = (string)$this->render(1, ['id' => '10', 'report' => 'siteSearch'], 'behaviour')->getBody();
         self::assertStringContainsString('trackSiteSearch', $empty);
     }
 
@@ -544,14 +623,14 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     public function behaviourReportPagesRenderRecordedReports(): void
     {
         $pages = [
-            'entryPages' => ['<h2>Entry pages</h2>', '>Entrances</a>'],
-            'exitPages' => ['<h2>Exit pages</h2>', '>Exits</a>'],
+            'entryPages' => ['<h2>Entry pages</h2>', 'No matching rows.'],
+            'exitPages' => ['<h2>Exit pages</h2>', 'No matching rows.'],
             'pageTitles' => ['<h2>Page titles</h2>', '<td>Virtual Drums: A 3D drum set!</td>'],
-            'performance' => ['<h2>Performance overview</h2>', '<td>Avg. page load time</td>', '<td>1.56 s</td>', '<h2>Slowest pages</h2>', '>Measured page views</a>'],
+            'performance' => ['<h2>Performance overview</h2>', '<td>Avg. page load time</td>', '<td>1.56 s</td>', '<h2>Slowest pages</h2>', 'No matching rows.'],
         ];
         foreach ($pages as $report => $snippets) {
             $this->fixture = 'ProcessedBehaviour' . ucfirst($report);
-            $html = (string)$this->render(1, ['site' => 'main', 'report' => $report], 'behaviour')->getBody();
+            $html = (string)$this->render(1, ['id' => '1', 'report' => $report], 'behaviour')->getBody();
             foreach ($snippets as $snippet) {
                 self::assertStringContainsString($snippet, $html, $report);
             }
@@ -613,7 +692,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     public function reportsWithoutDimensionRenderAsMetricList(): void
     {
         $this->fixture = 'ProcessedVisitorsEngagement';
-        $html = (string)$this->render(1, ['site' => 'main', 'report' => 'engagement', 'compare' => '1'])->getBody();
+        $html = (string)$this->render(1, ['id' => '1', 'report' => 'engagement', 'compare' => '1'])->getBody();
         $start = (int)strpos($html, '<h2>Returning Visits</h2>');
         $table = substr($html, $start, (int)strpos($html, '<h2>', $start + 1) - $start);
 
@@ -636,7 +715,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
                 if ($expected === 0) {
                     continue;
                 }
-                $html = (string)$this->render(1, ['site' => 'trial', 'report' => $report], $section)->getBody();
+                $html = (string)$this->render(1, ['id' => '30', 'report' => $report], $section)->getBody();
                 self::assertSame($expected, substr_count($html, 'class="table table-striped'), $report);
                 self::assertSame($expected, preg_match_all('#<tbody>\s*<tr>#', $html), $report);
                 self::assertStringNotContainsString('First', $html, $report);
@@ -649,12 +728,12 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     public function processedReportsAreFetchedInOneBulkAndReusedForTableControls(): void
     {
         $this->fixture = 'ProcessedVisitorsDevices';
-        $html = (string)$this->render(1, ['site' => 'main', 'report' => 'devices'])->getBody();
+        $html = (string)$this->render(1, ['id' => '1', 'report' => 'devices'])->getBody();
         self::assertStringContainsString('Device type', $html);
         self::assertStringContainsString('Desktop', $html);
         self::assertDoesNotMatchRegularExpression('#<script[^>]*src="[^"]*/evolution-chart\.js#', $html);
         self::assertStringContainsString('recorded as a new visit', $html);
-        $this->render(1, ['q' => 'Desktop', 'sort' => 'nb_visits', 'dir' => 'asc', 'page' => '2']);
+        $this->render(1, ['id' => '1', 'q' => 'Desktop', 'sort' => 'nb_visits', 'dir' => 'asc', 'page' => '2']);
         self::assertCount(1, $this->sentRequests);
         parse_str((string)$this->sentRequests[0]->getBody(), $body);
         self::assertSame('API.getBulkRequest', $body['method']);
@@ -713,7 +792,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     public function hiddenPageRowActionsLinkToTheirFrontendSlugs(): void
     {
         $this->fixture = 'SyntheticProcessedPages';
-        $html = $this->tableHtml(1, ['site' => 'main']);
+        $html = $this->tableHtml(1, ['id' => '1']);
         self::assertStringContainsString('href="https://example.com/summer-sale"', $html);
         self::assertStringContainsString('href="https://example.com/de/sommerschlussverkauf"', $html);
     }
@@ -722,7 +801,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     public function compareAddsPreviousSubRequestAndMatchesRowsByUrl(): void
     {
         $this->fixture = 'SyntheticProcessedPages';
-        $html = $this->tableHtml(1, ['site' => 'main', 'compare' => '1']);
+        $html = $this->tableHtml(1, ['id' => '1', 'compare' => '1']);
         self::assertStringContainsString('Change', $html);
         self::assertStringContainsString('+50.0 %', $html);
         parse_str((string)$this->sentRequests[0]->getBody(), $body);
@@ -741,14 +820,14 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     {
         $this->fixture = 'ErrorNoViewAccess';
         $this->status = 401;
-        $admin = (string)$this->render(1, ['site' => 'main', 'report' => 'devices'])->getBody();
-        $editor = (string)$this->render(5, ['site' => 'main', 'report' => 'devices'])->getBody();
+        $admin = (string)$this->render(1, ['id' => '1', 'report' => 'devices'])->getBody();
+        $editor = (string)$this->render(5, ['id' => '1', 'report' => 'devices'])->getBody();
         self::assertTrue(str_contains($admin, 'access for the website id = 1'));
         self::assertFalse(str_contains($editor, 'access for the website id = 1'));
         self::assertTrue(str_contains($editor, 'The statistics could not be loaded from Matomo.'));
         $this->fixture = 'ProcessedVisitorsDevices';
         $this->status = 200;
-        $recovered = (string)$this->render(1, ['site' => 'main', 'report' => 'devices'])->getBody();
+        $recovered = (string)$this->render(1, ['id' => '1', 'report' => 'devices'])->getBody();
         self::assertTrue(str_contains($recovered, 'Desktop'));
         self::assertCount(3, $this->sentRequests);
     }
@@ -757,7 +836,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     public function recordedChannelsRenderTheirMetricValues(): void
     {
         $this->fixture = 'ProcessedChannels';
-        $html = (string)$this->render(1, ['site' => 'main', 'report' => 'channels'], 'acquisition')->getBody();
+        $html = (string)$this->render(1, ['id' => '1', 'report' => 'channels'], 'acquisition')->getBody();
         self::assertStringContainsString('class="table', $html);
         self::assertStringContainsString('Channel Type', $html);
         self::assertStringContainsString('<td>Search Engines</td>', $html);
@@ -770,9 +849,9 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     public function backendLanguageIsSentToMatomoAndSeparatesCachedReports(): void
     {
         $this->fixture = 'ProcessedVisitorsDevices';
-        $this->render(1, ['site' => 'main', 'report' => 'devices']);
+        $this->render(1, ['id' => '1', 'report' => 'devices']);
         $this->get(ConnectionPool::class)->getConnectionForTable('be_users')->update('be_users', ['lang' => 'de'], ['uid' => 1]);
-        $this->render(1, ['site' => 'main', 'report' => 'devices']);
+        $this->render(1, ['id' => '1', 'report' => 'devices']);
         self::assertCount(2, $this->sentRequests);
         parse_str((string)$this->sentRequests[1]->getBody(), $body);
         self::assertSame('de', $body['language']);
@@ -782,7 +861,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     public function matomoLabelsAndDocumentationAreEscapedByFluid(): void
     {
         $this->fixture = 'SyntheticProcessedUnsafe';
-        $html = (string)$this->render(1, ['site' => 'main', 'report' => 'devices'])->getBody();
+        $html = (string)$this->render(1, ['id' => '1', 'report' => 'devices'])->getBody();
         $table = substr($html, (int)strpos($html, '<h2>'));
         self::assertStringContainsString('&lt;script&gt;alert(1)&lt;/script&gt;', $table);
         self::assertStringContainsString('&lt;img src=x onerror=alert(1)&gt;', $table);
@@ -795,10 +874,10 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     public function malformedProcessedReportsAreRetriedRatherThanCached(): void
     {
         $this->fixture = 'SyntheticProcessedInvalid';
-        $html = (string)$this->render(1, ['site' => 'main', 'report' => 'devices'])->getBody();
+        $html = (string)$this->render(1, ['id' => '1', 'report' => 'devices'])->getBody();
         self::assertTrue(str_contains($html, 'unexpected processed report'));
         $this->fixture = 'ProcessedVisitorsDevices';
-        $html = (string)$this->render(1, ['site' => 'main', 'report' => 'devices'])->getBody();
+        $html = (string)$this->render(1, ['id' => '1', 'report' => 'devices'])->getBody();
         self::assertTrue(str_contains($html, 'Desktop'));
         self::assertCount(2, $this->sentRequests);
     }

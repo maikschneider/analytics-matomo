@@ -3,13 +3,13 @@
     xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
     data-namespace-typo3-fluid="true"
 >
-<h2><f:translate key="{ll}page.transitions" /></h2>
+<section class="card mb-4"><div class="card-header"><h2><f:translate key="{ll}page.transitions" /></h2></div><div class="card-body">
 <f:if condition="{transitions}">
     <f:then>
         <div data-transitions>
             <f:if condition="{transitions.empty}">
                 <f:then>
-                    <p class="text-body-secondary"><f:translate key="{ll}page.transitions.empty" /></p>
+                    <f:be.infobox state="-1"><f:translate key="{ll}page.transitions.empty" /></f:be.infobox>
                 </f:then>
                 <f:else>
                     <div class="row">
@@ -55,9 +55,11 @@
     </f:then>
     <f:else>
         <p class="text-body-secondary"><f:translate key="{ll}page.transitions.hint" /></p>
-        <a href="{transitionsUrl}" class="btn btn-default"><f:translate key="{ll}page.transitions.show" /></a>
+        <a href="{transitionsUrl}" class="btn btn-default"><core:icon identifier="actions-random" size="small" /> <f:translate key="{ll}page.transitions.show" /></a>
     </f:else>
 </f:if>
+
+</div></section>
 
 <f:section name="Pages">
     <f:if condition="{pages}">

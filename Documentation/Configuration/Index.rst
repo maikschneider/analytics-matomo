@@ -130,7 +130,10 @@ module access alone does not grant either. The Page module bar AJAX route
 requires `analytics_matomo:pageStatistics`. Inherited AJAX module access is an
 additional check, not a substitute for these feature options.
 
-The selected page determines the site; without a page, use the site dropdown.
+The page selected in the page tree determines the site. Without a page, or for
+pages outside a site, the module shows a hint to select a page; it never falls
+back to a stored site. A site without an accessible root or a Matomo connection
+shows a configuration hint. There is no separate site dropdown.
 Site, period (presets or a custom date range) and comparison are shared with the
 dashboard widgets. Report page and language are stored per section. The language
 filters URL reports only; other reports cover all languages.

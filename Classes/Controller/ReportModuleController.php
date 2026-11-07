@@ -105,29 +105,28 @@ final readonly class ReportModuleController
             'pageId' => $pageId,
         ];
 
-        $site = null;
-        if ($pageId > 0) {
-            try {
-                $site = $this->siteFinder->getSiteByPageId($pageId);
-            } catch (SiteNotFoundException) {
-                $template->assignMultiple($variables + ['emptyMessage' => $this->label('empty.site')]);
-                return $template->renderResponse('Module/Report');
-            }
+        if ($pageId === 0) {
+            $template->assignMultiple($variables + ['emptyMessage' => $this->label('empty.page')]);
+            return $template->renderResponse('Module/Report');
         }
-        if ($site !== null || isset($parameters['site']) || isset($parameters['period']) || isset($parameters['compare'])) {
-            $saved = $this->selectionResolver->save(
-                $user,
-                $site?->getIdentifier() ?? (isset($parameters['site']) ? (string)$parameters['site'] : null),
-                isset($parameters['period']) ? (string)$parameters['period'] : null,
-                (string)($parameters['from'] ?? ''),
-                (string)($parameters['to'] ?? ''),
-                isset($parameters['compare']) ? (bool)$parameters['compare'] : null,
-                $route,
-            );
-            if (!$saved) {
-                $template->assignMultiple($variables + ['emptyMessage' => $this->label('empty.site')]);
-                return $template->renderResponse('Module/Report');
-            }
+        try {
+            $site = $this->siteFinder->getSiteByPageId($pageId);
+        } catch (SiteNotFoundException) {
+            $template->assignMultiple($variables + ['emptyMessage' => $this->label('empty.page')]);
+            return $template->renderResponse('Module/Report');
+        }
+        $saved = $this->selectionResolver->save(
+            $user,
+            $site->getIdentifier(),
+            isset($parameters['period']) ? (string)$parameters['period'] : null,
+            (string)($parameters['from'] ?? ''),
+            (string)($parameters['to'] ?? ''),
+            isset($parameters['compare']) ? (bool)$parameters['compare'] : null,
+            $route,
+        );
+        if (!$saved) {
+            $template->assignMultiple($variables + ['emptyMessage' => $this->label('empty.site')]);
+            return $template->renderResponse('Module/Report');
         }
         $selection = $this->selectionResolver->resolve($user, $site, $route);
         if ($selection === null) {
@@ -165,13 +164,6 @@ final readonly class ReportModuleController
         }
 
         $this->addMenu($template, $route, $pageId, 'report', $pages, $report);
-        if ($pageId === 0) {
-            $sites = [];
-            foreach ($selection->sites as $identifier => $availableSite) {
-                $sites[$identifier] = $availableSite->getConfiguration()['websiteTitle'] ?? $identifier;
-            }
-            $this->addMenu($template, $route, $pageId, 'site', $sites, $selection->site->getIdentifier());
-        }
         $languages = $section === 'page' ? [] : [-1 => self::LABELS . 'language.all'];
         foreach ($selection->site->getAvailableLanguages($user) as $language) {
             $languages[$language->getLanguageId()] = $language->getTitle();
@@ -227,6 +219,7 @@ final readonly class ReportModuleController
             $variables['emptyMessage'] = $this->translate(self::SHARED_LABELS . 'bar.error');
             $variables['errorMessage'] = $user->isAdmin() ? $exception->getMessage() : '';
         }
+        $this->pageRenderer->loadJavaScriptModule('@maikschneider/analytics-matomo/module-filters.js');
         $template->assignMultiple($variables + [
             'sharedLabels' => rtrim(self::SHARED_LABELS, ':'),
             'selection' => $selection,

@@ -142,7 +142,7 @@ final class GoalsTest extends FunctionalTestCase
             ['month', '2025-08-01', '2025-08-01,2025-08-31'],
         ] as [$granularity, $from, $bucket]) {
             $this->fixtures['overviewDays'] = [$bucket => ['nb_conversions' => 7, 'conversion_rate' => 0.5]];
-            $html = (string)$this->render(1, ['site' => 'main', 'report' => 'overview', 'period' => 'custom', 'from' => $from, 'to' => '2026-11-02'], 'goals')->getBody();
+            $html = (string)$this->render(1, ['id' => '1', 'report' => 'overview', 'period' => 'custom', 'from' => $from, 'to' => '2026-11-02'], 'goals')->getBody();
             $chart = $this->chartData($html);
             self::assertSame($granularity, $chart['granularity']);
             self::assertSame(7, $chart['metrics']['conversions']['current'][0]);
@@ -156,7 +156,7 @@ final class GoalsTest extends FunctionalTestCase
             'label' => '/about', 'url' => 'https://example.com/about', 'entry_nb_visits' => 1,
             'goals' => ['idgoal=1' => ['nb_conversions_entry' => 3]],
         ]];
-        $html = (string)$this->render(1, ['site' => 'main', 'report' => 'goal1'], 'goals')->getBody();
+        $html = (string)$this->render(1, ['id' => '1', 'report' => 'goal1'], 'goals')->getBody();
         [, $entrances] = explode('<h2>Conversions by entry page</h2>', $html);
         self::assertStringContainsString('Conversions per entrance', $entrances);
         self::assertMatchesRegularExpression('#<td>/about</td>\s*<td>1</td>\s*<td>3</td>\s*<td>3</td>#', $entrances);

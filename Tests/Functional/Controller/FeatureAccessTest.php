@@ -106,11 +106,11 @@ final class FeatureAccessTest extends FunctionalTestCase
     public static function featureViews(): array
     {
         return [
-            'goals overview' => [['site' => 'main', 'report' => 'overview'], 'goals'],
-            'goal page' => [['site' => 'main', 'report' => 'goal1'], 'goals'],
-            'trending' => [['site' => 'main', 'report' => 'trending'], 'behaviour'],
-            'outlinks' => [['site' => 'main', 'report' => 'outlinks'], 'behaviour'],
-            'downloads' => [['site' => 'main', 'report' => 'downloads'], 'behaviour'],
+            'goals overview' => [['id' => '1', 'report' => 'overview'], 'goals'],
+            'goal page' => [['id' => '1', 'report' => 'goal1'], 'goals'],
+            'trending' => [['id' => '1', 'report' => 'trending'], 'behaviour'],
+            'outlinks' => [['id' => '1', 'report' => 'outlinks'], 'behaviour'],
+            'downloads' => [['id' => '1', 'report' => 'downloads'], 'behaviour'],
             'page details' => [['id' => '2', 'language' => '0'], 'page'],
             'transitions' => [['id' => '2', 'language' => '0', 'transitions' => '1'], 'page'],
         ];
@@ -174,7 +174,7 @@ final class FeatureAccessTest extends FunctionalTestCase
     #[Test]
     public function shopEditorsGetTheShopSite(): void
     {
-        $html = (string)$this->render(self::SHOP_EDITOR, ['site' => 'shop', 'report' => 'outlinks'], 'behaviour')->getBody();
+        $html = (string)$this->render(self::SHOP_EDITOR, ['id' => '10', 'report' => 'outlinks'], 'behaviour')->getBody();
 
         self::assertStringContainsString('<h2>Outlinks</h2>', $html);
         self::assertSame(['7'], array_values(array_unique(array_column($this->calls, 'idSite'))));
@@ -184,8 +184,8 @@ final class FeatureAccessTest extends FunctionalTestCase
     public function goalEntryPagesAndTrendingHidePagesTheEditorMayNotRead(): void
     {
         $views = [
-            ['goals', ['site' => 'main', 'report' => 'goal1'], '<td>/about</td>'],
-            ['behaviour', ['site' => 'main', 'report' => 'trending'], '<td>/</td>'],
+            ['goals', ['id' => '1', 'report' => 'goal1'], '<td>/about</td>'],
+            ['behaviour', ['id' => '1', 'report' => 'trending'], '<td>/</td>'],
         ];
         foreach ($views as [$section, $query, $readable]) {
             $admin = (string)$this->render(self::ADMIN, $query, $section)->getBody();
@@ -253,12 +253,12 @@ final class FeatureAccessTest extends FunctionalTestCase
     {
         // The admin fills the caches; editors read their own filtered view from them
         foreach (['outlinks', 'downloads'] as $report) {
-            $this->render(self::ADMIN, ['site' => 'main', 'report' => $report], 'behaviour');
+            $this->render(self::ADMIN, ['id' => '1', 'report' => $report], 'behaviour');
         }
         $this->render(self::ADMIN, ['id' => '2', 'language' => '0', 'transitions' => '1'], 'page');
         $views = [
-            'outlinks' => (string)$this->render($user, ['site' => 'main', 'report' => 'outlinks'], 'behaviour')->getBody(),
-            'downloads' => (string)$this->render($user, ['site' => 'main', 'report' => 'downloads'], 'behaviour')->getBody(),
+            'outlinks' => (string)$this->render($user, ['id' => '1', 'report' => 'outlinks'], 'behaviour')->getBody(),
+            'downloads' => (string)$this->render($user, ['id' => '1', 'report' => 'downloads'], 'behaviour')->getBody(),
         ];
         $page = (string)$this->render($user, ['id' => '2', 'language' => '0', 'transitions' => '1'], 'page')->getBody();
         [, $transitions] = explode('<h3>Outlinks</h3>', $page, 2) + [1 => ''];
