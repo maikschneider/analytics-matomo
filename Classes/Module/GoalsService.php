@@ -100,7 +100,7 @@ final readonly class GoalsService
             return [
                 'current' => $this->object($results['current']),
                 'previous' => $compare ? $this->object($results['previous']) : null,
-                'chart' => $this->chartFactory->create($period, $this->object($results['currentSeries']), $compare ? $this->object($results['previousSeries']) : null, self::METRICS),
+                'chart' => $this->chartFactory->create($period, EvolutionChartFactory::byBucketStart($this->object($results['currentSeries'])), $compare ? EvolutionChartFactory::byBucketStart($this->object($results['previousSeries'])) : null, self::METRICS),
                 'reports' => $reports,
             ];
         });

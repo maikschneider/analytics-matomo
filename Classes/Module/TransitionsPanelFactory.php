@@ -58,7 +58,7 @@ final readonly class TransitionsPanelFactory
         foreach ($rows as $row) {
             $label = (string)($row['label'] ?? '');
             $page = ['label' => $label, 'title' => '', 'url' => '', 'flag' => '', 'visits' => (int)($row['referrals'] ?? 0)];
-            if (PageUrlMapper::normalize($label) === null) {
+            if (PageUrlMapper::normalize($label) === null && !str_contains($label, '/')) {
                 // "Others" sums up the rest; it names no page
                 $pages[] = $page;
                 continue;

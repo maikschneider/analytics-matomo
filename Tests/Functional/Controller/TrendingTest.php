@@ -83,6 +83,17 @@ final class TrendingTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function truncatedReportsClaimNoNewOrVanishedPages(): void
+    {
+        $this->fixtures['previous'][] = ['label' => -1, 'nb_hits' => 50, 'is_summary' => true];
+        $html = (string)$this->render(1, ['id' => '1', 'report' => 'trending'], 'behaviour')->getBody();
+
+        self::assertStringContainsString('<td>/</td>', $html);
+        self::assertStringNotContainsString('<td>/de/ueber-uns</td>', $html);
+        self::assertStringNotContainsString('<td>/storage</td>', $html);
+    }
+
+    #[Test]
     public function recordedReportsShowTheEmptyStateWithoutFallingPages(): void
     {
         $recorded = (string)json_encode($this->fixture('Trending'));

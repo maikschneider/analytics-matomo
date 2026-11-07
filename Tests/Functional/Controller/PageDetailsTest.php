@@ -295,12 +295,14 @@ final class PageDetailsTest extends FunctionalTestCase
     public function transitionsShowEditorsOnlyPagesTheyMaySee(): void
     {
         $this->fixtures['transitions'] = $this->fixture('SyntheticTransitions')[0];
+        $this->fixtures['transitions']['followingPages'][] = ['label' => 'intranet/secret-page', 'referrals' => 2];
         $html = (string)$this->render(3, ['id' => '2', 'language' => '0', 'transitions' => '1'], 'page')->getBody();
 
         self::assertMatchesRegularExpression('#href="[^"]*/module/web/layout\?[^"]*id=1"[^>]*>Root</a>#', $html);
-        // A German page for an editor of English only, and a URL without a readable page
+        // A German page for an editor of English only, and URLs without a readable page
         self::assertStringNotContainsString('Über uns', $html);
         self::assertStringNotContainsString('example.com/storage', $html);
+        self::assertStringNotContainsString('intranet/secret-page', $html);
     }
 
     #[Test]

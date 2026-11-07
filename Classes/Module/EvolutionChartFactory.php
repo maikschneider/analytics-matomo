@@ -24,6 +24,21 @@ final readonly class EvolutionChartFactory
     ];
 
     /**
+     * Matomo labels calendar weeks and months as "from,to"; the chart looks them up by their first day
+     *
+     * @param array<array-key, mixed> $series
+     * @return array<string, mixed>
+     */
+    public static function byBucketStart(array $series): array
+    {
+        $keyed = [];
+        foreach ($series as $date => $row) {
+            $keyed[explode(',', (string)$date)[0]] = $row;
+        }
+        return $keyed;
+    }
+
+    /**
      * @param array<string, array<string, mixed>> $current
      * @param array<string, array<string, mixed>>|null $previous
      * @param array<string, array{string, string, string}> $metrics key => column, metric type, icon

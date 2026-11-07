@@ -51,8 +51,10 @@ final readonly class TrendingService
             $views = $this->views($current);
             $before = $this->views($previous);
             $total = array_sum(array_column($views, 1));
+            // A page missing from a truncated report may hide in its summary row, so only pages of both periods count
+            $keys = $this->isTruncated($current) || $this->isTruncated($previous) ? array_keys(array_intersect_key($views, $before)) : array_keys($views + $before);
             $rising = $falling = [];
-            foreach (array_keys($views + $before) as $key) {
+            foreach ($keys as $key) {
                 $url = $views[$key][0] ?? $before[$key][0];
                 $old = $before[$key][1] ?? 0;
                 $new = $views[$key][1] ?? 0;
@@ -90,6 +92,16 @@ final readonly class TrendingService
             return null;
         }
         return $difference > 0 ? 'up' : 'down';
+    }
+
+    private function isTruncated(mixed $rows): bool
+    {
+        foreach (is_array($rows) ? $rows : [] as $row) {
+            if (is_array($row) && PageUrlMapper::isSummaryRow($row)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

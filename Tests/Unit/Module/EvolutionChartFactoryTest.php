@@ -52,4 +52,12 @@ final class EvolutionChartFactoryTest extends UnitTestCase
         self::assertSame(0, $chart['metrics']['visits']['current'][0]);
         self::assertArrayNotHasKey('previous', $chart['metrics']['visits']);
     }
+
+    #[Test]
+    public function seriesOfWeeksAndMonthsAreKeyedByTheirFirstDay(): void
+    {
+        $series = EvolutionChartFactory::byBucketStart(['2026-07-27,2026-08-02' => ['nb_conversions' => 4], '2026-08-03,2026-08-09' => ['nb_conversions' => 2], '2026-08-10' => []]);
+
+        self::assertSame(['2026-07-27' => ['nb_conversions' => 4], '2026-08-03' => ['nb_conversions' => 2], '2026-08-10' => []], $series);
+    }
 }
