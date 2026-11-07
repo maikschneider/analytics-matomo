@@ -6,29 +6,21 @@ namespace MaikSchneider\AnalyticsMatomo\Tests\Functional\Controller;
 
 use GuzzleHttp\Promise\FulfilledPromise;
 use GuzzleHttp\Psr7\Response;
-use MaikSchneider\AnalyticsMatomo\Controller\ReportModuleController;
 use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelectionResolver;
 use MaikSchneider\AnalyticsMatomo\Module\ReportCatalog;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
-use TYPO3\CMS\Backend\Middleware\BackendModuleValidator;
-use TYPO3\CMS\Backend\Module\ModuleData;
 use TYPO3\CMS\Backend\Module\ModuleProvider;
-use TYPO3\CMS\Backend\Routing\Router;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\DateTimeAspect;
-use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Http\NormalizedParams;
-use TYPO3\CMS\Core\Http\ServerRequest;
-use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 final class ReportModuleControllerTest extends FunctionalTestCase
 {
+    use ModuleRequestTrait;
+
     protected array $coreExtensionsToLoad = ['dashboard'];
     protected array $testExtensionsToLoad = ['maikschneider/analytics-matomo'];
     protected array $pathsToLinkInTestInstance = [
@@ -816,44 +808,5 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     {
         $html = (string)$this->render($user, $query + ['report' => 'pages'], 'behaviour')->getBody();
         return substr($html, (int)strpos($html, '<h2>'));
-    }
-
-    /**
-     * @param array<string, string> $query
-     * @param array<string, string> $body
-     */
-    private function render(int $userId, array $query = [], string $section = 'visitors', array $body = [], bool $validate = true): ResponseInterface
-    {
-        $GLOBALS['BE_USER'] = $this->setUpBackendUser($userId);
-        $GLOBALS['LANG'] = $this->get(LanguageServiceFactory::class)->createFromUserPreferences($GLOBALS['BE_USER']);
-        $route = $this->get(Router::class)->getRoute('analytics_matomo_' . $section);
-        $request = (new ServerRequest('https://example.com/typo3/module/analytics-matomo/' . $section, $body === [] ? 'GET' : 'POST'))
-            ->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_BE)
-            ->withAttribute('normalizedParams', NormalizedParams::createFromServerParams([
-                'HTTP_HOST' => 'example.com', 'HTTPS' => 'on', 'SCRIPT_NAME' => '/typo3/index.php', 'SCRIPT_FILENAME' => '/var/www/html/public/typo3/index.php',
-            ]))
-            ->withAttribute('route', $route)
-            ->withQueryParams($query)
-            ->withParsedBody($body);
-        $GLOBALS['TYPO3_REQUEST'] = $request;
-        $controller = $this->get(ReportModuleController::class);
-        if (!$validate) {
-            $module = $this->get(ModuleProvider::class)->getModule('analytics_matomo_' . $section);
-            self::assertNotNull($module);
-            return $controller->handleRequest($request
-                ->withAttribute('module', $module)
-                ->withAttribute('moduleData', new ModuleData($module->getIdentifier(), $module->getDefaultModuleData())));
-        }
-        $handler = new class($controller) implements RequestHandlerInterface {
-            public function __construct(private ReportModuleController $controller)
-            {
-            }
-
-            public function handle(ServerRequestInterface $request): ResponseInterface
-            {
-                return $this->controller->handleRequest($request);
-            }
-        };
-        return $this->get(BackendModuleValidator::class)->process($request, $handler);
     }
 }

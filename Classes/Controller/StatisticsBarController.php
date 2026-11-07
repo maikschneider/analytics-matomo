@@ -14,6 +14,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use TYPO3\CMS\Backend\Attribute\AsController;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Http\JsonResponse;
@@ -31,6 +32,7 @@ final readonly class StatisticsBarController
         private StatisticsBarRenderer $renderer,
         private LoggerInterface $logger,
         private Context $context,
+        private UriBuilder $uriBuilder,
     ) {
     }
 
@@ -56,15 +58,19 @@ final readonly class StatisticsBarController
             $error = $e->getMessage();
         }
 
+        $backendUser = $this->getBackendUser();
         return new JsonResponse(['html' => $this->renderer->render($request, [
             'target' => $target,
             'tiles' => $tiles,
             'failed' => $error !== '',
             // Editors can't fix the connection, so only admins get the details
-            'errorMessage' => $this->getBackendUser()->isAdmin() ? $error : '',
+            'errorMessage' => $backendUser->isAdmin() ? $error : '',
             'days' => $days,
             'periods' => Period::DAYS,
             'reportUrl' => $target->configuration->getReportUrl(Period::lastDays($days, $this->context->getPropertyFromAspect('date', 'full'))),
+            'detailsUrl' => $backendUser->check('modules', 'analytics_matomo') && $backendUser->check('modules', 'analytics_matomo_page')
+                ? (string)$this->uriBuilder->buildUriFromRoute('analytics_matomo_page', ['id' => $target->pageId, 'language' => $target->languageId, 'period' => $days])
+                : '',
         ])]);
     }
 

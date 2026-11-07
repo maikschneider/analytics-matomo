@@ -74,6 +74,18 @@ Site, period and comparison are shared with the dashboard widgets. Other module
 sections show an empty state until their reports are available. Demo mode also
 supplies the report tables without contacting Matomo.
 
+.. _page-details:
+
+Page details
+------------
+
+:guilabel:`Page details` shows the page selected in the page tree, in the
+language from the docheader: page views, bounce rate, average time on page and
+exit rate as tiles, plus their evolution chart. All numbers come from one
+bulk request for the page's frontend URL. Hidden pages use their own URL.
+Users with access to this section do not also need the statistics bar
+permission.
+
 Statistics bar
 ==============
 
@@ -87,7 +99,9 @@ shows, for the selected page and language:
 
 Each value comes with the change against the previous period of the same length
 and, on hover or focus, a sparkline per day. Periods of 7, 14 and 30 days are
-available; a link opens the report in Matomo.
+available; a link opens the report in Matomo. :guilabel:`Details` opens
+:ref:`page details <page-details>` with the same page, language and period
+for users who may open that module section.
 
 The bar is loaded asynchronously via a backend AJAX route that inherits its
 access from the Page module, so a slow or unreachable Matomo never slows down

@@ -97,6 +97,23 @@ final class StatisticsBarControllerTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function linksToPageDetailsWithPageLanguageAndPeriod(): void
+    {
+        $html = $this->html($this->callController(1, ['pageId' => '2', 'languageId' => '1', 'days' => '14']));
+
+        self::assertMatchesRegularExpression('#href="[^"]*/module/analytics-matomo/page\?[^"]*id=2&amp;language=1&amp;period=14#', $html);
+    }
+
+    #[Test]
+    public function hidesTheDetailsLinkWithoutAccessToPageDetails(): void
+    {
+        $html = $this->html($this->callController(3, ['pageId' => '2']));
+
+        self::assertStringContainsString('tx-analytics-matomo-metric', $html);
+        self::assertStringNotContainsString('analytics-matomo/page', $html);
+    }
+
+    #[Test]
     public function servesSecondRequestFromCache(): void
     {
         $this->callController(1, ['pageId' => '2']);

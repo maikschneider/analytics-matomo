@@ -23,7 +23,7 @@ foreach (['visitors' => 'overview', 'behaviour' => 'pages', 'acquisition' => 'ch
         'iconIdentifier' => 'module-analytics-matomo',
         'labels' => ['title' => $labels . ':section.' . $section],
         'routes' => ['_default' => ['target' => ReportModuleController::class . '::handleRequest']],
-        'moduleData' => ['report' => $report, 'language' => -1],
+        'moduleData' => ['report' => $report, 'language' => $section === 'page' ? 0 : -1],
     ];
 }
 return $modules;

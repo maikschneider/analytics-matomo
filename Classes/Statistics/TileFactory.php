@@ -119,13 +119,14 @@ final readonly class TileFactory
     /**
      * @param array<string, mixed> $current
      * @param array<string, mixed>|null $previous
+     * @param array<string, array{string, string, string}> $metrics key => column, metric type, icon
      * @return list<Tile>
      */
-    public function createForOverview(array $current, ?array $previous): array
+    public function createForOverview(array $current, ?array $previous, array $metrics = EvolutionChartFactory::METRICS): array
     {
         $formatter = new MetricFormatter();
         $tiles = [];
-        foreach (EvolutionChartFactory::METRICS as $key => [$column, $type, $icon]) {
+        foreach ($metrics as $key => [$column, $type, $icon]) {
             $value = $current[$column] ?? null;
             $before = $previous[$column] ?? null;
             $change = is_numeric($value) && is_numeric($before) ? $value - $before : null;
@@ -136,7 +137,7 @@ final readonly class TileFactory
                 value: $formatter->format($value, $type),
                 trend: $hasChange ? ($change > 0 ? '+' : '−') . $formatter->format(abs($change), $type) : null,
                 trendIcon: $hasChange ? ($change > 0 ? 'actions-arrow-up' : 'actions-arrow-down') : null,
-                trendRating: $hasChange ? (($change > 0) === ($key !== 'bounceRate') ? 'positive' : 'negative') : null,
+                trendRating: $hasChange ? (($change > 0) === !in_array($key, ['bounceRate', 'exitRate'], true) ? 'positive' : 'negative') : null,
                 sparklineLine: '',
                 sparklineArea: '',
             );

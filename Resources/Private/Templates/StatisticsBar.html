@@ -43,6 +43,12 @@
                         </option>
                     </f:for>
                 </select>
+                <f:if condition="{detailsUrl}">
+                    <a class="tx-analytics-matomo-link" href="{detailsUrl}" title="{f:translate(key: '{ll}:bar.details.title')}">
+                        <core:icon identifier="module-analytics-matomo" size="small" />
+                        <f:translate key="{ll}:bar.details" />
+                    </a>
+                </f:if>
                 <f:if condition="{reportUrl}">
                     <f:then>
                         <a

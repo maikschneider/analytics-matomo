@@ -6,6 +6,7 @@ namespace MaikSchneider\AnalyticsMatomo\Tests\Unit\Statistics;
 
 use MaikSchneider\AnalyticsMatomo\Dashboard\SiteMetrics;
 use MaikSchneider\AnalyticsMatomo\Dashboard\SitePerformance;
+use MaikSchneider\AnalyticsMatomo\Module\EvolutionChartFactory;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageMetrics;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageStatistics;
 use MaikSchneider\AnalyticsMatomo\Statistics\Tile;
@@ -107,6 +108,20 @@ final class TileFactoryTest extends UnitTestCase
         foreach ((new TileFactory())->createForOverview(['nb_visits' => 10], null) as $tile) {
             self::assertNull($tile->trend);
         }
+    }
+
+    #[Test]
+    public function pageTilesRateARisingExitRateAsNegative(): void
+    {
+        $tiles = [];
+        foreach ((new TileFactory())->createForOverview(['nb_hits' => 31, 'exit_rate' => 0.92], ['nb_hits' => 23, 'exit_rate' => 0.8], EvolutionChartFactory::PAGE_METRICS) as $tile) {
+            $tiles[$tile->key] = $tile;
+        }
+        self::assertSame(['views', 'bounceRate', 'averageTimeOnPage', 'exitRate'], array_keys($tiles));
+        self::assertSame('+8', $tiles['views']->trend);
+        self::assertSame('positive', $tiles['views']->trendRating);
+        self::assertSame('+12.0 %', $tiles['exitRate']->trend);
+        self::assertSame('negative', $tiles['exitRate']->trendRating);
     }
 
     /**

@@ -28,8 +28,11 @@
         </f:then>
         <f:else>
             <section data-report="{title}" data-site="{selection.site.identifier}" data-page="{pageId}" data-language="{language}">
-                <f:if condition="{tiles}">
+                <f:if condition="{pageDetails}">
                     <f:then>
+                        <f:render partial="Module/PageDetails" arguments="{_all}" />
+                    </f:then>
+                    <f:else if="{tiles}">
                         <div class="tx-analytics-matomo tx-analytics-matomo--grid mb-3">
                             <f:for each="{tiles}" as="tile">
                                 <f:render partial="Tile" arguments="{tile: tile, ll: sharedLabels, days: selection.period.days, descriptionPrefix: 'siteMetric'}" />
@@ -45,7 +48,7 @@
                                 </div>
                             </f:for>
                         </dl>
-                    </f:then>
+                    </f:else>
                     <f:else>
                         <f:for each="{tables}" as="table">
                             <f:render partial="Module/ReportTable" arguments="{table: table, ll: ll}" />

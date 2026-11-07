@@ -35,10 +35,13 @@ final readonly class PageTargetResolver
     ) {
     }
 
-    public function resolve(int $pageId, int $languageId): ?PageTarget
+    /**
+     * @param bool $requireBarPermission false where module access already grants the page statistics (Page details)
+     */
+    public function resolve(int $pageId, int $languageId, bool $requireBarPermission = true): ?PageTarget
     {
         $backendUser = $this->getBackendUser();
-        if ($pageId <= 0 || !StatisticsPermission::isGranted($backendUser, StatisticsPermission::PAGE)) {
+        if ($pageId <= 0 || ($requireBarPermission && !StatisticsPermission::isGranted($backendUser, StatisticsPermission::PAGE))) {
             return null;
         }
         $page = BackendUtility::readPageAccess($pageId, $backendUser->getPagePermsClause(Permission::PAGE_SHOW));

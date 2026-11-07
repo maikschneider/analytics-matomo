@@ -6,10 +6,13 @@ namespace MaikSchneider\AnalyticsMatomo\Controller;
 
 use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelectionResolver;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
+use MaikSchneider\AnalyticsMatomo\Module\EvolutionChartFactory;
+use MaikSchneider\AnalyticsMatomo\Module\PageDetailsService;
 use MaikSchneider\AnalyticsMatomo\Module\ReportCatalog;
 use MaikSchneider\AnalyticsMatomo\Module\ReportService;
 use MaikSchneider\AnalyticsMatomo\Module\ReportTableFactory;
 use MaikSchneider\AnalyticsMatomo\Module\VisitorsOverviewService;
+use MaikSchneider\AnalyticsMatomo\Statistics\PageTargetResolver;
 use MaikSchneider\AnalyticsMatomo\Statistics\Period;
 use MaikSchneider\AnalyticsMatomo\Statistics\TileFactory;
 use Psr\Http\Message\ResponseInterface;
@@ -49,6 +52,8 @@ final readonly class ReportModuleController
         private ReportService $reportService,
         private ReportTableFactory $tableFactory,
         private PageRenderer $pageRenderer,
+        private PageTargetResolver $pageTargetResolver,
+        private PageDetailsService $pageDetailsService,
     ) {
     }
 
@@ -132,7 +137,7 @@ final readonly class ReportModuleController
             }
             $this->addMenu($template, $route, $pageId, 'site', $sites, $selection->site->getIdentifier());
         }
-        $languages = [-1 => self::LABELS . 'language.all'];
+        $languages = $section === 'page' ? [] : [-1 => self::LABELS . 'language.all'];
         foreach ($selection->site->getAvailableLanguages($user) as $language) {
             $languages[$language->getLanguageId()] = $language->getTitle();
         }
@@ -148,7 +153,9 @@ final readonly class ReportModuleController
         $this->addMenu($template, $route, $pageId, 'period', $periods, $selection->period->preset);
         $this->addMenu($template, $route, $pageId, 'compare', ['0' => self::LABELS . 'compare.off', '1' => self::LABELS . 'compare.on'], $selection->compare ? '1' : '0');
         try {
-            if ($section === 'visitors' && $report === 'overview') {
+            if ($section === 'page') {
+                $variables += $this->pageDetails($pageId, (int)$moduleData->get('language'), $selection->period, $selection->compare);
+            } elseif ($section === 'visitors' && $report === 'overview') {
                 $overview = $this->overviewService->getOverview($selection->configuration, $selection->period, $selection->compare);
                 $variables['tiles'] = $this->tileFactory->createForOverview($overview['current'], $overview['previous']);
                 $variables['chart'] = $overview['chart'];
@@ -193,6 +200,30 @@ final readonly class ReportModuleController
             'formAction' => (string)$this->uriBuilder->buildUriFromRoute($route, ['id' => $pageId]),
         ]);
         return $template->renderResponse('Module/Report');
+    }
+
+    /**
+     * @return array<string, mixed>
+     * @throws MatomoApiException
+     */
+    private function pageDetails(int $pageId, int $languageId, Period $period, bool $compare): array
+    {
+        if ($pageId === 0) {
+            return ['emptyMessage' => $this->label('empty.page')];
+        }
+        $target = $this->pageTargetResolver->resolve($pageId, $languageId, false);
+        if ($target === null) {
+            return ['emptyMessage' => $this->label('empty.pageWithoutUrl')];
+        }
+        $details = $this->pageDetailsService->getDetails($target->configuration, $target->pageUrl, $period, $compare);
+        $this->pageRenderer->addCssFile('EXT:analytics_matomo/Resources/Public/Css/statistics-bar.css');
+        $this->pageRenderer->addCssFile('EXT:analytics_matomo/Resources/Public/Css/dashboard.css');
+        $this->pageRenderer->loadJavaScriptModule('@maikschneider/analytics-matomo/evolution-chart.js');
+        return [
+            'pageDetails' => ['url' => $target->pageUrl],
+            'tiles' => $this->tileFactory->createForOverview($details['current'], $details['previous'], EvolutionChartFactory::PAGE_METRICS),
+            'chart' => $details['chart'],
+        ];
     }
 
     /**

@@ -1,0 +1,9 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<p><f:translate key="{ll}page.url" arguments="{0: pageDetails.url}" /></p>
+<div class="tx-analytics-matomo tx-analytics-matomo--grid mb-3">
+    <f:for each="{tiles}" as="tile">
+        <f:render partial="Tile" arguments="{tile: tile, ll: sharedLabels, days: selection.period.days}" />
+    </f:for>
+</div>
+<f:render partial="Module/EvolutionChart" arguments="{chart: chart, ll: ll, sharedLabels: sharedLabels}" />
+</html>
