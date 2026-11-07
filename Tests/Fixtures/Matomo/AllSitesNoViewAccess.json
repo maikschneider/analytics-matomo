@@ -1,0 +1,12 @@
+[
+	{
+		"nb_visits": 29,
+		"nb_pageviews": 43,
+		"bounce_rate": 0.72,
+		"avg_time_on_site": 3
+	},
+	{
+		"result": "error",
+		"message": "You can't access this resource as it requires 'view' access for the website id = 1."
+	}
+]

@@ -10,6 +10,7 @@ use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelectionResolver;
 use MaikSchneider\AnalyticsMatomo\Dashboard\SiteStatisticsService;
 use MaikSchneider\AnalyticsMatomo\Dashboard\Traffic;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
+use MaikSchneider\AnalyticsMatomo\Module\AllSitesService;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageUrlMapper;
 use MaikSchneider\AnalyticsMatomo\Statistics\Period;
 use MaikSchneider\AnalyticsMatomo\Statistics\TileFactory;
@@ -39,11 +40,13 @@ final class MatomoWidget implements WidgetInterface, RequestAwareWidgetInterface
     public const REPORT_PERFORMANCE = 'performance';
     public const REPORT_TRAFFIC = 'traffic';
     public const REPORT_TOP_PAGES = 'topPages';
+    public const REPORT_SITES = 'sites';
     /** Module section and report page with the details of each widget */
     private const DETAILS = [
         self::REPORT_PERFORMANCE => ['analytics_matomo_visitors', 'overview'],
         self::REPORT_TRAFFIC => ['analytics_matomo_visitors', 'overview'],
         self::REPORT_TOP_PAGES => ['analytics_matomo_behaviour', 'pages'],
+        self::REPORT_SITES => ['analytics_matomo_visitors', 'sites'],
     ];
     private const TOP_PAGES = 10;
     private const CHART_COLORS = ['#ff8700', '#0078e6', '#79a548', '#a855f7'];
@@ -64,6 +67,7 @@ final class MatomoWidget implements WidgetInterface, RequestAwareWidgetInterface
         private readonly SiteStatisticsService $statisticsService,
         private readonly TileFactory $tileFactory,
         private readonly PageUrlMapper $pageUrlMapper,
+        private readonly AllSitesService $allSitesService,
         private readonly ViewFactoryInterface $viewFactory,
         private readonly UriBuilder $uriBuilder,
         private readonly LoggerInterface $logger,
@@ -86,6 +90,8 @@ final class MatomoWidget implements WidgetInterface, RequestAwareWidgetInterface
             'll' => 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf',
             'configuration' => $this->configuration,
             'report' => $report,
+            // Shows every site, so it neither chooses nor opens one
+            'allSites' => $report === self::REPORT_SITES,
             'selection' => $selection,
             'periods' => Period::PRESETS,
             'hasPermission' => StatisticsPermission::isGranted($backendUser, StatisticsPermission::SITE),
@@ -93,7 +99,8 @@ final class MatomoWidget implements WidgetInterface, RequestAwareWidgetInterface
         if ($selection !== null) {
             $variables['reportUrl'] = $selection->configuration->getReportUrl($selection->period);
             [$module, $page] = self::DETAILS[$report] ?? ['', ''];
-            if ($module !== '' && $backendUser->check('modules', 'analytics_matomo') && $backendUser->check('modules', $module)) {
+            $variables['moduleAccess'] = $module !== '' && $backendUser->check('modules', 'analytics_matomo') && $backendUser->check('modules', $module);
+            if ($variables['moduleAccess']) {
                 $variables['detailsUrl'] = (string)$this->uriBuilder->buildUriFromRoute($module, ['report' => $page]);
             }
             try {
@@ -178,7 +185,34 @@ final class MatomoWidget implements WidgetInterface, RequestAwareWidgetInterface
             $pages = $this->topPages($selection);
             return ['pages' => $pages, 'isEmpty' => $pages === []];
         }
+        if ($report === self::REPORT_SITES) {
+            return ['sites' => $this->sites($selection)];
+        }
         throw new \InvalidArgumentException('Unknown Matomo widget report "' . $report . '"', 1793960201);
+    }
+
+    /**
+     * Visits of every site the user may choose; a site without an answer shows no numbers
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function sites(DashboardSelection $selection): array
+    {
+        $rows = [];
+        foreach ($this->allSitesService->getTotals($selection->sites, $selection->period, true) as $identifier => $totals) {
+            $site = $selection->sites[$identifier];
+            $visits = isset($totals['current']['nb_visits']) ? (int)$totals['current']['nb_visits'] : null;
+            $previous = (int)($totals['previous']['nb_visits'] ?? 0);
+            $rows[] = [
+                'title' => $this->allSitesService->title($site),
+                'host' => $site->getBase()->getHost() . $site->getBase()->getPath(),
+                'moduleUrl' => (string)$this->uriBuilder->buildUriFromRoute('analytics_matomo_visitors', ['id' => $site->getRootPageId(), 'report' => 'overview']),
+                'visits' => $visits,
+                'change' => $visits !== null && $previous > 0 && $visits !== $previous ? $this->signedPercent($visits / $previous - 1) : null,
+                'changeRating' => $visits === null || $previous === 0 || $visits === $previous ? null : ($visits > $previous ? 'positive' : 'negative'),
+            ];
+        }
+        return $rows;
     }
 
     /**

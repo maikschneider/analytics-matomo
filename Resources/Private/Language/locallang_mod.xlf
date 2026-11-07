@@ -176,6 +176,12 @@
 			<trans-unit id="action.layout"><source>Page module</source></trans-unit>
 			<trans-unit id="action.edit"><source>Edit page properties</source></trans-unit>
 			<trans-unit id="action.view"><source>View in frontend</source></trans-unit>
+			<trans-unit id="action.site"><source>Open site statistics</source></trans-unit>
+			<trans-unit id="report.sites" resname="report.sites"><source>All sites</source></trans-unit>
+			<trans-unit id="column.site" resname="column.site"><source>Site</source></trans-unit>
+			<trans-unit id="column.nb_pageviews" resname="column.nb_pageviews"><source>Page views</source></trans-unit>
+			<trans-unit id="column.bounce_rate" resname="column.bounce_rate"><source>Bounce rate</source></trans-unit>
+			<trans-unit id="column.avg_time_on_site" resname="column.avg_time_on_site"><source>Avg. visit duration</source></trans-unit>
 			<trans-unit id="overview.live"><source>Last 30 minutes</source></trans-unit>
 			<trans-unit id="chart.title"><source>Evolution</source></trans-unit>
 			<trans-unit id="chart.metric"><source>Metric</source></trans-unit>

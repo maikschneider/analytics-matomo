@@ -156,7 +156,7 @@ final readonly class ReportTableFactory
         }
         parse_str((string)parse_url($baseUrl, PHP_URL_QUERY), $searchParameters);
         return [
-            'searchParameters' => $searchParameters, 'truncated' => $truncated, 'urlRows' => $site !== null,
+            'searchParameters' => $searchParameters, 'truncated' => $truncated, 'hasActions' => $site !== null || array_filter(array_column($rows, '_actions')) !== [],
             'title' => $options['title'] ?? (string)($report['metadata']['name'] ?? ''), 'columns' => $columns, 'rows' => $renderedRows,
             'emptyMessage' => $search === '' ? $options['empty'] ?? '' : '',
             'compare' => $previous !== null, 'total' => $total, 'page' => $page, 'pages' => $pages, 'query' => $search,
@@ -186,7 +186,7 @@ final readonly class ReportTableFactory
         }
         return [
             'metricList' => true, 'title' => (string)($report['metadata']['name'] ?? ''), 'rows' => $row === [] ? [] : $rows,
-            'compare' => $previous !== null, 'urlRows' => false, 'truncated' => false,
+            'compare' => $previous !== null, 'hasActions' => false, 'truncated' => false,
         ];
     }
 

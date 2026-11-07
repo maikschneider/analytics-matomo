@@ -141,7 +141,29 @@ final class MatomoWidgetTest extends FunctionalTestCase
     {
         $identifiers = array_filter(array_keys($this->get(WidgetRegistry::class)->getAllWidgets()), static fn (string $identifier): bool => str_starts_with($identifier, 'analyticsMatomo'));
 
-        self::assertSame(['analyticsMatomoPerformance', 'analyticsMatomoTraffic', 'analyticsMatomoTopPages'], array_values($identifiers));
+        self::assertSame(['analyticsMatomoPerformance', 'analyticsMatomoTraffic', 'analyticsMatomoTopPages', 'analyticsMatomoSites'], array_values($identifiers));
+    }
+
+    #[Test]
+    public function allSitesListsTheSitesOfTheUserWithLinksIntoTheModule(): void
+    {
+        $html = $this->render(1, 'analyticsMatomoSites', 'AllSitesTotals');
+
+        preg_match_all('#<a href="[^"]*/module/analytics-matomo/visitors\?[^"]*id=(\d+)[^"]*">([^<]+)</a>#', $html, $rows);
+        self::assertSame(['1', '10', '30'], $rows[1]);
+        self::assertSame(['Root', 'Shop', 'Trial'], $rows[2]);
+        self::assertMatchesRegularExpression('#<td class="text-end">\s*29\s*</td>#', $html);
+        self::assertMatchesRegularExpression('#<a class="widget-cta" href="[^"]*/module/analytics-matomo/visitors\?[^"]*report=sites"#', $html);
+        // The widget shows every site, so it offers no site choice
+        self::assertStringNotContainsString('name="site"', $html);
+        // One bulk with both periods per Matomo connection; the demo site needs none
+        self::assertCount(2, $this->sentRequests);
+
+        $editor = $this->render(6, 'analyticsMatomoSites', 'AllSitesTotals');
+        preg_match_all('#<td>\s*(Root|Shop|Trial)\s*<small#', $editor, $editorRows);
+        self::assertSame(['Root', 'Shop'], $editorRows[1]);
+        // Without module access the sites don't link
+        self::assertStringNotContainsString('/module/analytics-matomo/', $editor);
     }
 
     #[Test]

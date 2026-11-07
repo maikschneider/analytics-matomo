@@ -222,6 +222,12 @@
 			<trans-unit id="action.layout"><source>Page module</source><target>Seitenmodul</target></trans-unit>
 			<trans-unit id="action.edit"><source>Edit page properties</source><target>Seiteneigenschaften bearbeiten</target></trans-unit>
 			<trans-unit id="action.view"><source>View in frontend</source><target>Im Frontend ansehen</target></trans-unit>
+			<trans-unit id="action.site"><source>Open site statistics</source><target>Statistik der Website öffnen</target></trans-unit>
+			<trans-unit id="report.sites" resname="report.sites"><source>All sites</source><target>Alle Websites</target></trans-unit>
+			<trans-unit id="column.site" resname="column.site"><source>Site</source><target>Website</target></trans-unit>
+			<trans-unit id="column.nb_pageviews" resname="column.nb_pageviews"><source>Page views</source><target>Seitenaufrufe</target></trans-unit>
+			<trans-unit id="column.bounce_rate" resname="column.bounce_rate"><source>Bounce rate</source><target>Absprungrate</target></trans-unit>
+			<trans-unit id="column.avg_time_on_site" resname="column.avg_time_on_site"><source>Avg. visit duration</source><target>Ø Besuchsdauer</target></trans-unit>
 			<trans-unit id="overview.live"><source>Last 30 minutes</source><target>Letzte 30 Minuten</target></trans-unit>
 			<trans-unit id="chart.title"><source>Evolution</source><target>Entwicklung</target></trans-unit>
 			<trans-unit id="chart.metric"><source>Metric</source><target>Kennzahl</target></trans-unit>

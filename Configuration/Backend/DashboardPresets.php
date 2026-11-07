@@ -11,6 +11,7 @@ return [
             'analyticsMatomoPerformance',
             'analyticsMatomoTraffic',
             'analyticsMatomoTopPages',
+            'analyticsMatomoSites',
         ],
         'showInWizard' => true,
     ],

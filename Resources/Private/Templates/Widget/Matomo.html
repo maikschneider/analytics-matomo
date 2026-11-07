@@ -9,7 +9,7 @@
     <div class="tx-analytics-matomo-widget tx-analytics-matomo-widget--{report}">
         <f:if condition="{selection}">
             <f:then>
-                <f:render partial="Widget/Toolbar" arguments="{selection: selection, periods: periods, ll: ll}" />
+                <f:render partial="Widget/Toolbar" arguments="{selection: selection, periods: periods, ll: ll, allSites: allSites}" />
                 <f:if condition="{failed}">
                     <f:then>
                         <div class="callout callout-danger" role="alert">
@@ -44,7 +44,7 @@
             <f:translate key="{ll}:widget.details" />
         </a>
     </f:if>
-    <f:if condition="{reportUrl}">
+    <f:if condition="{reportUrl} && !{allSites}">
         <f:then>
             <a class="widget-cta" href="{reportUrl}" target="_blank" rel="noopener noreferrer">
                 <core:icon identifier="actions-window-open" size="small" />
@@ -112,6 +112,40 @@
                     </td>
                     <td class="text-end">
                         <f:render section="Change" arguments="{change: page.change, rating: page.changeRating}" />
+                    </td>
+                </tr>
+            </f:for>
+        </tbody>
+    </table>
+</f:section>
+
+<f:section name="sites">
+    <table class="table table-sm tx-analytics-matomo-table">
+        <thead>
+            <tr>
+                <th scope="col"><f:translate key="{ll}:widget.site" /></th>
+                <th scope="col" class="text-end"><f:translate key="{ll}:metric.visits" /></th>
+                <th scope="col" class="text-end"><f:translate key="{ll}:widget.change" /></th>
+            </tr>
+        </thead>
+        <tbody>
+            <f:for each="{sites}" as="site">
+                <tr>
+                    <td>
+                        <f:if condition="{moduleAccess}">
+                            <f:then><a href="{site.moduleUrl}">{site.title}</a></f:then>
+                            <f:else>{site.title}</f:else>
+                        </f:if>
+                        <small class="d-block text-variant">{site.host}</small>
+                    </td>
+                    <td class="text-end">
+                        <f:if condition="{site.visits} !== null">
+                            <f:then>{site.visits -> f:format.number(decimals: 0, thousandsSeparator: ' ')}</f:then>
+                            <f:else><span class="text-variant">–</span></f:else>
+                        </f:if>
+                    </td>
+                    <td class="text-end">
+                        <f:render section="Change" arguments="{change: site.change, rating: site.changeRating}" />
                     </td>
                 </tr>
             </f:for>

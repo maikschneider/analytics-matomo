@@ -31,6 +31,8 @@ mode without contacting Matomo.
 Every other report page shows one or more Matomo reports as tables:
 
 :guilabel:`Visitors`
+    All sites (visits, page views, bounce rate and visit duration per site;
+    only for users who may see more than one site, a row opens the site),
     Locations (countries, regions, cities, browser languages), Devices (device
     type, brand, model, screen resolution), Software (operating system
     families, browsers, browser engines), Times (local hour, site hour,
@@ -185,11 +187,12 @@ The widget group :guilabel:`Matomo` offers:
     per day
 *   :guilabel:`Top pages`: the ten most viewed pages with share and trend,
     linked to the Page module
+*   :guilabel:`All sites`: visits and trend of every site the user may see
 
 Each widget links to its report page in the :ref:`Matomo Analytics module
-<module>` (:guilabel:`Visitors > Overview` or :guilabel:`Behaviour > Pages`)
-when the user may open that section. Channels, devices, browsers and
-countries are reports in the module.
+<module>` (:guilabel:`Visitors > Overview`, :guilabel:`Visitors > All sites` or
+:guilabel:`Behaviour > Pages`) when the user may open that section. Channels,
+devices, browsers and countries are reports in the module.
 
 The dashboard preset :guilabel:`Matomo overview` adds all of them at once.
 

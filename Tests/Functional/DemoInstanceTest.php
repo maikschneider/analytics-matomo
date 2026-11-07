@@ -155,7 +155,7 @@ final class DemoInstanceTest extends FunctionalTestCase
             self::assertInstanceOf(Dashboard::class, $dashboard);
             $widgets = array_column($dashboard->getWidgetConfig(), 'identifier');
 
-            self::assertSame(['analyticsMatomoPerformance', 'analyticsMatomoTraffic', 'analyticsMatomoTopPages'], $widgets);
+            self::assertSame(['analyticsMatomoPerformance', 'analyticsMatomoTraffic', 'analyticsMatomoTopPages', 'analyticsMatomoSites'], $widgets);
         }
         self::assertSame(['cycles', 'live', 'rental'], array_keys($this->get(DashboardSelectionResolver::class)->getSites($this->setUpBackendUser(self::EDITOR))));
     }

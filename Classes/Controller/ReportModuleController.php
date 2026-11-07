@@ -7,6 +7,7 @@ namespace MaikSchneider\AnalyticsMatomo\Controller;
 use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelection;
 use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelectionResolver;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
+use MaikSchneider\AnalyticsMatomo\Module\AllSitesService;
 use MaikSchneider\AnalyticsMatomo\Module\CsvExport;
 use MaikSchneider\AnalyticsMatomo\Module\EvolutionChartFactory;
 use MaikSchneider\AnalyticsMatomo\Module\GoalsService;
@@ -78,6 +79,7 @@ final readonly class ReportModuleController
         private LinkAccess $linkAccess,
         private CsvExport $csvExport,
         private SegmentService $segmentService,
+        private AllSitesService $allSitesService,
     ) {
     }
 
@@ -145,6 +147,9 @@ final readonly class ReportModuleController
             $this->logger->warning('Checking the Matomo reports failed: {message}', ['message' => $exception->getMessage(), 'site' => $selection->site->getIdentifier()]);
             $available = array_diff_key($pages, $this->catalog->getOptionalPages($section));
         }
+        if (count($selection->sites) < 2) {
+            unset($available['sites']);
+        }
         if ($available !== $pages) {
             $pages = $available;
             $moduleData->clean('report', array_keys($pages));
@@ -184,7 +189,7 @@ final readonly class ReportModuleController
         $periods[Period::CUSTOM] = self::SHARED_LABELS . 'period.custom';
         $this->addMenu($template, $route, $pageId, 'period', $periods, $selection->period->preset);
         $this->addMenu($template, $route, $pageId, 'compare', ['0' => self::LABELS . 'compare.off', '1' => self::LABELS . 'compare.on'], $selection->compare ? '1' : '0');
-        $segment = $this->segment($template, $route, $pageId, $selection, $parameters, $user);
+        $segment = $report === 'sites' ? null : $this->segment($template, $route, $pageId, $selection, $parameters, $user);
         if ($segment !== null) {
             $selection = new DashboardSelection($selection->site, $selection->configuration->withSegment($segment['definition']), $selection->period, $selection->sites, $selection->compare);
             $variables['segment'] = $segment['name'];
@@ -200,6 +205,8 @@ final readonly class ReportModuleController
                 $this->pageRenderer->addCssFile('EXT:analytics_matomo/Resources/Public/Css/statistics-bar.css');
                 $this->pageRenderer->addCssFile('EXT:analytics_matomo/Resources/Public/Css/dashboard.css');
                 $this->pageRenderer->loadJavaScriptModule('@maikschneider/analytics-matomo/evolution-chart.js');
+            } elseif ($section === 'visitors' && $report === 'sites') {
+                $variables['tables'] = $this->tables([$this->allSites($selection)], $selection, $parameters, $route, $pageId, $report, -1);
             } elseif ($section === 'goals') {
                 $variables += $this->goals($goals ?? $this->goalsService->getGoals($selection->configuration), $report, $selection, $parameters, $route, $pageId, (int)$moduleData->get('language'));
             } elseif ($section === 'behaviour' && $report === 'trending') {
@@ -480,6 +487,35 @@ final readonly class ReportModuleController
         $selected = $this->segmentService->select($user, $selection->site->getIdentifier(), $segments, isset($parameters['segment']) ? (string)$parameters['segment'] : null);
         $this->addMenu($template, $route, $pageId, 'segment', ['' => self::LABELS . 'segment.all'] + array_map(static fn (array $segment): string => $segment['name'], $segments), $selected);
         return $segments[$selected] ?? null;
+    }
+
+    /**
+     * Visit totals of every site the user may choose, as a report; a row opens the site
+     *
+     * @return array{definition: Definition, current: Report, previous: Report|null}
+     */
+    private function allSites(DashboardSelection $selection): array
+    {
+        $totals = $this->allSitesService->getTotals($selection->sites, $selection->period, $selection->compare);
+        $current = [];
+        $previous = [];
+        foreach ($selection->sites as $identifier => $site) {
+            $rootPageId = $site->getRootPageId();
+            $row = ['label' => $this->allSitesService->title($site), 'url' => (string)$site->getBase()];
+            $current[] = $row + array_intersect_key($totals[$identifier]['current'] ?? [], array_flip(AllSitesService::COLUMNS)) + [
+                '_actions' => [['key' => 'site', 'url' => (string)$this->uriBuilder->buildUriFromRoute('analytics_matomo_visitors', ['id' => $rootPageId, 'report' => 'overview'])]],
+            ];
+            $previous[] = $row + ($totals[$identifier]['previous'] ?? []);
+        }
+        $columns = ['label' => ['column.site', 'string']];
+        foreach (AllSitesService::COLUMNS as $column) {
+            $columns[$column] = ['column.' . $column, $column === 'bounce_rate' ? 'percent' : ($column === 'avg_time_on_site' ? 'duration_s' : 'number')];
+        }
+        return [
+            'definition' => ['module' => 'API', 'action' => 'get', 'title' => 'report.sites', 'columns' => $columns],
+            'current' => ReportTableFactory::fromRows($current),
+            'previous' => $selection->compare ? ReportTableFactory::fromRows($previous) : null,
+        ];
     }
 
     /**

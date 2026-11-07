@@ -129,6 +129,12 @@
 			<trans-unit id="widget.topPages.description" resname="widget.topPages.description">
 				<source>The most viewed pages of a site with their share and trend.</source>
 			</trans-unit>
+			<trans-unit id="widget.sites" resname="widget.sites">
+				<source>All sites</source>
+			</trans-unit>
+			<trans-unit id="widget.sites.description" resname="widget.sites.description">
+				<source>Visits and trend of every site you may see.</source>
+			</trans-unit>
 			<trans-unit id="widget.site" resname="widget.site">
 				<source>Site</source>
 			</trans-unit>

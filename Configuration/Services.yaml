@@ -60,3 +60,19 @@ services:
         iconIdentifier: content-widget-list
         height: large
         width: medium
+
+  dashboard.widget.analyticsMatomoSites:
+    class: MaikSchneider\AnalyticsMatomo\Dashboard\Widget\MatomoWidget
+    arguments:
+      $options:
+        report: sites
+        refreshAvailable: true
+    tags:
+      - name: dashboard.widget
+        identifier: analyticsMatomoSites
+        groupNames: analytics_matomo
+        title: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:widget.sites'
+        description: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:widget.sites.description'
+        iconIdentifier: content-widget-list
+        height: medium
+        width: medium

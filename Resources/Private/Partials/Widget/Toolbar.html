@@ -3,8 +3,8 @@
     data-namespace-typo3-fluid="true"
 >
 <form class="tx-analytics-matomo-toolbar" data-analytics-matomo-selection>
-    <f:if condition="{selection.sites -> f:count()} > 1">
-        <f:then>
+    <f:if condition="{allSites}">
+        <f:else if="{selection.sites -> f:count()} > 1">
             <label>
                 <span class="visually-hidden"><f:translate key="{ll}:widget.site" /></span>
                 <select class="form-select form-select-sm" name="site">
@@ -13,7 +13,7 @@
                     </f:for>
                 </select>
             </label>
-        </f:then>
+        </f:else>
         <f:else>
             <input type="hidden" name="site" value="{selection.site.identifier}">
             <span class="tx-analytics-matomo-toolbar-site">{selection.site.base.host}{selection.site.base.path}</span>

@@ -40,7 +40,7 @@
                             </f:for>
                         </f:else>
                     </f:if>
-                    <f:if condition="{table.urlRows}"><th scope="col"><f:translate key="{ll}table.actions" /></th></f:if>
+                    <f:if condition="{table.hasActions}"><th scope="col"><f:translate key="{ll}table.actions" /></th></f:if>
                 </tr></thead>
                 <tbody>
                     <f:for each="{table.rows}" as="row"><tr>
@@ -48,9 +48,9 @@
                             <td>{cell.value}</td>
                             <f:if condition="{table.compare} && {cell.metric}"><td>{cell.change}</td></f:if>
                         </f:for>
-                        <f:if condition="{table.urlRows}"><td>
+                        <f:if condition="{table.hasActions}"><td>
                             <div class="btn-group" role="group" aria-label="{f:translate(key: '{ll}table.actions')}">
-                                <f:variable name="actionIcons" value="{details: 'actions-document-info', layout: 'actions-page-open', edit: 'actions-document-open', view: 'actions-view'}" />
+                                <f:variable name="actionIcons" value="{details: 'actions-document-info', layout: 'actions-page-open', edit: 'actions-document-open', view: 'actions-view', site: 'apps-pagetree-folder-root'}" />
                                 <f:for each="{row.actions}" as="action"><a class="btn btn-default btn-sm" href="{action.url}" title="{f:translate(key: '{ll}action.{action.key}')}"><core:icon identifier="{actionIcons.{action.key}}" size="small" /><span class="visually-hidden"><f:translate key="{ll}action.{action.key}" /></span></a></f:for>
                             </div>
                         </td></f:if>

@@ -22,6 +22,7 @@ final readonly class ReportCatalog
     private const PAGES = [
         'visitors' => [
             'overview' => ['reports' => []],
+            'sites' => ['reports' => []],
             'locations' => ['reports' => [
                 ['module' => 'UserCountry', 'action' => 'getCountry'],
                 ['module' => 'UserCountry', 'action' => 'getRegion'],

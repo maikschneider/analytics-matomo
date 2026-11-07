@@ -18,7 +18,7 @@
 ,"uid","pid","title","allowed_languages","custom_options","availableWidgets"
 ,1,0,"Editors English only","0","",""
 ,2,0,"Page statistics","","analytics_matomo:pageStatistics","analyticsMatomoPerformance"
-,3,0,"Site statistics","","analytics_matomo:siteStatistics","analyticsMatomoPerformance,analyticsMatomoTraffic,analyticsMatomoTopPages"
+,3,0,"Site statistics","","analytics_matomo:siteStatistics","analyticsMatomoPerformance,analyticsMatomoTraffic,analyticsMatomoTopPages,analyticsMatomoSites"
 "be_users"
 ,"uid","pid","username","admin","usergroup","db_mountpoints"
 ,1,0,"admin",1,"",""

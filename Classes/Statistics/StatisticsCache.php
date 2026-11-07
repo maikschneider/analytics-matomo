@@ -21,19 +21,44 @@ final readonly class StatisticsCache
 
     /**
      * @template T
-     * @param list<scalar> $key
+     * @param list<mixed> $key
      * @param callable(): T $build
      * @return T
      */
     public function remember(array $key, callable $build, ?int $lifetime = null): mixed
     {
-        $identifier = sha1((string)json_encode($key));
-        $cached = $this->cache->get($identifier);
+        $cached = $this->cache->get($this->identifier($key));
         if ($cached !== false) {
             return $cached;
         }
         $value = $build();
-        $this->cache->set($identifier, $value, [], $lifetime);
+        $this->set($key, $value, $lifetime);
         return $value;
+    }
+
+    /**
+     * @param list<mixed> $key
+     * @return array<mixed>|null null when nothing is cached
+     */
+    public function get(array $key): ?array
+    {
+        $cached = $this->cache->get($this->identifier($key));
+        return is_array($cached) ? $cached : null;
+    }
+
+    /**
+     * @param list<mixed> $key
+     */
+    public function set(array $key, mixed $value, ?int $lifetime = null): void
+    {
+        $this->cache->set($this->identifier($key), $value, [], $lifetime);
+    }
+
+    /**
+     * @param list<mixed> $key
+     */
+    private function identifier(array $key): string
+    {
+        return sha1((string)json_encode($key));
     }
 }

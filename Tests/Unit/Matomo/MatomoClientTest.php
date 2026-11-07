@@ -155,6 +155,18 @@ final class MatomoClientTest extends UnitTestCase
     }
 
     #[Test]
+    public function bulkRequestKeepsErrorsOfSingleCallsOnRequest(): void
+    {
+        $this->requestFactory->method('request')
+            ->willReturn($this->response(200, (string)file_get_contents(__DIR__ . '/../../Fixtures/Matomo/AllSitesNoViewAccess.json')));
+
+        $results = $this->subject->bulkRequest(new MatomoConfiguration('https://matomo.example.com', 1, ''), [['method' => 'API.get', 'idSite' => 3], ['method' => 'API.get', 'idSite' => 1]], keepErrors: true);
+
+        self::assertSame(29, $results[0]['nb_visits'] ?? null);
+        self::assertSame('error', $results[1]['result'] ?? null);
+    }
+
+    #[Test]
     public function bulkRequestThrowsOnHttpError(): void
     {
         $this->requestFactory->method('request')
