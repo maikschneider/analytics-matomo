@@ -77,6 +77,8 @@ The backend module (milestone 0.3.0 on) is designed in [MODULE.md](MODULE.md#tec
 | `Module\ReportService` | one cached bulk of processed reports per report page, with previous ranges when comparing; language of the backend user |
 | `Module\ReportTableFactory` | Matomo metadata to table view model, page/language/subtree access filtering, search, sort and 25-row paging in PHP |
 | `Module\MetricFormatter` | raw metric values formatted by Matomo metric type; unknown values remain unknown |
+| `Module\VisitorsOverviewService` | cached `API.get` range totals and evolution in one bulk, optional previous period; separate `Live.getCounters` cache (60 s) |
+| `Module\EvolutionChartFactory` | calendar day/week/month buckets, unknown values as null and previous buckets aligned by position; shared chart payload for the metric picker |
 | `Controller\ReportModuleController` | module docheader, page-tree site, shared selection, report/language module data and empty states |
 | `Dashboard\Widget\MatomoWidget` | all widgets |
 
@@ -89,6 +91,7 @@ Every view is one HTTP request (`API.getBulkRequest`, `format_metrics=0`). No ad
 | View | Calls |
 |---|---|
 | Statistics bar | `Actions.getPageUrl&pageUrl=<url>` for the range, the previous range and per day |
+| Visitors overview | `API.get` range + day/week/month evolution, plus previous range/evolution when comparing; `Live.getCounters(lastMinutes=30)` in a separate bulk with a 60 s cache |
 | Site performance | `VisitsSummary.get` + `Actions.get` (`nb_pageviews`) for the range, the previous range and per day |
 | Visits over time | `VisitsSummary.get` + `VisitFrequency.get` (`nb_visits_returning`) per day |
 | Top pages | `Actions.getPageUrls` (`flat=1`, sorted by `nb_hits`) for the range and the previous range, `Actions.get` for the total |

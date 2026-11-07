@@ -228,6 +228,10 @@
 			<trans-unit id="period.custom" resname="period.custom">
 				<source>Custom range</source>
 			</trans-unit>
+			<trans-unit id="metric.actions"><source>Actions</source></trans-unit>
+			<trans-unit id="metric.actionsPerVisit"><source>Actions per visit</source></trans-unit>
+			<trans-unit id="siteMetric.actionsPerVisit.description"><source>Average number of actions during a visit.</source></trans-unit>
+			<trans-unit id="siteMetric.visitors.description"><source>Unique visitors reported by Matomo. This metric may be unavailable for some periods.</source></trans-unit>
 		</body>
 	</file>
 </xliff>

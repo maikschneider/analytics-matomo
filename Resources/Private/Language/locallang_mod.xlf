@@ -152,6 +152,12 @@
 			<trans-unit id="action.layout"><source>Page module</source></trans-unit>
 			<trans-unit id="action.edit"><source>Edit page properties</source></trans-unit>
 			<trans-unit id="action.view"><source>View in frontend</source></trans-unit>
+			<trans-unit id="overview.live"><source>Last 30 minutes</source></trans-unit>
+			<trans-unit id="chart.title"><source>Evolution</source></trans-unit>
+			<trans-unit id="chart.metric"><source>Metric</source></trans-unit>
+			<trans-unit id="chart.current"><source>Selected period</source></trans-unit>
+			<trans-unit id="chart.previous"><source>Previous period</source></trans-unit>
+			<trans-unit id="chart.fallback"><source>The chart requires JavaScript. Summary values are shown above.</source></trans-unit>
 		</body>
 	</file>
 </xliff>

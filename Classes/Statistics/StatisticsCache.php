@@ -25,7 +25,7 @@ final readonly class StatisticsCache
      * @param callable(): T $build
      * @return T
      */
-    public function remember(array $key, callable $build): mixed
+    public function remember(array $key, callable $build, ?int $lifetime = null): mixed
     {
         $identifier = sha1((string)json_encode($key));
         $cached = $this->cache->get($identifier);
@@ -33,7 +33,7 @@ final readonly class StatisticsCache
             return $cached;
         }
         $value = $build();
-        $this->cache->set($identifier, $value);
+        $this->cache->set($identifier, $value, [], $lifetime);
         return $value;
     }
 }

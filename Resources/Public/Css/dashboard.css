@@ -9,6 +9,16 @@
     height: 100%;
 }
 
+.tx-analytics-matomo-metric--visitors,
+.tx-analytics-matomo-metric--actionsPerVisit {
+    --tx-analytics-matomo-color: var(--typo3-text-color-primary);
+}
+
+.tx-analytics-matomo-evolution-canvas {
+    position: relative;
+    height: 22rem;
+}
+
 .tx-analytics-matomo-toolbar {
     display: flex;
     flex-wrap: wrap;

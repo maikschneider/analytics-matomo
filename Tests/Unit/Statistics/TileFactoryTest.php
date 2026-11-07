@@ -91,6 +91,24 @@ final class TileFactoryTest extends UnitTestCase
         self::assertSame('0:03', $tiles['averageTimeOnSite']->value);
     }
 
+    #[Test]
+    public function overviewKeepsUnavailableValuesAndComparisonsUnknown(): void
+    {
+        $tiles = [];
+        foreach ((new TileFactory())->createForOverview(['nb_visits' => 0, 'bounce_rate' => 0.5], ['bounce_rate' => 0.75]) as $tile) {
+            $tiles[$tile->key] = $tile;
+        }
+        self::assertSame('0', $tiles['visits']->value);
+        self::assertNull($tiles['visits']->trend);
+        self::assertSame('–', $tiles['visitors']->value);
+        self::assertSame('–', $tiles['actionsPerVisit']->value);
+        self::assertSame('−25.0 %', $tiles['bounceRate']->trend);
+        self::assertSame('positive', $tiles['bounceRate']->trendRating);
+        foreach ((new TileFactory())->createForOverview(['nb_visits' => 10], null) as $tile) {
+            self::assertNull($tile->trend);
+        }
+    }
+
     /**
      * @return array<string, Tile>
      */

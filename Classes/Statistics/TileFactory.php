@@ -6,12 +6,14 @@ namespace MaikSchneider\AnalyticsMatomo\Statistics;
 
 use MaikSchneider\AnalyticsMatomo\Dashboard\SiteMetrics;
 use MaikSchneider\AnalyticsMatomo\Dashboard\SitePerformance;
+use MaikSchneider\AnalyticsMatomo\Module\EvolutionChartFactory;
+use MaikSchneider\AnalyticsMatomo\Module\MetricFormatter;
 
 /**
  * Turns page and site statistics into metric tiles: formatted
  * value, change against the previous period and a sparkline of the single days.
  */
-final class TileFactory
+final readonly class TileFactory
 {
     private const SPARKLINE_WIDTH = 100;
     private const SPARKLINE_HEIGHT = 30;
@@ -112,6 +114,34 @@ final class TileFactory
                 array_map(static fn (SiteMetrics $day): float => $day->averageTimeOnSite, $daily),
             ),
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $current
+     * @param array<string, mixed>|null $previous
+     * @return list<Tile>
+     */
+    public function createForOverview(array $current, ?array $previous): array
+    {
+        $formatter = new MetricFormatter();
+        $tiles = [];
+        foreach (EvolutionChartFactory::METRICS as $key => [$column, $type, $icon]) {
+            $value = $current[$column] ?? null;
+            $before = $previous[$column] ?? null;
+            $change = is_numeric($value) && is_numeric($before) ? $value - $before : null;
+            $hasChange = $change !== null && round($change, 3) !== 0.0;
+            $tiles[] = new Tile(
+                key: $key,
+                icon: $icon,
+                value: $formatter->format($value, $type),
+                trend: $hasChange ? ($change > 0 ? '+' : '−') . $formatter->format(abs($change), $type) : null,
+                trendIcon: $hasChange ? ($change > 0 ? 'actions-arrow-up' : 'actions-arrow-down') : null,
+                trendRating: $hasChange ? (($change > 0) === ($key !== 'bounceRate') ? 'positive' : 'negative') : null,
+                sparklineLine: '',
+                sparklineArea: '',
+            );
+        }
+        return $tiles;
     }
 
     /**

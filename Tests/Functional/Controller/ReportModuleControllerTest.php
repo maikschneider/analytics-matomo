@@ -35,7 +35,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
 
     /** @var list<RequestInterface> */
     private array $sentRequests = [];
-    private string $fixture = 'SitePerformance';
+    private string $fixture = 'SyntheticOverview';
     private int $status = 200;
     private ?ServerRequestInterface $previousRequest = null;
 
@@ -52,6 +52,21 @@ final class ReportModuleControllerTest extends FunctionalTestCase
         $GLOBALS['TYPO3_CONF_VARS']['HTTP']['handler']['matomo'] = fn (callable $handler): \Closure => function (RequestInterface $request): FulfilledPromise {
             $this->sentRequests[] = $request;
             $content = (string)file_get_contents(__DIR__ . '/../../Fixtures/Matomo/' . $this->fixture . '.json');
+            if ($this->fixture === 'SyntheticOverview') {
+                parse_str((string)$request->getBody(), $body);
+                self::assertIsArray($body['urls']);
+                $fixture = json_decode($content, true);
+                $results = [];
+                foreach ($body['urls'] as $url) {
+                    parse_str($url, $parameters);
+                    $key = $parameters['method'] === 'Live.getCounters' ? 'live' : ($parameters['period'] === 'range' ? 'range' : 'evolution');
+                    if (($parameters['date'] ?? '') === '2026-10-20,2026-10-26') {
+                        $key .= 'Previous';
+                    }
+                    $results[] = $fixture[$key];
+                }
+                $content = (string)json_encode($results);
+            }
             if ($this->fixture === 'SyntheticProcessedPages') {
                 parse_str((string)$request->getBody(), $body);
                 self::assertIsArray($body['urls']);
@@ -98,15 +113,72 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     }
 
     #[Test]
-    public function overviewReusesSitePerformanceAndOnlyShowsChangesWhenComparing(): void
+    public function overviewRendersTilesChartAndSeparatelyCachedLiveCounters(): void
     {
-        $withoutComparison = (string)$this->render(1)->getBody();
-        $withComparison = (string)$this->render(1, ['compare' => '1'])->getBody();
+        $html = (string)$this->render(1)->getBody();
+        self::assertStringContainsString('tx-analytics-matomo-metric--visitors', $html);
+        self::assertMatchesRegularExpression('#<script[^>]*src="[^"]*/evolution-chart\.js#', $html);
+        self::assertStringContainsString('72.0 %', $html);
+        self::assertStringContainsString('Last 30 minutes', $html);
+        self::assertStringContainsString('data-counter="visits">9<', $html);
+        self::assertStringContainsString('data-counter="actions">21<', $html);
+        self::assertStringContainsString('data-counter="visitors">–<', $html);
+        self::assertStringNotContainsString('tx-analytics-matomo-trend--', $html);
+        $chart = $this->chartData($html);
+        self::assertSame(12, $chart['metrics']['visits']['current'][0]);
+        self::assertNull($chart['metrics']['visits']['current'][2]);
+        self::assertArrayNotHasKey('previous', $chart['metrics']['visits']);
+        $this->render(1);
+        self::assertCount(2, $this->sentRequests);
+        parse_str((string)$this->sentRequests[0]->getBody(), $body);
+        self::assertIsArray($body['urls']);
+        self::assertCount(2, $body['urls']);
+        parse_str($body['urls'][1], $evolution);
+        self::assertSame('API.get', $evolution['method']);
+        self::assertSame('day', $evolution['period']);
+        self::assertSame('2026-10-27,2026-11-02', $evolution['date']);
+        parse_str((string)$this->sentRequests[1]->getBody(), $body);
+        parse_str($body['urls'][0], $live);
+        self::assertSame('Live.getCounters', $live['method']);
+        self::assertSame('30', $live['lastMinutes']);
+    }
 
-        self::assertStringContainsString('72.0 %', $withoutComparison);
-        self::assertStringNotContainsString('<small>+6</small>', $withoutComparison);
-        self::assertStringContainsString('<small>+6</small>', $withComparison);
-        self::assertCount(1, $this->sentRequests);
+    #[Test]
+    public function overviewComparisonAddsPreviousSeriesAndTileChanges(): void
+    {
+        $html = (string)$this->render(1, ['compare' => '1'])->getBody();
+        self::assertStringContainsString('tx-analytics-matomo-trend--positive', $html);
+        self::assertStringContainsString('+6', $html);
+        $chart = $this->chartData($html);
+        self::assertSame(8, $chart['metrics']['visits']['previous'][0]);
+        self::assertSame('2026-10-20', $chart['previousLabels'][0]);
+        parse_str((string)$this->sentRequests[0]->getBody(), $body);
+        self::assertIsArray($body['urls']);
+        self::assertCount(4, $body['urls']);
+        parse_str($body['urls'][3], $previous);
+        self::assertSame('2026-10-20,2026-10-26', $previous['date']);
+    }
+
+    #[Test]
+    public function demoOverviewRendersEveryGranularityWithoutHttp(): void
+    {
+        foreach (['7' => 'day', '90' => 'week', 'custom' => 'month'] as $preset => $granularity) {
+            $html = (string)$this->render(1, ['site' => 'trial', 'period' => (string)$preset, 'from' => '2024-01-01', 'to' => '2026-11-02', 'compare' => '1'])->getBody();
+            $chart = $this->chartData($html);
+            self::assertSame($granularity, $chart['granularity']);
+            self::assertGreaterThan(0, $chart['metrics']['visits']['current'][0]);
+            self::assertGreaterThan(0, $chart['metrics']['visits']['previous'][0]);
+            self::assertStringContainsString('data-counter="visits">', $html);
+        }
+        self::assertSame([], $this->sentRequests);
+    }
+
+    /** @return array<string, mixed> */
+    private function chartData(string $html): array
+    {
+        self::assertSame(1, preg_match('/data-evolution-chart="([^"]+)"/', $html, $matches));
+        self::assertArrayHasKey(1, $matches);
+        return json_decode(html_entity_decode($matches[1] ?? '', ENT_QUOTES), true, flags: JSON_THROW_ON_ERROR);
     }
 
     #[Test]
@@ -199,7 +271,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
         self::assertSame('devices', $stored['report']);
         self::assertSame(1, $stored['language']);
 
-        $this->fixture = 'SitePerformance';
+        $this->fixture = 'SyntheticOverview';
         $html = (string)$this->render(5, ['language' => '1'])->getBody();
         self::assertStringContainsString('data-language="-1"', $html);
         self::assertStringNotContainsString('language=1', $html);
@@ -237,6 +309,13 @@ final class ReportModuleControllerTest extends FunctionalTestCase
         self::assertStringContainsString('access for the website id = 1', $admin);
         self::assertStringContainsString('The statistics could not be loaded from Matomo.', $editor);
         self::assertStringNotContainsString('access for the website id = 1', $editor);
+        self::assertStringNotContainsString('data-evolution-chart=', $editor);
+        self::assertDoesNotMatchRegularExpression('#<script[^>]*src="[^"]*/evolution-chart\.js#', $editor);
+        $this->status = 200;
+        $this->fixture = 'SyntheticOverview';
+        $recovered = (string)$this->render(1)->getBody();
+        self::assertStringContainsString('data-evolution-chart=', $recovered);
+        self::assertCount(4, $this->sentRequests);
     }
 
     #[Test]
@@ -257,6 +336,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
         $html = (string)$this->render(1, ['site' => 'main', 'report' => 'devices'])->getBody();
         self::assertStringContainsString('Device type', $html);
         self::assertStringContainsString('Desktop', $html);
+        self::assertDoesNotMatchRegularExpression('#<script[^>]*src="[^"]*/evolution-chart\.js#', $html);
         self::assertStringContainsString('recorded as a new visit', $html);
         $this->render(1, ['q' => 'Desktop', 'sort' => 'nb_visits', 'dir' => 'asc', 'page' => '2']);
         self::assertCount(1, $this->sentRequests);

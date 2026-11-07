@@ -1,0 +1,27 @@
+{
+	"range": {
+		"nb_visits": 32,
+		"nb_uniq_visitors": 25,
+		"nb_pageviews": 96,
+		"bounce_rate": 0.72,
+		"avg_time_on_site": 125,
+		"nb_actions_per_visit": 3
+	},
+	"rangePrevious": {
+		"nb_visits": 26,
+		"nb_uniq_visitors": 20,
+		"nb_pageviews": 80,
+		"bounce_rate": 0.7,
+		"avg_time_on_site": 120,
+		"nb_actions_per_visit": 3.08
+	},
+	"evolution": {
+		"2026-10-27": {"nb_visits": 12, "nb_pageviews": 36},
+		"2026-10-28": {"nb_visits": 20, "nb_pageviews": 60}
+	},
+	"evolutionPrevious": {
+		"2026-10-20": {"nb_visits": 8},
+		"2026-10-21": {"nb_visits": 18}
+	},
+	"live": [{"visits": 9, "actions": 21}]
+}

@@ -6,11 +6,11 @@ namespace MaikSchneider\AnalyticsMatomo\Controller;
 
 use MaikSchneider\AnalyticsMatomo\Authorization\StatisticsPermission;
 use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelectionResolver;
-use MaikSchneider\AnalyticsMatomo\Dashboard\SiteStatisticsService;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
 use MaikSchneider\AnalyticsMatomo\Module\ReportCatalog;
 use MaikSchneider\AnalyticsMatomo\Module\ReportService;
 use MaikSchneider\AnalyticsMatomo\Module\ReportTableFactory;
+use MaikSchneider\AnalyticsMatomo\Module\VisitorsOverviewService;
 use MaikSchneider\AnalyticsMatomo\Statistics\Period;
 use MaikSchneider\AnalyticsMatomo\Statistics\TileFactory;
 use Psr\Http\Message\ResponseInterface;
@@ -27,6 +27,7 @@ use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -42,11 +43,12 @@ final readonly class ReportModuleController
         private SiteFinder $siteFinder,
         private ReportCatalog $catalog,
         private UriBuilder $uriBuilder,
-        private SiteStatisticsService $statisticsService,
+        private VisitorsOverviewService $overviewService,
         private TileFactory $tileFactory,
         private LoggerInterface $logger,
         private ReportService $reportService,
         private ReportTableFactory $tableFactory,
+        private PageRenderer $pageRenderer,
     ) {
     }
 
@@ -134,7 +136,13 @@ final readonly class ReportModuleController
         $this->addMenu($template, $route, $pageId, 'compare', ['0' => self::LABELS . 'compare.off', '1' => self::LABELS . 'compare.on'], $selection->compare ? '1' : '0');
         try {
             if ($section === 'visitors' && $report === 'overview') {
-                $variables['tiles'] = $this->tileFactory->createForSite($this->statisticsService->getPerformance($selection->configuration, $selection->period));
+                $overview = $this->overviewService->getOverview($selection->configuration, $selection->period, $selection->compare);
+                $variables['tiles'] = $this->tileFactory->createForOverview($overview['current'], $overview['previous']);
+                $variables['chart'] = $overview['chart'];
+                $variables['counters'] = $this->overviewService->getCounters($selection->configuration);
+                $this->pageRenderer->addCssFile('EXT:analytics_matomo/Resources/Public/Css/statistics-bar.css');
+                $this->pageRenderer->addCssFile('EXT:analytics_matomo/Resources/Public/Css/dashboard.css');
+                $this->pageRenderer->loadJavaScriptModule('@maikschneider/analytics-matomo/evolution-chart.js');
             } else {
                 $reports = $this->reportService->getReports($selection->configuration, $section, $report, $selection->period, $selection->compare, $GLOBALS['LANG']->getLocale()?->getLanguageCode() ?? 'en');
                 $variables['tables'] = [];

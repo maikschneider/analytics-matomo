@@ -31,6 +31,15 @@ final class StatisticsCacheTest extends UnitTestCase
     }
 
     #[Test]
+    public function passesEntryLifetimeToFrontend(): void
+    {
+        $frontend = $this->createMock(\TYPO3\CMS\Core\Cache\Frontend\FrontendInterface::class);
+        $frontend->method('get')->willReturn(false);
+        $frontend->expects(self::once())->method('set')->with(self::anything(), ['visits' => 3], [], 60);
+        (new \MaikSchneider\AnalyticsMatomo\Statistics\StatisticsCache($frontend))->remember(['live'], static fn (): array => ['visits' => 3], 60);
+    }
+
+    #[Test]
     public function doesNotCacheFailures(): void
     {
         $subject = $this->createStatisticsCache();

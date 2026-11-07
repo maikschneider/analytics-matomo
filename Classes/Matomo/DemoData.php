@@ -54,10 +54,20 @@ final readonly class DemoData
     private function result(array $request, string $site, array $pageUrls): mixed
     {
         $dates = $this->dates((string)($request['date'] ?? ''));
-        if (($request['period'] ?? '') === 'day') {
+        $granularity = (string)($request['period'] ?? '');
+        if (in_array($granularity, ['day', 'week', 'month'], true)) {
             $result = [];
-            foreach ($dates as $date) {
-                $result[$date] = $this->report($request, [$date], $site, $pageUrls);
+            $first = new \DateTimeImmutable($dates[0]);
+            $last = new \DateTimeImmutable($dates[count($dates) - 1]);
+            $first = match ($granularity) {
+                'week' => $first->modify('monday this week'),
+                'month' => $first->modify('first day of this month'),
+                default => $first,
+            };
+            for ($date = $first; $date <= $last; $date = $date->modify('+1 ' . $granularity)) {
+                $end = $date->modify('+1 ' . $granularity)->modify('-1 day');
+                $key = $date->format('Y-m-d') . ($granularity === 'day' ? '' : ',' . $end->format('Y-m-d'));
+                $result[$key] = $this->report($request, $this->dates($date->format('Y-m-d') . ',' . $end->format('Y-m-d')), $site, $pageUrls);
             }
             return $result;
         }
@@ -76,6 +86,11 @@ final readonly class DemoData
         $visits = $this->sum($dates, fn (string $date): int => $this->visits($site, $date));
 
         return match ($method) {
+            'API.get' => $this->visitsSummary($site, $dates, $visits) + [
+                'nb_pageviews' => $this->pageViews($site, $dates),
+                'nb_actions_per_visit' => $visits > 0 ? round($this->pageViews($site, $dates) / $visits, 2) : 0,
+            ],
+            'Live.getCounters' => [['visits' => $this->between('liveVisits' . $site, 2, 20), 'actions' => $this->between('liveActions' . $site, 30, 80), 'visitors' => $this->between('liveVisitors' . $site, 1, 10)]],
             'API.getProcessedReport' => $this->processedReport($request, $site, $dates, $pageUrls),
             'VisitsSummary.get' => $this->visitsSummary($site, $dates, $visits),
             'VisitFrequency.get' => ['nb_visits_returning' => intdiv($visits * 3, 10)],

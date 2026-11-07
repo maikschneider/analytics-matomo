@@ -303,6 +303,10 @@
 				<source>Custom range</source>
 				<target>Eigener Zeitraum</target>
 			</trans-unit>
+			<trans-unit id="metric.actions"><source>Actions</source><target>Aktionen</target></trans-unit>
+			<trans-unit id="metric.actionsPerVisit"><source>Actions per visit</source><target>Aktionen pro Besuch</target></trans-unit>
+			<trans-unit id="siteMetric.actionsPerVisit.description"><source>Average number of actions during a visit.</source><target>Durchschnittliche Anzahl von Aktionen während eines Besuchs.</target></trans-unit>
+			<trans-unit id="siteMetric.visitors.description"><source>Unique visitors reported by Matomo. This metric may be unavailable for some periods.</source><target>Eindeutige Besucher laut Matomo. Diese Kennzahl ist für manche Zeiträume nicht verfügbar.</target></trans-unit>
 		</body>
 	</file>
 </xliff>

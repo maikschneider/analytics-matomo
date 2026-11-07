@@ -198,6 +198,12 @@
 			<trans-unit id="action.layout"><source>Page module</source><target>Seitenmodul</target></trans-unit>
 			<trans-unit id="action.edit"><source>Edit page properties</source><target>Seiteneigenschaften bearbeiten</target></trans-unit>
 			<trans-unit id="action.view"><source>View in frontend</source><target>Im Frontend ansehen</target></trans-unit>
+			<trans-unit id="overview.live"><source>Last 30 minutes</source><target>Letzte 30 Minuten</target></trans-unit>
+			<trans-unit id="chart.title"><source>Evolution</source><target>Entwicklung</target></trans-unit>
+			<trans-unit id="chart.metric"><source>Metric</source><target>Kennzahl</target></trans-unit>
+			<trans-unit id="chart.current"><source>Selected period</source><target>Gewählter Zeitraum</target></trans-unit>
+			<trans-unit id="chart.previous"><source>Previous period</source><target>Vorheriger Zeitraum</target></trans-unit>
+			<trans-unit id="chart.fallback"><source>The chart requires JavaScript. Summary values are shown above.</source><target>Das Diagramm benötigt JavaScript. Die Zusammenfassung steht oben.</target></trans-unit>
 		</body>
 	</file>
 </xliff>

@@ -30,11 +30,18 @@
             <section data-report="{title}" data-site="{selection.site.identifier}" data-page="{pageId}" data-language="{language}">
                 <f:if condition="{tiles}">
                     <f:then>
-                        <dl class="row">
+                        <div class="tx-analytics-matomo tx-analytics-matomo--grid mb-3">
                             <f:for each="{tiles}" as="tile">
-                                <div class="col-sm-4 mb-3">
-                                    <dt><f:translate key="{sharedLabels}:metric.{tile.key}" /></dt>
-                                    <dd>{tile.value}<f:if condition="{selection.compare}"> <small>{tile.trend}</small></f:if></dd>
+                                <f:render partial="Tile" arguments="{tile: tile, ll: sharedLabels, days: selection.period.days, descriptionPrefix: 'siteMetric'}" />
+                            </f:for>
+                        </div>
+                        <f:render partial="Module/EvolutionChart" arguments="{chart: chart, ll: ll, sharedLabels: sharedLabels}" />
+                        <h2><f:translate key="{ll}overview.live" /></h2>
+                        <dl class="row">
+                            <f:for each="{counters}" as="value" key="key">
+                                <div class="col-sm-4">
+                                    <dt><f:translate key="{sharedLabels}:metric.{key}" /></dt>
+                                    <dd data-counter="{key}">{value}</dd>
                                 </div>
                             </f:for>
                         </dl>

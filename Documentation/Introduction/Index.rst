@@ -12,6 +12,20 @@ a statistics bar in the Page module and widgets on the dashboard.
 Matomo Analytics module
 =======================
 
+:guilabel:`Visitors > Overview` shows visits, unique visitors, page views,
+bounce rate, visit duration and actions per visit. The evolution chart's metric
+picker switches locally without another request. Points use days up to 62 days,
+weeks up to 366 days and months above that. Weeks and months are whole Matomo
+calendar buckets, including those crossing the range boundaries. Comparison
+aligns buckets by position and draws the previous period dashed. Missing values
+remain unknown (a dash in tiles, a gap in the chart). Unique visitors may be
+unavailable depending on Matomo's archiving configuration.
+
+Aggregated counters show visits, actions and visitors in the last 30 minutes.
+They are independent of the selected historical period and cached for only
+60 seconds; reload the module to refresh them. The overview also works in demo
+mode without contacting Matomo.
+
 The module offers tables for :guilabel:`Behaviour > Pages`,
 :guilabel:`Acquisition > All channels` and :guilabel:`Visitors > Devices`.
 Column headings and metric documentation come from Matomo in the backend user's
