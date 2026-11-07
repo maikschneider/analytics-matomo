@@ -1,4 +1,8 @@
-<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
 <p><f:translate key="{ll}page.url" arguments="{0: pageDetails.url}" /></p>
 <div class="tx-analytics-matomo tx-analytics-matomo--grid mb-3">
     <f:for each="{tiles}" as="tile">
@@ -6,6 +10,38 @@
     </f:for>
 </div>
 <f:render partial="Module/EvolutionChart" arguments="{chart: chart, ll: ll, sharedLabels: sharedLabels}" />
+<f:if condition="{pageDetails.languages}">
+    <h2><f:translate key="{ll}page.languages" /></h2>
+    <p class="text-body-secondary"><f:translate key="{ll}page.languages.hint" /></p>
+    <div class="table-fit">
+        <table class="table table-striped table-hover" data-languages>
+            <thead>
+                <tr>
+                    <th scope="col"><f:translate key="{ll}page.languages.language" /></th>
+                    <th scope="col" class="text-end"><f:translate key="{sharedLabels}:metric.views" /></th>
+                    <th scope="col" class="text-end"><f:translate key="{sharedLabels}:metric.bounceRate" /></th>
+                    <th scope="col" class="text-end"><f:translate key="{sharedLabels}:metric.averageTimeOnPage" /></th>
+                </tr>
+            </thead>
+            <tbody>
+                <f:for each="{pageDetails.languages}" as="language">
+                    <tr class="{f:if(condition: language.current, then: 'active')}">
+                        <th scope="row">
+                            <core:icon identifier="{language.flag}" size="small" />
+                            <f:if condition="{language.current}">
+                                <f:then>{language.title}</f:then>
+                                <f:else><a href="{language.url}">{language.title}</a></f:else>
+                            </f:if>
+                        </th>
+                        <td class="text-end">{language.views}</td>
+                        <td class="text-end">{language.bounceRate}</td>
+                        <td class="text-end">{language.averageTimeOnPage}</td>
+                    </tr>
+                </f:for>
+            </tbody>
+        </table>
+    </div>
+</f:if>
 <f:if condition="{pageDetails.reading}">
     <h2><f:translate key="{ll}page.reading" /></h2>
     <p class="text-body-secondary"><f:translate key="{ll}page.reading.hint" /></p>

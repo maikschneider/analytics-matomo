@@ -69,6 +69,30 @@ final readonly class PageTargetResolver
         return new PageTarget($pageId, $languageId, $pageUrl, $configuration);
     }
 
+    /**
+     * The page in every site language it is translated to and the backend user may access
+     *
+     * @return array<int, PageTarget> by language ID
+     */
+    public function resolveTranslations(int $pageId): array
+    {
+        try {
+            $languages = $this->siteFinder->getSiteByPageId($pageId)->getLanguages();
+        } catch (SiteNotFoundException) {
+            return [];
+        }
+        $targets = [];
+        foreach ($languages as $language) {
+            $page = $this->pageRecordResolver->resolve($pageId, $language);
+            $isTranslated = $language->getLanguageId() === 0 || (is_array($page) && isset($page['_LOCALIZED_UID']));
+            $target = $isTranslated ? $this->resolve($pageId, $language->getLanguageId(), false) : null;
+            if ($target !== null) {
+                $targets[$language->getLanguageId()] = $target;
+            }
+        }
+        return $targets;
+    }
+
     private function getBackendUser(): BackendUserAuthentication
     {
         return $GLOBALS['BE_USER'];

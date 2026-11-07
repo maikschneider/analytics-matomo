@@ -86,6 +86,11 @@ bulk request for the page's frontend URL. Hidden pages use their own URL.
 Users with access to this section do not also need the statistics bar
 permission.
 
+:guilabel:`Languages` compares page views, bounce rate and time on page of the
+page in every language it is translated to and the user may access, from the
+same request. A click on a language switches the page details to it. The
+audiences of the languages differ, so read the numbers side by side with care.
+
 :guilabel:`Speed` shows the average page load time and server time with the
 number of measured page views. Matomo collects these timings with its
 JavaScript tracker by default; server-side tracking has none. With fewer than

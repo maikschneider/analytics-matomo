@@ -20,32 +20,44 @@ final readonly class PageDetailsService
     }
 
     /**
-     * @return array{current: array<string, mixed>, previous: array<string, mixed>|null, chart: array<string, mixed>, pageRow: array<string, mixed>}
+     * @param array<int, string> $languageUrls URLs of the page in its other languages, by language ID
+     * @return array{current: array<string, mixed>, previous: array<string, mixed>|null, chart: array<string, mixed>, pageRow: array<string, mixed>, languages: array<int, array<string, mixed>>}
      * @throws MatomoApiException
      */
-    public function getDetails(MatomoConfiguration $configuration, string $pageUrl, Period $period, bool $compare): array
+    public function getDetails(MatomoConfiguration $configuration, string $pageUrl, Period $period, bool $compare, array $languageUrls = []): array
     {
-        return $this->cache->remember(['pageDetails', $configuration->getCacheIdentifier(), $pageUrl, $period->toMatomoDate(), $compare], function () use ($configuration, $pageUrl, $period, $compare): array {
-            $requests = [];
-            foreach ($compare ? [$period, $period->previous()] : [$period] as $range) {
-                $request = ['method' => 'Actions.getPageUrl', 'pageUrl' => $pageUrl, 'format_metrics' => 0, 'date' => $range->toMatomoDate()];
-                $requests[] = $request + ['period' => 'range'];
-                $requests[] = $request + ['period' => $period->granularity()];
+        return $this->cache->remember(['pageDetails', $configuration->getCacheIdentifier(), $pageUrl, $period->toMatomoDate(), $compare, ...$languageUrls], function () use ($configuration, $pageUrl, $period, $compare, $languageUrls): array {
+            $request = ['method' => 'Actions.getPageUrl', 'format_metrics' => 0];
+            $requests = [
+                'current' => $request + ['pageUrl' => $pageUrl, 'period' => 'range', 'date' => $period->toMatomoDate()],
+                'currentSeries' => $request + ['pageUrl' => $pageUrl, 'period' => $period->granularity(), 'date' => $period->toMatomoDate()],
+            ];
+            if ($compare) {
+                $requests['previous'] = $request + ['pageUrl' => $pageUrl, 'period' => 'range', 'date' => $period->previous()->toMatomoDate()];
+                $requests['previousSeries'] = $request + ['pageUrl' => $pageUrl, 'period' => $period->granularity(), 'date' => $period->previous()->toMatomoDate()];
             }
             // Only the page URL report carries timings and goal conversions; Actions.getPageUrl drops them
-            $requests[] = [
+            $requests['pageRows'] = [
                 'method' => 'Actions.getPageUrls', 'flat' => 1, 'format_metrics' => 0, 'period' => 'range', 'date' => $period->toMatomoDate(),
                 'filter_column' => 'url', 'filter_pattern' => $this->urlPattern($pageUrl), 'filter_limit' => -1,
             ];
-            $results = $this->client->bulkRequest($configuration, $requests);
-            $pageRows = $this->rows(end($results));
+            foreach ($languageUrls as $languageId => $languageUrl) {
+                $requests['language' . $languageId] = $request + ['pageUrl' => $languageUrl, 'period' => 'range', 'date' => $period->toMatomoDate()];
+            }
+            $results = array_combine(array_keys($requests), $this->client->bulkRequest($configuration, array_values($requests)));
+            $pageRows = $this->rows($results['pageRows']);
             usort($pageRows, static fn (array $a, array $b): int => (int)($b['nb_hits'] ?? 0) <=> (int)($a['nb_hits'] ?? 0));
+            $languages = [];
+            foreach (array_keys($languageUrls) as $languageId) {
+                $languages[$languageId] = $this->row($results['language' . $languageId]);
+            }
             return [
-                'current' => $this->row($results[0]),
-                'previous' => $compare ? $this->row($results[2]) : null,
-                'chart' => $this->chartFactory->create($period, $this->series($results[1]), $compare ? $this->series($results[3]) : null, EvolutionChartFactory::PAGE_METRICS),
+                'current' => $this->row($results['current']),
+                'previous' => $compare ? $this->row($results['previous']) : null,
+                'chart' => $this->chartFactory->create($period, $this->series($results['currentSeries']), $compare ? $this->series($results['previousSeries']) : null, EvolutionChartFactory::PAGE_METRICS),
                 // A site tracked under http and https has a row per scheme; the busier one wins
                 'pageRow' => $pageRows[0] ?? [],
+                'languages' => $languages,
             ];
         });
     }

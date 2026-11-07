@@ -85,7 +85,7 @@ final class PageDetailsTest extends FunctionalTestCase
         $chart = $this->chartData($html);
         self::assertSame(5, $chart['metrics']['views']['current'][0]);
         self::assertSame(1, $this->requests);
-        $pageCalls = array_values(array_filter($this->calls, static fn (array $call): bool => $call['method'] === 'Actions.getPageUrl'));
+        $pageCalls = array_values(array_filter($this->calls, static fn (array $call): bool => $call['method'] === 'Actions.getPageUrl' && $call['pageUrl'] === 'https://example.com/about'));
         self::assertCount(2, $pageCalls);
         self::assertSame('https://example.com/about', $pageCalls[0]['pageUrl']);
         self::assertSame('range', $pageCalls[0]['period']);
@@ -114,9 +114,11 @@ final class PageDetailsTest extends FunctionalTestCase
         $this->render(1, ['id' => '2', 'language' => '1'], 'page');
         $this->render(1, ['id' => '11', 'language' => '1'], 'page');
 
-        $urls = array_values(array_unique(array_column(array_filter($this->calls, static fn (array $call): bool => $call['method'] === 'Actions.getPageUrl'), 'pageUrl')));
+        $urls = array_values(array_unique(array_column(array_filter($this->calls, static fn (array $call): bool => $call['method'] === 'Actions.getPageUrl' && $call['period'] === 'day'), 'pageUrl')));
         self::assertSame(['https://example.com/de/ueber-uns', 'https://shop.example.de/produkte/'], $urls);
         self::assertSame('7', $this->calls[count($this->calls) - 1]['idSite']);
+        // The shop's languages have their own domains
+        self::assertContains('https://shop.example.org/products/', array_column($this->calls, 'pageUrl'));
     }
 
     #[Test]
@@ -205,6 +207,31 @@ final class PageDetailsTest extends FunctionalTestCase
 
         self::assertStringContainsString('tx-analytics-matomo-metric--views', $html);
         self::assertStringNotContainsString('data-reading=', $html);
+    }
+
+    #[Test]
+    public function comparesThePageAcrossItsTranslationsInTheSameRequest(): void
+    {
+        $html = (string)$this->render(1, ['id' => '2', 'language' => '0'], 'page')->getBody();
+
+        self::assertSame(1, $this->requests);
+        $rangeUrls = array_column(array_filter($this->calls, static fn (array $call): bool => $call['method'] === 'Actions.getPageUrl' && $call['period'] === 'range'), 'pageUrl');
+        self::assertSame(['https://example.com/about', 'https://example.com/de/ueber-uns'], array_values(array_unique($rangeUrls)));
+        self::assertStringContainsString('data-languages', $html);
+        self::assertStringContainsString('Deutsch', $html);
+        self::assertMatchesRegularExpression('#href="[^"]*/module/analytics-matomo/page\?[^"]*id=2&amp;language=1#', $html);
+        self::assertStringContainsString('Audiences per language differ', $html);
+    }
+
+    #[Test]
+    public function leavesOutLanguagesWithoutTranslationOrAccess(): void
+    {
+        $untranslated = (string)$this->render(1, ['id' => '7', 'language' => '0'], 'page')->getBody();
+        $englishOnly = (string)$this->render(4, ['id' => '2', 'language' => '0'], 'page')->getBody();
+
+        self::assertStringNotContainsString('data-languages', $untranslated);
+        self::assertStringNotContainsString('data-languages', $englishOnly);
+        self::assertNotContains('https://example.com/de/ueber-uns', array_column($this->calls, 'pageUrl'));
     }
 
     #[Test]

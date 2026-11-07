@@ -237,6 +237,9 @@
 			<trans-unit id="page.reading.readingTime" resname="page.reading.readingTime"><source>Estimated reading time</source><target>Geschätzte Lesezeit</target></trans-unit>
 			<trans-unit id="page.reading.words" resname="page.reading.words"><source>%d words</source><target>%d Wörter</target></trans-unit>
 			<trans-unit id="page.reading.ratio" resname="page.reading.ratio"><source>Time on page vs. reading time</source><target>Verweildauer im Verhältnis zur Lesezeit</target></trans-unit>
+			<trans-unit id="page.languages" resname="page.languages"><source>Languages</source><target>Sprachen</target></trans-unit>
+			<trans-unit id="page.languages.hint" resname="page.languages.hint"><source>Audiences per language differ, so compare the numbers with care. Languages without a translation of the page are not listed.</source><target>Die Besucher je Sprache unterscheiden sich, vergleichen Sie die Zahlen daher mit Vorsicht. Sprachen ohne Übersetzung der Seite fehlen.</target></trans-unit>
+			<trans-unit id="page.languages.language" resname="page.languages.language"><source>Language</source><target>Sprache</target></trans-unit>
 		</body>
 	</file>
 </xliff>

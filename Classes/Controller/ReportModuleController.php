@@ -220,7 +220,10 @@ final readonly class ReportModuleController
         if ($target === null) {
             return ['emptyMessage' => $this->label('empty.pageWithoutUrl')];
         }
-        $details = $this->pageDetailsService->getDetails($target->configuration, $target->pageUrl, $selection->period, $selection->compare);
+        $translations = $this->pageTargetResolver->resolveTranslations($pageId);
+        unset($translations[$languageId]);
+        $languageUrls = array_map(static fn (PageTarget $translation): string => $translation->pageUrl, $translations);
+        $details = $this->pageDetailsService->getDetails($target->configuration, $target->pageUrl, $selection->period, $selection->compare, $languageUrls);
         $this->pageRenderer->addCssFile('EXT:analytics_matomo/Resources/Public/Css/statistics-bar.css');
         $this->pageRenderer->addCssFile('EXT:analytics_matomo/Resources/Public/Css/dashboard.css');
         $this->pageRenderer->loadJavaScriptModule('@maikschneider/analytics-matomo/evolution-chart.js');
@@ -229,11 +232,43 @@ final readonly class ReportModuleController
                 'url' => $target->pageUrl,
                 'speed' => $this->speed($details['pageRow']),
                 'reading' => $this->reading($target, $details['current'], (int)$selection->site->getSettings()->get('analyticsMatomo.wordsPerMinute', 220)),
+                'languages' => $this->languages($selection, $pageId, $languageId, [$languageId => $details['current']] + $details['languages']),
             ],
             'minimumSamples' => ReportCatalog::MINIMUM_TIMING_SAMPLES,
             'tiles' => $this->tileFactory->createForOverview($details['current'], $details['previous'], EvolutionChartFactory::PAGE_METRICS),
             'chart' => $details['chart'],
         ];
+    }
+
+    /**
+     * One row per language of the page, in the order of the site languages; none for a page in one language
+     *
+     * @param array<int, array<string, mixed>> $rows Matomo rows by language ID
+     * @return list<array<string, mixed>>
+     */
+    private function languages(DashboardSelection $selection, int $pageId, int $languageId, array $rows): array
+    {
+        if (count($rows) < 2) {
+            return [];
+        }
+        $formatter = new MetricFormatter();
+        $languages = [];
+        foreach ($selection->site->getLanguages() as $language) {
+            $row = $rows[$language->getLanguageId()] ?? null;
+            if ($row === null) {
+                continue;
+            }
+            $languages[] = [
+                'title' => $language->getTitle(),
+                'flag' => $language->getFlagIdentifier(),
+                'views' => $formatter->format($row['nb_hits'] ?? null, 'number'),
+                'bounceRate' => $formatter->format($row['bounce_rate'] ?? null, 'percent'),
+                'averageTimeOnPage' => $formatter->format($row['avg_time_on_page'] ?? null, 'duration_s'),
+                'url' => (string)$this->uriBuilder->buildUriFromRoute('analytics_matomo_page', ['id' => $pageId, 'language' => $language->getLanguageId()]),
+                'current' => $language->getLanguageId() === $languageId,
+            ];
+        }
+        return $languages;
     }
 
     /**
