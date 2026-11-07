@@ -49,6 +49,16 @@ final class LinkAccessTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function hostlessSelectedSitesAuthorizeAbsoluteAndSchemelessUrlsToo(): void
+    {
+        $main = $this->get(SiteFinder::class)->getSiteByIdentifier('main');
+        $site = new Site('main', 1, ['base' => '/'] + $main->getConfiguration());
+        foreach (['https://example.com/board', 'example.com/board', 'https://example.com/de/ueber-uns'] as $url) {
+            self::assertFalse($this->get(LinkAccess::class)->isVisible($site, $url, $this->setUpBackendUser(5)), $url);
+        }
+    }
+
+    #[Test]
     public function explicitHostsAndLongerSiteBasesWinOverTheSelectedSite(): void
     {
         $main = $this->get(SiteFinder::class)->getSiteByIdentifier('main');

@@ -90,7 +90,7 @@ final readonly class LinkAccess
             }
             $base = $match->language->getBase();
             $explicitHost = $base->getHost() !== '';
-            if (!$explicitHost && ($candidate->getIdentifier() !== $site->getIdentifier() || parse_url($url, PHP_URL_HOST))) {
+            if (!$explicitHost && $candidate->getIdentifier() !== $site->getIdentifier()) {
                 continue;
             }
             $specificity = [(int)$explicitHost, strlen($base->getPath())];
