@@ -94,6 +94,17 @@ final class TrendingTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function impactThresholdIncludesViewsInArchiveSummaryRows(): void
+    {
+        $this->fixtures['current'][] = ['label' => -1, 'nb_hits' => 9900, 'is_summary' => true];
+        $html = (string)$this->render(1, ['id' => '1', 'report' => 'trending'], 'behaviour')->getBody();
+
+        self::assertStringNotContainsString('<td>/</td>', $html);
+        self::assertStringNotContainsString('<td>/s%C3%A4chsische-schweiz</td>', $html);
+        self::assertStringContainsString('No page changed by at least', $html);
+    }
+
+    #[Test]
     public function recordedReportsShowTheEmptyStateWithoutFallingPages(): void
     {
         $recorded = (string)json_encode($this->fixture('Trending'));

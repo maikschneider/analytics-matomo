@@ -50,7 +50,7 @@ final readonly class TrendingService
             ]);
             $views = $this->views($current);
             $before = $this->views($previous);
-            $total = array_sum(array_column($views, 1));
+            $total = array_sum(array_map(static fn (mixed $row): int => is_array($row) ? (int)($row['nb_hits'] ?? 0) : 0, is_array($current) ? $current : []));
             // A page missing from a truncated report may hide in its summary row, so only pages of both periods count
             $keys = $this->isTruncated($current) || $this->isTruncated($previous) ? array_keys(array_intersect_key($views, $before)) : array_keys($views + $before);
             $rising = $falling = [];
