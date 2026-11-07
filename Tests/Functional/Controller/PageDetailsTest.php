@@ -174,6 +174,40 @@ final class PageDetailsTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function comparesTimeOnPageWithTheEstimatedReadingTime(): void
+    {
+        $this->importCSVDataSet(__DIR__ . '/../Fixtures/ReadingTime.csv');
+        $html = (string)$this->render(1, ['id' => '2', 'language' => '0'], 'page')->getBody();
+
+        // 2 + 150 header and text words, 1 + 20 for all languages, the hidden element left out: 173 words at 220 per minute
+        self::assertStringContainsString('data-reading="estimate"', $html);
+        self::assertStringContainsString('0:00:47', $html);
+        self::assertStringContainsString('173 words', $html);
+        self::assertStringContainsString('12.8 %', $html);
+    }
+
+    #[Test]
+    public function readingSpeedIsASiteSetting(): void
+    {
+        $this->importCSVDataSet(__DIR__ . '/../Fixtures/ReadingTime.csv');
+        $html = (string)$this->render(1, ['id' => '11', 'language' => '0'], 'page')->getBody();
+
+        // 120 words at the shop's 60 words per minute
+        self::assertStringContainsString('120 words', $html);
+        self::assertStringContainsString('0:02:00', $html);
+    }
+
+    #[Test]
+    public function showsNoReadingTimeForPagesWithLittleText(): void
+    {
+        $this->importCSVDataSet(__DIR__ . '/../Fixtures/ReadingTime.csv');
+        $html = (string)$this->render(1, ['id' => '2', 'language' => '1'], 'page')->getBody();
+
+        self::assertStringContainsString('tx-analytics-matomo-metric--views', $html);
+        self::assertStringNotContainsString('data-reading=', $html);
+    }
+
+    #[Test]
     public function takesThePeriodFromTheBarLink(): void
     {
         $html = (string)$this->render(1, ['id' => '2', 'language' => '1', 'period' => '14'], 'page')->getBody();

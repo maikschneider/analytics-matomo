@@ -231,6 +231,12 @@
 			<trans-unit id="page.speed.serverTime" resname="page.speed.serverTime"><source>Server time</source><target>Serverzeit</target></trans-unit>
 			<trans-unit id="page.speed.samples" resname="page.speed.samples"><source>%d measured page views</source><target>%d gemessene Seitenaufrufe</target></trans-unit>
 			<trans-unit id="page.speed.tooFew" resname="page.speed.tooFew"><source>Fewer than %d measured page views: no reliable average.</source><target>Weniger als %d gemessene Seitenaufrufe: kein verlässlicher Durchschnitt.</target></trans-unit>
+			<trans-unit id="page.reading" resname="page.reading"><source>Reading time</source><target>Lesezeit</target></trans-unit>
+			<trans-unit id="page.reading.hint" resname="page.reading.hint"><source>An indication only: time on page includes idle time and tabs in the background, and the estimate counts the visible text of the content elements.</source><target>Nur ein Anhaltspunkt: Die Verweildauer enthält Leerlauf und Tabs im Hintergrund, die Schätzung zählt den sichtbaren Text der Inhaltselemente.</target></trans-unit>
+			<trans-unit id="page.reading.timeOnPage" resname="page.reading.timeOnPage"><source>Avg. time on page</source><target>Durchschn. Verweildauer</target></trans-unit>
+			<trans-unit id="page.reading.readingTime" resname="page.reading.readingTime"><source>Estimated reading time</source><target>Geschätzte Lesezeit</target></trans-unit>
+			<trans-unit id="page.reading.words" resname="page.reading.words"><source>%d words</source><target>%d Wörter</target></trans-unit>
+			<trans-unit id="page.reading.ratio" resname="page.reading.ratio"><source>Time on page vs. reading time</source><target>Verweildauer im Verhältnis zur Lesezeit</target></trans-unit>
 		</body>
 	</file>
 </xliff>

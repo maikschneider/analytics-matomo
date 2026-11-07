@@ -6,6 +6,26 @@
     </f:for>
 </div>
 <f:render partial="Module/EvolutionChart" arguments="{chart: chart, ll: ll, sharedLabels: sharedLabels}" />
+<f:if condition="{pageDetails.reading}">
+    <h2><f:translate key="{ll}page.reading" /></h2>
+    <p class="text-body-secondary"><f:translate key="{ll}page.reading.hint" /></p>
+    <dl class="row" data-reading="estimate">
+        <div class="col-sm-4">
+            <dt><f:translate key="{ll}page.reading.timeOnPage" /></dt>
+            <dd>{pageDetails.reading.timeOnPage}</dd>
+        </div>
+        <div class="col-sm-4">
+            <dt><f:translate key="{ll}page.reading.readingTime" /></dt>
+            <dd>{pageDetails.reading.readingTime} <small class="text-body-secondary"><f:translate key="{ll}page.reading.words" arguments="{0: pageDetails.reading.words}" /></small></dd>
+        </div>
+        <f:if condition="{pageDetails.reading.ratio}">
+            <div class="col-sm-4">
+                <dt><f:translate key="{ll}page.reading.ratio" /></dt>
+                <dd>{pageDetails.reading.ratio}</dd>
+            </div>
+        </f:if>
+    </dl>
+</f:if>
 <h2><f:translate key="{ll}page.speed" /></h2>
 <p class="text-body-secondary"><f:translate key="{ll}page.speed.hint" /></p>
 <dl class="row">

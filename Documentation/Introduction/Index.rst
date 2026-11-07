@@ -92,6 +92,16 @@ JavaScript tracker by default; server-side tracking has none. With fewer than
 five measurements no average is shown, because single outliers would dominate
 it.
 
+:guilabel:`Reading time` compares the average time on page with an estimated
+reading time: the words of the visible content elements of the page in that
+language (header, subheader and text) divided by
+:confval:`analyticsMatomo.wordsPerMinute`. Pages with fewer than 100 words
+get no estimate. Take the ratio as an indication: time on page includes idle
+time and tabs in the background. Before Matomo 6, the last page of a visit
+counts as 0 seconds unless the tracker's heartbeat timer
+(``enableHeartBeatTimer``) is enabled, which lowers the average of pages where
+visits often end.
+
 Statistics bar
 ==============
 

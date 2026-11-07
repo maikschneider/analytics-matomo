@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace MaikSchneider\AnalyticsMatomo\Controller;
 
+use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelection;
 use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelectionResolver;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
 use MaikSchneider\AnalyticsMatomo\Module\EvolutionChartFactory;
 use MaikSchneider\AnalyticsMatomo\Module\MetricFormatter;
 use MaikSchneider\AnalyticsMatomo\Module\PageDetailsService;
+use MaikSchneider\AnalyticsMatomo\Module\ReadingTimeEstimator;
 use MaikSchneider\AnalyticsMatomo\Module\ReportCatalog;
 use MaikSchneider\AnalyticsMatomo\Module\ReportService;
 use MaikSchneider\AnalyticsMatomo\Module\ReportTableFactory;
 use MaikSchneider\AnalyticsMatomo\Module\VisitorsOverviewService;
+use MaikSchneider\AnalyticsMatomo\Statistics\PageTarget;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageTargetResolver;
 use MaikSchneider\AnalyticsMatomo\Statistics\Period;
 use MaikSchneider\AnalyticsMatomo\Statistics\TileFactory;
@@ -55,6 +58,7 @@ final readonly class ReportModuleController
         private PageRenderer $pageRenderer,
         private PageTargetResolver $pageTargetResolver,
         private PageDetailsService $pageDetailsService,
+        private ReadingTimeEstimator $readingTimeEstimator,
     ) {
     }
 
@@ -155,7 +159,7 @@ final readonly class ReportModuleController
         $this->addMenu($template, $route, $pageId, 'compare', ['0' => self::LABELS . 'compare.off', '1' => self::LABELS . 'compare.on'], $selection->compare ? '1' : '0');
         try {
             if ($section === 'page') {
-                $variables += $this->pageDetails($pageId, (int)$moduleData->get('language'), $selection->period, $selection->compare);
+                $variables += $this->pageDetails($pageId, (int)$moduleData->get('language'), $selection);
             } elseif ($section === 'visitors' && $report === 'overview') {
                 $overview = $this->overviewService->getOverview($selection->configuration, $selection->period, $selection->compare);
                 $variables['tiles'] = $this->tileFactory->createForOverview($overview['current'], $overview['previous']);
@@ -207,7 +211,7 @@ final readonly class ReportModuleController
      * @return array<string, mixed>
      * @throws MatomoApiException
      */
-    private function pageDetails(int $pageId, int $languageId, Period $period, bool $compare): array
+    private function pageDetails(int $pageId, int $languageId, DashboardSelection $selection): array
     {
         if ($pageId === 0) {
             return ['emptyMessage' => $this->label('empty.page')];
@@ -216,15 +220,39 @@ final readonly class ReportModuleController
         if ($target === null) {
             return ['emptyMessage' => $this->label('empty.pageWithoutUrl')];
         }
-        $details = $this->pageDetailsService->getDetails($target->configuration, $target->pageUrl, $period, $compare);
+        $details = $this->pageDetailsService->getDetails($target->configuration, $target->pageUrl, $selection->period, $selection->compare);
         $this->pageRenderer->addCssFile('EXT:analytics_matomo/Resources/Public/Css/statistics-bar.css');
         $this->pageRenderer->addCssFile('EXT:analytics_matomo/Resources/Public/Css/dashboard.css');
         $this->pageRenderer->loadJavaScriptModule('@maikschneider/analytics-matomo/evolution-chart.js');
         return [
-            'pageDetails' => ['url' => $target->pageUrl, 'speed' => $this->speed($details['pageRow'])],
+            'pageDetails' => [
+                'url' => $target->pageUrl,
+                'speed' => $this->speed($details['pageRow']),
+                'reading' => $this->reading($target, $details['current'], (int)$selection->site->getSettings()->get('analyticsMatomo.wordsPerMinute', 220)),
+            ],
             'minimumSamples' => ReportCatalog::MINIMUM_TIMING_SAMPLES,
             'tiles' => $this->tileFactory->createForOverview($details['current'], $details['previous'], EvolutionChartFactory::PAGE_METRICS),
             'chart' => $details['chart'],
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $current
+     * @return array{words: int, readingTime: string, timeOnPage: string, ratio: string|null}|null
+     */
+    private function reading(PageTarget $target, array $current, int $wordsPerMinute): ?array
+    {
+        $estimate = $this->readingTimeEstimator->estimate($target->pageId, $target->languageId, $wordsPerMinute);
+        if ($estimate === null) {
+            return null;
+        }
+        $formatter = new MetricFormatter();
+        $timeOnPage = $current['avg_time_on_page'] ?? null;
+        return [
+            'words' => $estimate['words'],
+            'readingTime' => $formatter->format($estimate['seconds'], 'duration_s'),
+            'timeOnPage' => $formatter->format($timeOnPage, 'duration_s'),
+            'ratio' => is_numeric($timeOnPage) && $estimate['seconds'] > 0 ? $formatter->format($timeOnPage / $estimate['seconds'], 'percent') : null,
         ];
     }
 

@@ -48,6 +48,14 @@ Site settings
     Top pages are the pages of the site in every language, and each site gets
     its own numbers. Never enable it on a production site.
 
+..  confval:: analyticsMatomo.wordsPerMinute
+    :type: int
+    :default: 220
+
+    Reading speed for the estimated reading time in :ref:`page details
+    <page-details>`. 220 words per minute is a common value for adults reading
+    on screen; lower it for difficult texts or a younger audience.
+
 Reuse of other Matomo extensions
 ================================
 

@@ -285,6 +285,8 @@
 			<trans-unit id="siteMetric.visitors.description"><source>Unique visitors reported by Matomo. This metric may be unavailable for some periods.</source><target>Eindeutige Besucher laut Matomo. Diese Kennzahl ist für manche Zeiträume nicht verfügbar.</target></trans-unit>
 			<trans-unit id="bar.details" resname="bar.details"><source>Details</source><target>Details</target></trans-unit>
 			<trans-unit id="bar.details.title" resname="bar.details.title"><source>Page details in the Matomo Analytics module</source><target>Seitendetails im Modul Matomo Analytics</target></trans-unit>
+			<trans-unit id="settings.wordsPerMinute" resname="settings.wordsPerMinute"><source>Reading speed (words per minute)</source><target>Lesegeschwindigkeit (Wörter pro Minute)</target></trans-unit>
+			<trans-unit id="settings.wordsPerMinute.description" resname="settings.wordsPerMinute.description"><source>Used to estimate the reading time of a page in the page details of the Matomo Analytics module.</source><target>Dient zur Schätzung der Lesezeit einer Seite in den Seitendetails des Moduls Matomo Analytics.</target></trans-unit>
 		</body>
 	</file>
 </xliff>

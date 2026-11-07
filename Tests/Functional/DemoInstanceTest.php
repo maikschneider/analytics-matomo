@@ -10,6 +10,7 @@ use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelectionResolver;
 use MaikSchneider\AnalyticsMatomo\Dashboard\SiteStatisticsService;
 use MaikSchneider\AnalyticsMatomo\Dashboard\Widget\MatomoWidget;
 use MaikSchneider\AnalyticsMatomo\Matomo\DemoPageUrls;
+use MaikSchneider\AnalyticsMatomo\Module\ReadingTimeEstimator;
 use MaikSchneider\AnalyticsMatomo\Statistics\Period;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\RequestInterface;
@@ -93,6 +94,15 @@ final class DemoInstanceTest extends FunctionalTestCase
 
         self::assertContains('https://rental.analytics-matomo.ddev.site/mietraeder/tagesmiete/', $this->get(DemoPageUrls::class)->get(30));
         self::assertSame([], $this->get(DemoPageUrls::class)->get(2));
+    }
+
+    #[Test]
+    public function newsArticleIsLongEnoughForAReadingTime(): void
+    {
+        $estimator = $this->get(ReadingTimeEstimator::class);
+
+        self::assertNotNull($estimator->estimate(15, 0, 220));
+        self::assertNull($estimator->estimate(2, 0, 220));
     }
 
     #[Test]

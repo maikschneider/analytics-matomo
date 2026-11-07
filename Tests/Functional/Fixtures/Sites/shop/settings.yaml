@@ -1,3 +1,4 @@
 analyticsMatomo:
   url: 'https://matomo.example.com'
   idSite: 7
+  wordsPerMinute: 60

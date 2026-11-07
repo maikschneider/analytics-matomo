@@ -27,3 +27,9 @@ settings:
     category: analyticsMatomo
     type: bool
     default: false
+  analyticsMatomo.wordsPerMinute:
+    label: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:settings.wordsPerMinute'
+    description: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:settings.wordsPerMinute.description'
+    category: analyticsMatomo
+    type: int
+    default: 220
