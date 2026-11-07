@@ -119,6 +119,8 @@ token `matomoWidgetsTokenAuth` is used, but only for the Matomo of
 EXT:matomo_widgets. The token of EXT:matomo_tracking is not reused: it is a
 tracking token.
 
+..  _access:
+
 Access
 ======
 
@@ -140,6 +142,10 @@ are granted in the backend group record, tab :guilabel:`Access Rights`, field
     The report page :guilabel:`Behaviour > Site search` in the module, in
     addition to the Behaviour section. Search keywords can contain personal
     data, such as names or e-mail addresses typed into the search field.
+
+:guilabel:`Review content` (`analytics_matomo:contentReview`)
+    The report page :guilabel:`Behaviour > Content review` in the module, in
+    addition to the Behaviour section.
 
 Administrators always have all of them. Error details from Matomo are shown to
 administrators only.
@@ -163,7 +169,8 @@ Behaviour, Acquisition, Goals and Page details. Grant the parent module
 access (`groupMods`). Both the parent and the requested section are required;
 without the parent the module does not appear in the menu. No custom option,
 including `analytics_matomo:siteStatistics`, is required for these sections;
-only the site search report page needs `analytics_matomo:siteSearch`.
+only the site search and content review report pages need
+`analytics_matomo:siteSearch` and `analytics_matomo:contentReview`.
 
 The module checks its own module access before loading reports. Its site
 selection uses that access instead of the widget option, while still requiring

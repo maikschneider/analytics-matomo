@@ -11,6 +11,7 @@ use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Routing\RouterInterface;
+use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Type\Bitmask\Permission;
 
@@ -67,6 +68,22 @@ final readonly class PageTargetResolver
         $pageUrl = (string)$site->getRouter()->generateUri($this->pageRecordResolver->resolve($pageId, $language), ['_language' => $language], '', RouterInterface::ABSOLUTE_URL);
 
         return new PageTarget($pageId, $languageId, $pageUrl, $configuration);
+    }
+
+    /**
+     * Error pages are shown at the URL that was not found, never at their own
+     *
+     * @return list<int>
+     */
+    public static function errorPageIds(Site $site): array
+    {
+        $pageIds = [];
+        foreach ($site->getConfiguration()['errorHandling'] ?? [] as $errorHandling) {
+            if (preg_match('#^t3://page\?uid=(\d+)$#', (string)($errorHandling['errorContentSource'] ?? ''), $match) === 1) {
+                $pageIds[] = (int)$match[1];
+            }
+        }
+        return $pageIds;
     }
 
     /**

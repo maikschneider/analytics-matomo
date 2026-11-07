@@ -8,6 +8,7 @@ use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelection;
 use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelectionResolver;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
 use MaikSchneider\AnalyticsMatomo\Module\AllSitesService;
+use MaikSchneider\AnalyticsMatomo\Module\ContentReviewService;
 use MaikSchneider\AnalyticsMatomo\Module\CsvExport;
 use MaikSchneider\AnalyticsMatomo\Module\EvolutionChartFactory;
 use MaikSchneider\AnalyticsMatomo\Module\GoalsService;
@@ -80,6 +81,7 @@ final readonly class ReportModuleController
         private CsvExport $csvExport,
         private SegmentService $segmentService,
         private AllSitesService $allSitesService,
+        private ContentReviewService $contentReviewService,
     ) {
     }
 
@@ -217,6 +219,8 @@ final readonly class ReportModuleController
                     $reports[] = ['definition' => $definition, 'current' => ReportTableFactory::fromRows($trending[$direction]), 'previous' => null];
                 }
                 $variables['tables'] = $this->tables($reports, $selection, $parameters, $route, $pageId, $report, (int)$moduleData->get('language'));
+            } elseif ($section === 'behaviour' && $report === 'review') {
+                $variables += $this->contentReview($selection, $parameters, $route, $pageId, $report, (int)$moduleData->get('language'));
             } else {
                 $definitions = $this->catalog->getReports($section, $report);
                 $reports = [];
@@ -304,7 +308,7 @@ final readonly class ReportModuleController
         $baseUrl = (string)$this->uriBuilder->buildUriFromRoute($route, ['id' => $pageId, 'report' => $report]);
         $export = isset($parameters['export']) && is_numeric($parameters['export']) ? (int)$parameters['export'] : null;
         foreach ($reports as $index => ['definition' => $definition, 'current' => $current, 'previous' => $previous]) {
-            $options = array_intersect_key($definition, ['minimum' => true, 'sort' => true]) + ['index' => $index];
+            $options = array_intersect_key($definition, ['minimum' => true, 'sort' => true, 'truncated' => true]) + ['index' => $index];
             if ($index === $export) {
                 $options['export'] = ['url' => $this->label('table.url'), 'metric' => $this->label('table.metric'), 'value' => $this->label('table.value')];
             }
@@ -326,6 +330,38 @@ final readonly class ReportModuleController
             $tables[] = $this->tableFactory->create($current, $previous, $parameters, $baseUrl, ($definition['rows'] ?? '') === 'url' ? $selection->site : null, $languageId, $pageId, $options);
         }
         return $tables;
+    }
+
+    /**
+     * Pages without views and old pages with views of the selected subtree, over a fixed period
+     *
+     * @param array<string, mixed> $parameters
+     * @return array<string, mixed>
+     * @throws MatomoApiException
+     */
+    private function contentReview(DashboardSelection $selection, array $parameters, string $route, int $pageId, string $report, int $languageId): array
+    {
+        $review = $this->contentReviewService->getReview($selection->site, $selection->configuration, $pageId);
+        $reports = [];
+        foreach (['withoutViews' => ContentReviewService::COLUMNS_WITHOUT_VIEWS, 'old' => ContentReviewService::COLUMNS_OLD] as $list => $columns) {
+            $definition = [
+                'module' => 'Actions', 'action' => 'getPageUrls', 'rows' => 'url', 'columns' => $columns, 'truncated' => $review['truncated'],
+                'title' => 'report.review.' . $list, 'empty' => 'empty.review.' . $list,
+            ];
+            if ($list === 'old') {
+                $definition['sort'] = 'priority';
+            }
+            $reports[] = ['definition' => $definition, 'current' => ReportTableFactory::fromRows($review[$list]), 'previous' => null];
+        }
+        $tables = $this->tables($reports, $selection, $parameters, $route, $pageId, $report, $languageId);
+        $period = $review['period'];
+        if ($review['trackedSince'] === null || $review['trackedSince'] > $period->from) {
+            $tables[0]['emptyMessage'] = sprintf($this->label('empty.review.young'), $review['trackedSince']?->format('Y-m-d') ?? '–', ContentReviewService::DAYS);
+        }
+        return [
+            'tables' => $tables,
+            'reportHint' => sprintf($this->label('review.hint'), $period->from->format('Y-m-d'), $period->to->format('Y-m-d'), ContentReviewService::OLD_DAYS),
+        ];
     }
 
     /**

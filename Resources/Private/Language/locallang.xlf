@@ -99,6 +99,12 @@
 			<trans-unit id="permission.siteSearch.description" resname="permission.siteSearch.description">
 				<source>Shows what visitors searched for in the Matomo module. Search keywords can contain personal data.</source>
 			</trans-unit>
+			<trans-unit id="permission.contentReview" resname="permission.contentReview">
+				<source>Review content</source>
+			</trans-unit>
+			<trans-unit id="permission.contentReview.description" resname="permission.contentReview.description">
+				<source>Lists pages without views and old pages with traffic in the Matomo module (Behaviour).</source>
+			</trans-unit>
 			<trans-unit id="widget.group" resname="widget.group">
 				<source>Matomo</source>
 			</trans-unit>

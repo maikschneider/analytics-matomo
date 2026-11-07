@@ -1,0 +1,130 @@
+[
+	[
+		{
+			"label": "/",
+			"nb_hits": 321,
+			"url": "http://www.virtual-drums.com/",
+			"Actions_PageUrl": "/",
+			"segment": "pageUrl==http%253A%252F%252Fwww.virtual-drums.com%252F"
+		},
+		{
+			"label": "/videos.php",
+			"nb_hits": 26,
+			"url": "http://www.virtual-drums.com/videos.php",
+			"Actions_PageUrl": "/videos.php",
+			"segment": "pageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Fvideos.php"
+		},
+		{
+			"label": "/photos.php",
+			"nb_hits": 24,
+			"url": "http://www.virtual-drums.com/photos.php",
+			"Actions_PageUrl": "/photos.php",
+			"segment": "pageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Fphotos.php"
+		},
+		{
+			"label": "/technology.php",
+			"nb_hits": 20,
+			"url": "http://www.virtual-drums.com/technology.php",
+			"Actions_PageUrl": "/technology.php",
+			"segment": "pageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Ftechnology.php"
+		},
+		{
+			"label": "/questions.php",
+			"nb_hits": 9,
+			"url": "http://www.virtual-drums.com/questions.php",
+			"Actions_PageUrl": "/questions.php",
+			"segment": "pageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Fquestions.php"
+		},
+		{
+			"label": "/try.php",
+			"nb_hits": 12,
+			"url": "http://www.virtual-drums.com/try.php",
+			"Actions_PageUrl": "/try.php",
+			"segment": "pageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Ftry.php"
+		},
+		{
+			"label": "/press.php",
+			"nb_hits": 7,
+			"url": "http://www.virtual-drums.com/press.php",
+			"Actions_PageUrl": "/press.php",
+			"segment": "pageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Fpress.php"
+		},
+		{
+			"label": "/contact.php",
+			"nb_hits": 6,
+			"url": "http://www.virtual-drums.com/contact.php",
+			"Actions_PageUrl": "/contact.php",
+			"segment": "pageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Fcontact.php"
+		},
+		{
+			"label": "/photos.php/screenshots-virtual-drums-1/",
+			"nb_hits": 6,
+			"url": "http://www.virtual-drums.com/photos.php/screenshots-virtual-drums-1/",
+			"Actions_PageUrl": "/photos.php/screenshots-virtual-drums-1/",
+			"segment": "pageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Fphotos.php%252Fscreenshots-virtual-drums-1%252F"
+		},
+		{
+			"label": "/photos.php/screenshots-virtual-drums-3/",
+			"nb_hits": 10,
+			"url": "http://www.virtual-drums.com/photos.php/screenshots-virtual-drums-3/",
+			"Actions_PageUrl": "/photos.php/screenshots-virtual-drums-3/",
+			"segment": "pageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Fphotos.php%252Fscreenshots-virtual-drums-3%252F"
+		},
+		{
+			"label": "/photos.php/screenshots-virtual-drums-4/",
+			"nb_hits": 3,
+			"url": "http://www.virtual-drums.com/photos.php/screenshots-virtual-drums-4/",
+			"Actions_PageUrl": "/photos.php/screenshots-virtual-drums-4/",
+			"segment": "pageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Fphotos.php%252Fscreenshots-virtual-drums-4%252F"
+		},
+		{
+			"label": "/photos.php/virtual-drums-laval-virtual-029/",
+			"nb_hits": 2,
+			"url": "http://www.virtual-drums.com/photos.php/virtual-drums-laval-virtual-029/",
+			"Actions_PageUrl": "/photos.php/virtual-drums-laval-virtual-029/",
+			"segment": "pageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Fphotos.php%252Fvirtual-drums-laval-virtual-029%252F"
+		},
+		{
+			"label": "/questions.php/team-members-virtual-drums/",
+			"nb_hits": 2,
+			"url": "http://www.virtual-drums.com/questions.php/team-members-virtual-drums/",
+			"Actions_PageUrl": "/questions.php/team-members-virtual-drums/",
+			"segment": "pageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Fquestions.php%252Fteam-members-virtual-drums%252F"
+		},
+		{
+			"label": "/?hl=en-US",
+			"nb_hits": 1,
+			"url": "https://www.virtual-drums.com/?hl=en-US",
+			"Actions_PageUrl": "/?hl=en-US",
+			"segment": "pageUrl==https%253A%252F%252Fwww.virtual-drums.com%252F%253Fhl%253Den-US"
+		},
+		{
+			"label": "/frozen-cameleon.php",
+			"nb_hits": 1,
+			"url": "http://www.virtual-drums.com/frozen-cameleon.php",
+			"Actions_PageUrl": "/frozen-cameleon.php",
+			"segment": "pageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Ffrozen-cameleon.php"
+		},
+		{
+			"label": "/photos.php/screenshots-virtual-drums-2/",
+			"nb_hits": 1,
+			"url": "http://www.virtual-drums.com/photos.php/screenshots-virtual-drums-2/",
+			"Actions_PageUrl": "/photos.php/screenshots-virtual-drums-2/",
+			"segment": "pageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Fphotos.php%252Fscreenshots-virtual-drums-2%252F"
+		},
+		{
+			"label": "/photos.php/virtual-drums-laval-virtual-006/",
+			"nb_hits": 1,
+			"url": "http://www.virtual-drums.com/photos.php/virtual-drums-laval-virtual-006/",
+			"Actions_PageUrl": "/photos.php/virtual-drums-laval-virtual-006/",
+			"segment": "pageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Fphotos.php%252Fvirtual-drums-laval-virtual-006%252F"
+		},
+		{
+			"label": "/photos.php/virtual-drums-laval-virtual-026/",
+			"nb_hits": 1,
+			"url": "http://www.virtual-drums.com/photos.php/virtual-drums-laval-virtual-026/",
+			"Actions_PageUrl": "/photos.php/virtual-drums-laval-virtual-026/",
+			"segment": "pageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Fphotos.php%252Fvirtual-drums-laval-virtual-026%252F"
+		}
+	]
+]

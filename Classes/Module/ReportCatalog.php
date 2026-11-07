@@ -13,7 +13,7 @@ use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
  * Optional pages are only offered when the site's Matomo has their first report; pages with a permission
  * only to users with that custom option.
  *
- * @phpstan-type Definition array{module: string, action: string, params?: array<string, int|string>, rows?: string, title?: string, columns?: array<string, array{0: string, 1: string, 2?: string}>, minimum?: array{string, int}, sort?: string, empty?: string}
+ * @phpstan-type Definition array{module: string, action: string, params?: array<string, int|string>, rows?: string, title?: string, columns?: array<string, array{0: string, 1: string, 2?: string}>, minimum?: array{string, int}, sort?: string, empty?: string, truncated?: bool}
  */
 final readonly class ReportCatalog
 {
@@ -57,6 +57,8 @@ final readonly class ReportCatalog
             'pages' => ['reports' => [['module' => 'Actions', 'action' => 'getPageUrls', 'params' => ['flat' => 1], 'rows' => 'url']]],
             // Compared in TrendingService; Matomo has no processed report for it
             'trending' => ['reports' => []],
+            // Joined with the page tree in ContentReviewService; an admin task, so behind its own option
+            'review' => ['permission' => StatisticsPermission::CONTENT_REVIEW, 'reports' => []],
             'entryPages' => ['reports' => [['module' => 'Actions', 'action' => 'getEntryPageUrls', 'params' => ['flat' => 1], 'rows' => 'url']]],
             'exitPages' => ['reports' => [['module' => 'Actions', 'action' => 'getExitPageUrls', 'params' => ['flat' => 1], 'rows' => 'url']]],
             'pageTitles' => ['reports' => [['module' => 'Actions', 'action' => 'getPageTitles', 'params' => ['flat' => 1]]]],

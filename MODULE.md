@@ -34,6 +34,7 @@ Not in the module: Visits log and Real-time visitor list (see [Privacy](#privacy
 | Contents | content names and pieces | `Contents.getContentNames/getContentPieces(flat=1)` |
 | Performance | site timing breakdown + slowest pages | `PagePerformance.get`, `Actions.getPageUrls` timing columns |
 | Trending pages | risers and fallers | flat `Actions.getPageUrls` of both periods, compared in `TrendingService` (Insights only ranks the top level of the page report, i.e. folders) |
+| Content review | visible pages without views in 90 days, old pages with traffic (own custom option) | flat `Actions.getPageUrls` over 90 days joined with `pages`, `SitesManager.getSiteFromId` (`ts_created`) |
 
 **Tree vs. flat:** no Matomo URL tree. The module already has the TYPO3 page tree: the selected page filters URL reports to the page and its subpages (mapped URL → page, then rootline check). That is the tree view editors know, and it works across languages.
 

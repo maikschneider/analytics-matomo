@@ -42,8 +42,9 @@ final readonly class ReportTableFactory
      * @param Report $report
      * @param Report|null $previous
      * @param array<string, mixed> $query
-     * @param array{title?: string, columns?: array<string, array{string, string}>, minimum?: array{string, int}, sort?: string, empty?: string, index?: int, export?: array{url: string, metric: string, value: string}} $options
-     *        catalog options: own title, own columns (name and metric type, e.g. raw metrics), minimum value of a column, default sort column, message for a report without rows;
+     * @param array{title?: string, columns?: array<string, array{string, string}>, minimum?: array{string, int}, sort?: string, empty?: string, truncated?: bool, index?: int, export?: array{url: string, metric: string, value: string}} $options
+     *        catalog options: own title, own columns (name and metric type, e.g. raw metrics), minimum value of a column, default sort column, message for a report without rows,
+     *        rows built from a report Matomo truncated;
      *        position of the table on its page; translated extra headers to get all rows with raw values for a CSV export instead of the view
      * @return array<string, mixed>
      */
@@ -72,7 +73,7 @@ final readonly class ReportTableFactory
         $truncated = false;
         if ($site !== null) {
             $mapped = $this->mapper->mapReport($site, $rows);
-            $truncated = $mapped->isTruncated;
+            $truncated = $mapped->isTruncated || ($options['truncated'] ?? false);
             $rows = [];
             /** @var BackendUserAuthentication $user */
             $user = $GLOBALS['BE_USER'];

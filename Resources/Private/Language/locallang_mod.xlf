@@ -253,6 +253,18 @@
 			<trans-unit id="column.growth" resname="column.growth"><source>Growth</source></trans-unit>
 			<trans-unit id="page.trend.up" resname="page.trend.up"><source>Rising: %s views compared with the previous period</source></trans-unit>
 			<trans-unit id="page.trend.down" resname="page.trend.down"><source>Falling: %s views compared with the previous period</source></trans-unit>
+			<trans-unit id="report.review" resname="report.review"><source>Content review</source></trans-unit>
+			<trans-unit id="report.review.withoutViews" resname="report.review.withoutViews"><source>Pages without views</source></trans-unit>
+			<trans-unit id="report.review.old" resname="report.review.old"><source>Old pages with traffic</source></trans-unit>
+			<trans-unit id="review.hint" resname="review.hint"><source>Views from %1$s to %2$s, whatever period is selected. Old pages were last changed at least %3$d days ago. Pages created in this period are no candidates yet.</source></trans-unit>
+			<trans-unit id="empty.review.withoutViews" resname="empty.review.withoutViews"><source>Every visible page had views.</source></trans-unit>
+			<trans-unit id="empty.review.old" resname="empty.review.old"><source>No old page had views.</source></trans-unit>
+			<trans-unit id="empty.review.young" resname="empty.review.young"><source>Matomo has tracked this site since %1$s only: pages without views need %2$d days of data.</source></trans-unit>
+			<trans-unit id="column.pageTitle" resname="column.pageTitle"><source>Page</source></trans-unit>
+			<trans-unit id="column.lastChanged" resname="column.lastChanged"><source>Last changed</source></trans-unit>
+			<trans-unit id="column.age" resname="column.age"><source>Days unchanged</source></trans-unit>
+			<trans-unit id="column.priority" resname="column.priority"><source>Review priority</source></trans-unit>
+			<trans-unit id="column.priority.description" resname="column.priority.description"><source>Views × days unchanged: much read, long untouched.</source></trans-unit>
 		</body>
 	</file>
 </xliff>

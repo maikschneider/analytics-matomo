@@ -19,6 +19,7 @@ final readonly class MetricFormatter
                 ? number_format($number, 2) . ' s'
                 : sprintf('%d:%02d:%02d', intdiv((int)$number, 3600), intdiv((int)$number, 60) % 60, (int)$number % 60),
             'money' => number_format($number, 2),
+            'date' => date('Y-m-d', (int)$number),
             default => number_format($number, $number === floor($number) ? 0 : 2),
         };
     }

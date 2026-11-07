@@ -57,6 +57,16 @@ Every other report page shows one or more Matomo reports as tables:
     all page views of the site, so small sites don't show noise. Page details
     show the same rising or falling hint for their page.
 
+    :guilabel:`Content review` (own permission, see :ref:`access <access>`)
+    lists the visible pages of the selected subtree without views in the last
+    90 days, and pages unchanged for at least a year that still get views,
+    ranked by views × days unchanged. "Last changed" is the later of the page
+    record's and its content's change. Folders, shortcuts, links, hidden and
+    error pages are left out, and pages created during the 90 days are no
+    candidates yet. When Matomo has tracked the site for less than 90 days, or
+    truncated its page report, pages without a row show "unknown" instead of
+    0 views. The report never deletes anything.
+
 :guilabel:`Acquisition`
     All channels (channel types and all referrers), Websites, Search engines
     and keywords, Social networks, AI assistants and Campaigns (names and

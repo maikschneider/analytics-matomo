@@ -38,6 +38,7 @@ final class StatisticsPermissionTest extends FunctionalTestCase
         self::assertContains('analytics_matomo:pageStatistics', $values);
         self::assertContains('analytics_matomo:siteStatistics', $values);
         self::assertContains('analytics_matomo:siteSearch', $values);
+        self::assertContains('analytics_matomo:contentReview', $values);
     }
 
     #[Test]

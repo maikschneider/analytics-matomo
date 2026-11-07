@@ -12,7 +12,6 @@ use TYPO3\CMS\Core\Database\Query\Restriction\FrontendGroupRestriction;
 use TYPO3\CMS\Core\Database\Query\Restriction\WorkspaceRestriction;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Routing\RouterInterface;
-use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\SiteFinder;
 
 /**
@@ -55,7 +54,7 @@ final readonly class DemoPageUrls
         }
 
         $urls = [];
-        foreach (array_diff($pageIds, $this->errorPageIds($site)) as $pageId) {
+        foreach (array_diff($pageIds, PageTargetResolver::errorPageIds($site)) as $pageId) {
             foreach ($site->getLanguages() as $language) {
                 $isVisible = in_array($language->getLanguageId(), $languageIds[$pageId] ?? [], true)
                     || ($language->getFallbackType() === 'fallback' && in_array(0, $languageIds[$pageId] ?? [], true));
@@ -65,22 +64,6 @@ final readonly class DemoPageUrls
             }
         }
         return $urls;
-    }
-
-    /**
-     * Error pages are shown at the URL that was not found, never at their own
-     *
-     * @return list<int>
-     */
-    private function errorPageIds(Site $site): array
-    {
-        $pageIds = [];
-        foreach ($site->getConfiguration()['errorHandling'] ?? [] as $errorHandling) {
-            if (preg_match('#^t3://page\?uid=(\d+)$#', (string)($errorHandling['errorContentSource'] ?? ''), $match) === 1) {
-                $pageIds[] = (int)$match[1];
-            }
-        }
-        return $pageIds;
     }
 
     /**

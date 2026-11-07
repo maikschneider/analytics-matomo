@@ -26,5 +26,10 @@ $GLOBALS['TYPO3_CONF_VARS']['BE']['customPermOptions']['analytics_matomo'] = [
             'actions-search',
             'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:permission.siteSearch.description',
         ],
+        StatisticsPermission::CONTENT_REVIEW => [
+            'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:permission.contentReview',
+            'actions-document-history-open',
+            'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:permission.contentReview.description',
+        ],
     ],
 ];

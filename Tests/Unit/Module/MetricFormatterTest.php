@@ -19,6 +19,7 @@ final class MetricFormatterTest extends UnitTestCase
         self::assertSame('58.0 %', $formatter->format(0.58, 'percent'));
         self::assertSame('1:01:05', $formatter->format(3665, 'duration_s'));
         self::assertSame('1.25', $formatter->format(1.25, 'money'));
+        self::assertSame('2023-03-01', $formatter->format(strtotime('2023-03-01 12:00'), 'date'));
         self::assertSame('–', $formatter->format(null, 'number'));
         self::assertSame('–', $formatter->format(['unexpected'], 'number'));
         self::assertSame('3.25', $formatter->format(3.25, 'unknown'));

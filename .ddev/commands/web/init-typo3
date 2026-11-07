@@ -81,6 +81,11 @@ _progress "Creating backend user \"editor\""
         --username=editor --email=editor@example.com --groups=1
 _done
 
+# The content review needs pages created and changed long ago, relative to today
+_progress "Ageing the demo pages"
+    mysql $dbCredentials "$dbName" -e "UPDATE pages SET crdate = UNIX_TIMESTAMP() - 1500 * 86400, tstamp = UNIX_TIMESTAMP() - ((uid * 97) % 1100) * 86400, SYS_LASTCHANGED = 0"
+_done
+
 _progress "Giving the admin the Matomo dashboard"
     mysql $dbCredentials "$dbName" -e "UPDATE be_users SET TSconfig = 'options.dashboard.dashboardPresetsForNewUsers = analyticsMatomoOverview' WHERE username = 'admin'"
 _done

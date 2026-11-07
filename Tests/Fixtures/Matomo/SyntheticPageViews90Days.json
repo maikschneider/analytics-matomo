@@ -1,0 +1,32 @@
+[
+	{
+		"label": "/",
+		"url": "https://example.com/",
+		"nb_hits": 300
+	},
+	{
+		"label": "/about",
+		"url": "https://example.com/about",
+		"nb_hits": 40
+	},
+	{
+		"label": "/about?utm_source=newsletter",
+		"url": "https://example.com/about?utm_source=newsletter",
+		"nb_hits": 2
+	},
+	{
+		"label": "/",
+		"url": "https://shop.example.org/",
+		"nb_hits": 50
+	},
+	{
+		"label": "/products/",
+		"url": "https://shop.example.org/products/",
+		"nb_hits": 20
+	},
+	{
+		"label": "/no-longer-a-page",
+		"url": "https://example.com/no-longer-a-page",
+		"nb_hits": 7
+	}
+]

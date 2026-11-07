@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace MaikSchneider\AnalyticsMatomo\Tests\Functional;
 
+use MaikSchneider\AnalyticsMatomo\Authorization\StatisticsPermission;
 use MaikSchneider\AnalyticsMatomo\Configuration\MatomoConfigurationResolver;
 use MaikSchneider\AnalyticsMatomo\Controller\StatisticsBarController;
 use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelectionResolver;
 use MaikSchneider\AnalyticsMatomo\Dashboard\SiteStatisticsService;
 use MaikSchneider\AnalyticsMatomo\Dashboard\Widget\MatomoWidget;
 use MaikSchneider\AnalyticsMatomo\Matomo\DemoPageUrls;
+use MaikSchneider\AnalyticsMatomo\Module\ContentReviewService;
 use MaikSchneider\AnalyticsMatomo\Module\ReadingTimeEstimator;
 use MaikSchneider\AnalyticsMatomo\Statistics\Period;
 use PHPUnit\Framework\Attributes\Test;
@@ -17,6 +19,7 @@ use Psr\Http\Message\RequestInterface;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\DateTimeAspect;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Site\SiteFinder;
@@ -65,13 +68,43 @@ final class DemoInstanceTest extends FunctionalTestCase
     public function pageStatisticsDifferByPageLanguageAndSite(): void
     {
         $views = [];
-        foreach ([[1, 0], [6, 0], [17, 0], [17, 1], [11, 2], [31, 0], [31, 1]] as [$pageId, $languageId]) {
+        foreach ([[1, 0], [6, 0], [9, 0], [9, 1], [11, 2], [31, 0], [31, 1]] as [$pageId, $languageId]) {
             self::assertSame(1, preg_match('/tx-analytics-matomo-value">([^<]+)</', $this->statisticsBar($pageId, $languageId), $value));
             $views[] = $value[1] ?? '';
         }
 
         self::assertNotContains('', $views);
         self::assertCount(7, array_unique($views));
+        self::assertSame([], $this->sentRequests);
+    }
+
+    #[Test]
+    public function someDemoPagesHaveNoViewsForTheContentReview(): void
+    {
+        foreach ([[17, 0], [17, 1]] as [$pageId, $languageId]) {
+            self::assertSame(1, preg_match('/tx-analytics-matomo-value">([^<]+)</', $this->statisticsBar($pageId, $languageId), $value));
+            self::assertSame('0', $value[1] ?? '');
+        }
+        self::assertSame([], $this->sentRequests);
+    }
+
+    #[Test]
+    public function contentReviewListsUnvisitedAndOldDemoPagesAfterAgeing(): void
+    {
+        // As init-typo3 does
+        $this->get(ConnectionPool::class)->getConnectionForTable('pages')->executeStatement(
+            'UPDATE pages SET crdate = ' . strtotime('2022-11-02') . ', tstamp = ' . strtotime('2026-11-02') . ' - ((uid * 97) % 1100) * 86400, SYS_LASTCHANGED = 0'
+        );
+        $site = $this->get(SiteFinder::class)->getSiteByIdentifier('cycles');
+        $configuration = $this->get(MatomoConfigurationResolver::class)->resolve($site);
+        self::assertNotNull($configuration);
+
+        $review = $this->get(ContentReviewService::class)->getReview($site, $configuration, 1);
+
+        self::assertContains('About us', array_column($review['withoutViews'], 'label'));
+        self::assertContains('Über uns', array_column($review['withoutViews'], 'label'));
+        self::assertNotSame([], $review['old']);
+        self::assertTrue(StatisticsPermission::isGranted($this->setUpBackendUser(self::EDITOR), StatisticsPermission::CONTENT_REVIEW));
         self::assertSame([], $this->sentRequests);
     }
 
