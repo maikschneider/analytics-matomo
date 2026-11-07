@@ -48,6 +48,32 @@ final class ReportTableFactoryTest extends UnitTestCase
     }
 
     #[Test]
+    public function catalogOptionsSetTitleRawColumnsMinimumAndDefaultSort(): void
+    {
+        $factory = new ReportTableFactory(new MetricFormatter(), new PageUrlMapper(new Context()), $this->createMock(UriBuilder::class), new PageRecordResolver(new Context()));
+        $rows = [
+            ['label' => '/fast', 'nb_hits' => 50, 'avg_page_load_time' => 0.5, 'nb_hits_with_time_network' => 40],
+            ['label' => '/rare', 'nb_hits' => 2, 'avg_page_load_time' => 9.0, 'nb_hits_with_time_network' => 2],
+            ['label' => '/slow', 'nb_hits' => 20, 'avg_page_load_time' => 3.2, 'nb_hits_with_time_network' => 5],
+        ];
+        $report = ['metadata' => ['name' => 'Page URLs', 'metricTypes' => ['nb_hits' => 'number']], 'columns' => ['label' => 'Page URL', 'nb_hits' => 'Pageviews', 'bounce_rate' => 'Bounce rate'], 'reportData' => $rows, 'reportMetadata' => [], 'reportTotal' => []];
+        $options = [
+            'title' => 'Slowest pages',
+            'columns' => ['nb_hits' => ['Page views', 'number'], 'avg_page_load_time' => ['Page load time', 'duration_s'], 'nb_hits_with_time_network' => ['Measured page views', 'number']],
+            'minimum' => ['nb_hits_with_time_network', 5],
+            'sort' => 'avg_page_load_time',
+        ];
+        $table = $factory->create($report, null, [], '/module?report=performance', options: $options);
+
+        self::assertSame('Slowest pages', $table['title']);
+        self::assertSame(['Page URL', 'Page views', 'Page load time', 'Measured page views'], array_column($table['columns'], 'label'));
+        self::assertSame([['/slow', '20', '3.20 s', '5'], ['/fast', '50', '0.50 s', '40']], array_map(static fn (array $row): array => array_column($row['cells'], 'value'), $table['rows']));
+        self::assertSame(2, $table['total']);
+        $byHits = $factory->create($report, null, ['sort' => 'nb_hits', 'dir' => 'asc'], '/module', options: $options);
+        self::assertSame('/slow', $byHits['rows'][0]['cells'][0]['value']);
+    }
+
+    #[Test]
     public function reportsWithoutDimensionListOneRowPerMetricWithChange(): void
     {
         $factory = new ReportTableFactory(new MetricFormatter(), new PageUrlMapper(new Context()), $this->createMock(UriBuilder::class), new PageRecordResolver(new Context()));

@@ -14,7 +14,9 @@ final readonly class MetricFormatter
         $number = (float)$value;
         return match ($type) {
             'percent' => number_format($number * 100, 1) . ' %',
-            'duration_s' => sprintf('%d:%02d:%02d', intdiv((int)$number, 3600), intdiv((int)$number, 60) % 60, (int)$number % 60),
+            'duration_s' => $number < 60 && $number !== floor($number)
+                ? number_format($number, 2) . ' s'
+                : sprintf('%d:%02d:%02d', intdiv((int)$number, 3600), intdiv((int)$number, 60) % 60, (int)$number % 60),
             'money' => number_format($number, 2),
             default => number_format($number, $number === floor($number) ? 0 : 2),
         };

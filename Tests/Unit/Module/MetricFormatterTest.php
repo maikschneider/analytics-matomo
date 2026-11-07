@@ -23,4 +23,14 @@ final class MetricFormatterTest extends UnitTestCase
         self::assertSame('–', $formatter->format(['unexpected'], 'number'));
         self::assertSame('3.25', $formatter->format(3.25, 'unknown'));
     }
+
+    #[Test]
+    public function subMinuteFractionsOfSecondsKeepTheirPrecision(): void
+    {
+        $formatter = new MetricFormatter();
+        self::assertSame('1.56 s', $formatter->format(1.56, 'duration_s'));
+        self::assertSame('0.03 s', $formatter->format(0.026, 'duration_s'));
+        self::assertSame('0:00:14', $formatter->format(14, 'duration_s'));
+        self::assertSame('0:01:05', $formatter->format(65.4, 'duration_s'));
+    }
 }

@@ -196,6 +196,16 @@
 			<trans-unit id="table.next"><source>Next</source><target>Weiter</target></trans-unit>
 			<trans-unit id="table.metric"><source>Metric</source><target>Kennzahl</target></trans-unit>
 			<trans-unit id="table.value"><source>Value</source><target>Wert</target></trans-unit>
+			<trans-unit id="report.slowestPages"><source>Slowest pages</source><target>Langsamste Seiten</target></trans-unit>
+			<trans-unit id="column.nb_hits"><source>Page views</source><target>Seitenaufrufe</target></trans-unit>
+			<trans-unit id="column.avg_page_load_time"><source>Page load time</source><target>Ladezeit der Seite</target></trans-unit>
+			<trans-unit id="column.avg_time_network"><source>Network time</source><target>Netzwerkzeit</target></trans-unit>
+			<trans-unit id="column.avg_time_server"><source>Server time</source><target>Serverzeit</target></trans-unit>
+			<trans-unit id="column.avg_time_transfer"><source>Transfer time</source><target>Übertragungszeit</target></trans-unit>
+			<trans-unit id="column.avg_time_dom_processing"><source>DOM processing time</source><target>DOM-Verarbeitungszeit</target></trans-unit>
+			<trans-unit id="column.avg_time_dom_completion"><source>DOM completion time</source><target>DOM-Fertigstellungszeit</target></trans-unit>
+			<trans-unit id="column.avg_time_on_load"><source>On load time</source><target>On-Load-Zeit</target></trans-unit>
+			<trans-unit id="column.nb_hits_with_time_network"><source>Measured page views</source><target>Gemessene Seitenaufrufe</target></trans-unit>
 			<trans-unit id="action.details"><source>Page details</source><target>Seitendetails</target></trans-unit>
 			<trans-unit id="action.layout"><source>Page module</source><target>Seitenmodul</target></trans-unit>
 			<trans-unit id="action.edit"><source>Edit page properties</source><target>Seiteneigenschaften bearbeiten</target></trans-unit>

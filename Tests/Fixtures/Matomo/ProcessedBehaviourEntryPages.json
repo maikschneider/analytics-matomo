@@ -1,0 +1,278 @@
+[
+	{
+		"website": "virtual-drums.com",
+		"prettyDate": "October 1 – 31, 2026",
+		"metadata": {
+			"category": "Behaviour",
+			"subcategory": "Entry pages",
+			"name": "Entry pages",
+			"module": "Actions",
+			"action": "getEntryPageUrls",
+			"dimension": "Entry Page URL",
+			"documentation": "This report contains information about the entry pages that were used during the specified period. An entry page is the first page that a user views during their visit. <br /> The entry URLs are displayed as a folder structure.<br />Use the plus and minus icons on the left to navigate.",
+			"metrics": {
+				"entry_nb_visits": "Entrances",
+				"entry_bounce_count": "Bounces"
+			},
+			"metricsDocumentation": {
+				"entry_nb_visits": "Number of visits that started on this page.",
+				"entry_bounce_count": "Number of visits that started and ended on this page. This means that the visitor left the website after viewing only this page.",
+				"bounce_rate": "The percentage of visits that started on this page and left the website straight away.",
+				"entry_bounce_count_percent_of_total": "The percentage of the report's total Bounces that this row represents.",
+				"entry_nb_visits_percent_of_total": "The percentage of the report's total Entrances that this row represents."
+			},
+			"processedMetrics": {
+				"bounce_rate": "Bounce Rate",
+				"avg_time_generation": "Avg. generation time"
+			},
+			"metricTypes": {
+				"entry_nb_visits": "number",
+				"entry_bounce_count": "number",
+				"avg_time_on_page": "duration_s",
+				"bounce_rate": "percent",
+				"exit_rate": "percent",
+				"avg_time_generation": "duration_s",
+				"entry_bounce_count_percent_of_total": "percent",
+				"entry_nb_visits_percent_of_total": "percent"
+			},
+			"actionToLoadSubTables": "getEntryPageUrls",
+			"relatedReports": [
+				{
+					"name": "Entry page titles",
+					"module": "Actions",
+					"action": "getEntryPageTitles"
+				}
+			],
+			"metricsGoal": {
+				"nb_conversions": "Conversions",
+				"nb_conversions_entry": "Conversions",
+				"revenue_entry": "Revenue"
+			},
+			"processedMetricsGoal": {
+				"revenue_per_visit": "Revenue per Visit",
+				"revenue_per_entry": "Revenue per Entry",
+				"nb_conversions_entry_rate": "Conversion Rate"
+			},
+			"metricTypesGoal": {
+				"revenue_per_visit": "money",
+				"nb_conversions": "number",
+				"conversion_rate": "percent",
+				"nb_conversions_entry": "number",
+				"revenue_entry": "money",
+				"revenue_per_entry": "number",
+				"nb_conversions_entry_rate": "percent"
+			},
+			"imageGraphUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=Actions&apiAction=getEntryPageUrls&period=range&date=2026-10-01,2026-10-31",
+			"imageGraphEvolutionUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=Actions&apiAction=getEntryPageUrls&period=day&date=2026-10-01,2026-10-31",
+			"uniqueId": "Actions_getEntryPageUrls"
+		},
+		"columns": {
+			"label": "Entry Page URL",
+			"entry_nb_visits": "Entrances",
+			"entry_nb_visits_percent_of_total": "Entrances (%)",
+			"entry_bounce_count": "Bounces",
+			"entry_bounce_count_percent_of_total": "Bounces (%)",
+			"bounce_rate": "Bounce Rate"
+		},
+		"reportData": [
+			{
+				"label": "/",
+				"entry_nb_visits": 85,
+				"entry_bounce_count": 67,
+				"entry_bounce_count_percent_of_total": 0.779,
+				"entry_nb_visits_percent_of_total": 0.787,
+				"bounce_rate": 0.79
+			},
+			{
+				"label": "/videos.php",
+				"entry_nb_visits": 10,
+				"entry_bounce_count": 7,
+				"entry_bounce_count_percent_of_total": 0.081,
+				"entry_nb_visits_percent_of_total": 0.093,
+				"bounce_rate": 0.7
+			},
+			{
+				"label": "/photos.php",
+				"entry_nb_visits": 1,
+				"entry_bounce_count": 1,
+				"entry_bounce_count_percent_of_total": 0.012,
+				"entry_nb_visits_percent_of_total": 0.009,
+				"bounce_rate": 1
+			},
+			{
+				"label": "/technology.php",
+				"entry_nb_visits": 5,
+				"entry_bounce_count": 5,
+				"entry_bounce_count_percent_of_total": 0.058,
+				"entry_nb_visits_percent_of_total": 0.046,
+				"bounce_rate": 1
+			},
+			{
+				"label": "/questions.php",
+				"entry_nb_visits": 2,
+				"entry_bounce_count": 2,
+				"entry_bounce_count_percent_of_total": 0.023,
+				"entry_nb_visits_percent_of_total": 0.019,
+				"bounce_rate": 1
+			},
+			{
+				"label": "/photos.php/screenshots-virtual-drums-4/",
+				"entry_nb_visits": 2,
+				"entry_bounce_count": 1,
+				"entry_bounce_count_percent_of_total": 0.012,
+				"entry_nb_visits_percent_of_total": 0.019,
+				"bounce_rate": 0.5
+			},
+			{
+				"label": "/try.php",
+				"entry_nb_visits": 1,
+				"entry_bounce_count": 1,
+				"entry_bounce_count_percent_of_total": 0.012,
+				"entry_nb_visits_percent_of_total": 0.009,
+				"bounce_rate": 1
+			},
+			{
+				"label": "/photos.php/screenshots-virtual-drums-1/",
+				"bounce_rate": 0,
+				"entry_nb_visits": 0,
+				"entry_nb_visits_percent_of_total": 0,
+				"entry_bounce_count": 0,
+				"entry_bounce_count_percent_of_total": 0
+			},
+			{
+				"label": "/photos.php/virtual-drums-laval-virtual-006/",
+				"entry_nb_visits": 1,
+				"entry_bounce_count": 1,
+				"entry_bounce_count_percent_of_total": 0.012,
+				"entry_nb_visits_percent_of_total": 0.009,
+				"bounce_rate": 1
+			},
+			{
+				"label": "/photos.php/virtual-drums-laval-virtual-026/",
+				"entry_nb_visits": 1,
+				"entry_bounce_count": 1,
+				"entry_bounce_count_percent_of_total": 0.012,
+				"entry_nb_visits_percent_of_total": 0.009,
+				"bounce_rate": 1
+			}
+		],
+		"reportMetadata": [
+			{
+				"url": "http://www.virtual-drums.com/",
+				"Actions_EntryPageUrl": "/",
+				"segment": "entryPageUrl==http%253A%252F%252Fwww.virtual-drums.com%252F"
+			},
+			{
+				"url": "http://www.virtual-drums.com/videos.php",
+				"Actions_EntryPageUrl": "/videos.php",
+				"segment": "entryPageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Fvideos.php"
+			},
+			{
+				"url": "http://www.virtual-drums.com/photos.php",
+				"Actions_EntryPageUrl": "/photos.php",
+				"segment": "entryPageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Fphotos.php"
+			},
+			{
+				"url": "http://www.virtual-drums.com/technology.php",
+				"Actions_EntryPageUrl": "/technology.php",
+				"segment": "entryPageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Ftechnology.php"
+			},
+			{
+				"url": "http://www.virtual-drums.com/questions.php",
+				"Actions_EntryPageUrl": "/questions.php",
+				"segment": "entryPageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Fquestions.php"
+			},
+			{
+				"url": "http://www.virtual-drums.com/photos.php/screenshots-virtual-drums-4/",
+				"Actions_EntryPageUrl": "/photos.php/screenshots-virtual-drums-4/",
+				"segment": "entryPageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Fphotos.php%252Fscreenshots-virtual-drums-4%252F"
+			},
+			{
+				"url": "http://www.virtual-drums.com/try.php",
+				"Actions_EntryPageUrl": "/try.php",
+				"segment": "entryPageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Ftry.php"
+			},
+			{
+				"url": "http://www.virtual-drums.com/photos.php/screenshots-virtual-drums-1/",
+				"Actions_EntryPageUrl": "/photos.php/screenshots-virtual-drums-1/",
+				"segment": "entryPageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Fphotos.php%252Fscreenshots-virtual-drums-1%252F"
+			},
+			{
+				"url": "http://www.virtual-drums.com/photos.php/virtual-drums-laval-virtual-006/",
+				"Actions_EntryPageUrl": "/photos.php/virtual-drums-laval-virtual-006/",
+				"segment": "entryPageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Fphotos.php%252Fvirtual-drums-laval-virtual-006%252F"
+			},
+			{
+				"url": "http://www.virtual-drums.com/photos.php/virtual-drums-laval-virtual-026/",
+				"Actions_EntryPageUrl": "/photos.php/virtual-drums-laval-virtual-026/",
+				"segment": "entryPageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Fphotos.php%252Fvirtual-drums-laval-virtual-026%252F"
+			}
+		],
+		"reportTotal": {
+			"nb_visits": 118,
+			"nb_hits": 145,
+			"sum_time_spent": 1691,
+			"sum_time_network": 59.236999999999995,
+			"nb_hits_with_time_network": 141,
+			"min_time_network": "0.0000",
+			"max_time_network": "4.3180",
+			"sum_time_server": 33.061,
+			"nb_hits_with_time_server": 140,
+			"min_time_server": "0.0000",
+			"max_time_server": "0.7310",
+			"sum_time_transfer": 4.1979999999999995,
+			"nb_hits_with_time_transfer": 139,
+			"min_time_transfer": "0.0000",
+			"max_time_transfer": "0.5850",
+			"sum_time_dom_processing": 29.903999999999996,
+			"nb_hits_with_time_dom_processing": 139,
+			"min_time_dom_processing": "0.0000",
+			"max_time_dom_processing": "1.4940",
+			"sum_time_dom_completion": 96.40500000000002,
+			"nb_hits_with_time_dom_completion": 50,
+			"min_time_dom_completion": "0.0010",
+			"max_time_dom_completion": "5.5420",
+			"sum_time_on_load": 0.039,
+			"nb_hits_with_time_on_load": 50,
+			"min_time_on_load": "0.0000",
+			"max_time_on_load": "0.0110",
+			"entry_nb_visits": 108,
+			"entry_nb_actions": 147,
+			"entry_sum_visit_length": 1613,
+			"entry_bounce_count": 86,
+			"exit_nb_visits": 107,
+			"sum_daily_nb_uniq_visitors": 111,
+			"sum_daily_entry_nb_uniq_visitors": 102,
+			"sum_daily_exit_nb_uniq_visitors": 103,
+			"goals": {
+				"idgoal=1": {
+					"nb_conversions": 14,
+					"revenue": 0,
+					"nb_conv_pages_before": 28,
+					"nb_conversions_attrib": 8,
+					"nb_conversions_page_uniq": 14,
+					"revenue_attrib": 0,
+					"revenue_entry": 0,
+					"revenue_per_entry": 0,
+					"nb_conversions_entry": 8,
+					"nb_conversions_page_rate": 1.75,
+					"nb_conversions_entry_rate": 7
+				},
+				"idgoal=2": {
+					"nb_conversions": 13,
+					"revenue": 0,
+					"nb_conv_pages_before": 14,
+					"nb_conversions_attrib": 10.9999,
+					"nb_conversions_page_uniq": 13,
+					"revenue_attrib": 0,
+					"revenue_entry": 0,
+					"revenue_per_entry": 0,
+					"nb_conversions_entry": 11,
+					"nb_conversions_page_rate": 1.182,
+					"nb_conversions_entry_rate": 9
+				}
+			}
+		},
+		"timerMillis": "82"
+	}
+]

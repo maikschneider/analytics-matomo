@@ -42,6 +42,17 @@ final readonly class DemoData
         'VisitorInterest.getNumberOfVisitsByVisitCount' => ['Visits by visit number', 'Visits by visit number', 'share', ['1 visit' => 72, '2 visits' => 12, '3 visits' => 6, '4 visits' => 3, '5 visits' => 2, '6–7 visits' => 2, '8–10 visits' => 1, '11–14 visits' => 1, '15–25 visits' => 1]],
         'VisitorInterest.getNumberOfVisitsByDaysSinceLast' => ['Visits by days since last visit', 'Days since last visit', 'share', ['New visits' => 72, '0 days' => 9, '1 day' => 5, '2 days' => 3, '3 days' => 2, '4 days' => 2, '5–7 days' => 2, '8–14 days' => 2, '15–30 days' => 2, '31–60 days' => 1]],
     ];
+    /** URL reports: name, dimension and columns */
+    private const URL_REPORTS = [
+        'Actions.getPageUrls' => ['Page URLs', 'Page URL', ['nb_hits' => 'Page views', 'bounce_rate' => 'Bounce rate', 'avg_time_on_page' => 'Average time on page']],
+        'Actions.getEntryPageUrls' => ['Entry pages', 'Entry Page URL', ['entry_nb_visits' => 'Entrances', 'entry_bounce_count' => 'Bounces', 'bounce_rate' => 'Bounce Rate']],
+        'Actions.getExitPageUrls' => ['Exit pages', 'Exit Page URL', ['exit_nb_visits' => 'Exits', 'nb_hits' => 'Pageviews', 'exit_rate' => 'Exit rate']],
+    ];
+    private const TIMINGS = [
+        'avg_time_network' => 'Avg. network time', 'avg_time_server' => 'Avg. server time', 'avg_time_transfer' => 'Avg. transfer time',
+        'avg_time_dom_processing' => 'Avg. DOM processing time', 'avg_time_dom_completion' => 'Avg. DOM completion time',
+        'avg_time_on_load' => 'Avg. on load time', 'avg_page_load_time' => 'Avg. page load time',
+    ];
     /** Metric sets of the processed reports: column => [name, Matomo metric type] */
     private const METRICS = [
         'visits' => ['nb_visits' => ['Visits', 'number'], 'nb_actions' => ['Actions', 'number'], 'nb_actions_per_visit' => ['Actions per Visit', 'number'], 'avg_time_on_site' => ['Avg. Time on Website', 'duration_s'], 'bounce_rate' => ['Bounce Rate', 'percent']],
@@ -69,7 +80,7 @@ final readonly class DemoData
     public function results(array $requests, MatomoConfiguration $configuration): array
     {
         $pageUrls = [];
-        if (in_array('Actions.getPageUrls', array_column($requests, 'method'), true) || in_array('getPageUrls', array_column($requests, 'apiAction'), true)) {
+        if (in_array('Actions.getPageUrls', array_column($requests, 'method'), true) || array_intersect(['getPageUrls', 'getEntryPageUrls', 'getExitPageUrls', 'getPageTitles'], array_column($requests, 'apiAction')) !== []) {
             $pageUrls = $this->pageUrls?->get($configuration->idSite) ?? [];
             if ($pageUrls === []) {
                 $pageUrls = array_map(static fn (string $path): string => rtrim($configuration->url, '/') . '/' . $path, self::FALLBACK_PATHS);
@@ -142,8 +153,18 @@ final readonly class DemoData
     private function processedReport(array $request, string $site, array $dates, array $pageUrls): array
     {
         $method = (string)($request['apiModule'] ?? '') . '.' . (string)($request['apiAction'] ?? '');
-        if ($method === 'Actions.getPageUrls') {
-            return $this->urlReport($site, $dates, $pageUrls);
+        if (isset(self::URL_REPORTS[$method])) {
+            return $this->urlReport($method, $site, $dates, $pageUrls);
+        }
+        if ($method === 'Actions.getPageTitles') {
+            return $this->titleReport($site, $dates, $pageUrls);
+        }
+        if ($method === 'PagePerformance.get') {
+            $timings = $this->timings($site);
+            return [
+                'metadata' => ['name' => 'Performance overview', 'metricTypes' => array_fill_keys(array_keys(self::TIMINGS), 'duration_s')],
+                'columns' => self::TIMINGS, 'reportData' => $timings, 'reportMetadata' => [], 'reportTotal' => [],
+            ];
         }
         [$name, $dimension, $set] = self::REPORTS[$method] ?? throw new MatomoApiException('The demo data have no answer for ' . $method, 1793960302);
         $total = $this->sum($dates, fn (string $date): int => $this->visits($site, $date));
@@ -174,25 +195,71 @@ final readonly class DemoData
      * @param list<string> $pageUrls
      * @return array<string, mixed>
      */
-    private function urlReport(string $site, array $dates, array $pageUrls): array
+    private function urlReport(string $method, string $site, array $dates, array $pageUrls): array
     {
+        [$name, $dimension, $columns] = self::URL_REPORTS[$method];
         $rows = $this->pageUrls($site, $pageUrls, $dates, -1);
         $metadata = [];
         foreach ($rows as &$row) {
             $metadata[] = ['url' => $row['url']];
+            $hits = (int)$row['nb_hits'];
+            $entries = intdiv($hits * $this->between('entry' . $row['url'], 20, 70), 100);
+            $row += [
+                'entry_nb_visits' => $entries,
+                'entry_bounce_count' => intdiv($entries * (int)round((float)$row['bounce_rate'] * 100), 100),
+                'exit_nb_visits' => intdiv($hits * (int)round((float)$row['exit_rate'] * 100), 100),
+                'nb_hits_with_time_network' => intdiv($hits * $this->between('measured' . $row['url'], 50, 95), 100),
+            ] + $this->timings((string)$row['url']);
             unset($row['url']);
         }
         unset($row);
         return [
             'metadata' => [
-                'name' => 'Page URLs',
-                'metricTypes' => ['nb_hits' => 'number', 'bounce_rate' => 'percent', 'avg_time_on_page' => 'duration_s'],
+                'name' => $name,
+                'metricTypes' => ['nb_hits' => 'number', 'entry_nb_visits' => 'number', 'entry_bounce_count' => 'number', 'exit_nb_visits' => 'number', 'bounce_rate' => 'percent', 'exit_rate' => 'percent', 'avg_time_on_page' => 'duration_s'],
                 'metricsDocumentation' => ['nb_hits' => 'Number of page views.'],
             ],
-            'columns' => ['label' => 'Page URL', 'nb_hits' => 'Page views', 'bounce_rate' => 'Bounce rate', 'avg_time_on_page' => 'Average time on page'],
+            'columns' => ['label' => $dimension] + $columns,
             'reportData' => $rows, 'reportMetadata' => $metadata,
             'reportTotal' => ['nb_hits' => array_sum(array_column($rows, 'nb_hits'))],
         ];
+    }
+
+    /**
+     * @param list<string> $dates
+     * @param list<string> $pageUrls
+     * @return array<string, mixed>
+     */
+    private function titleReport(string $site, array $dates, array $pageUrls): array
+    {
+        $rows = [];
+        foreach ($this->pageUrls($site, $pageUrls, $dates, -1) as $row) {
+            $path = trim((string)$row['label'], '/');
+            $title = $path === '' ? 'Home' : ucwords(str_replace(['-', '/'], [' ', ' › '], $path));
+            $rows[] = ['label' => $title . ' – ' . (string)parse_url($site, PHP_URL_HOST), 'nb_hits' => $row['nb_hits'], 'bounce_rate' => $row['bounce_rate'], 'avg_time_on_page' => $row['avg_time_on_page'], 'exit_rate' => $row['exit_rate']];
+        }
+        return [
+            'metadata' => ['name' => 'Page titles', 'metricTypes' => ['nb_hits' => 'number', 'bounce_rate' => 'percent', 'avg_time_on_page' => 'duration_s', 'exit_rate' => 'percent']],
+            'columns' => ['label' => 'Page Title', 'nb_hits' => 'Pageviews', 'avg_time_on_page' => 'Avg. time on page', 'bounce_rate' => 'Bounce Rate', 'exit_rate' => 'Exit rate'],
+            'reportData' => $rows, 'reportMetadata' => array_fill(0, count($rows), []),
+            'reportTotal' => ['nb_hits' => array_sum(array_column($rows, 'nb_hits'))],
+        ];
+    }
+
+    /**
+     * @return array<string, float> average timings in seconds
+     */
+    private function timings(string $seed): array
+    {
+        $timings = [
+            'avg_time_network' => $this->between('network' . $seed, 0, 40) / 100,
+            'avg_time_server' => $this->between('server' . $seed, 10, 120) / 100,
+            'avg_time_transfer' => $this->between('transfer' . $seed, 1, 20) / 100,
+            'avg_time_dom_processing' => $this->between('domProcessing' . $seed, 10, 80) / 100,
+            'avg_time_dom_completion' => $this->between('domCompletion' . $seed, 20, 150) / 100,
+            'avg_time_on_load' => $this->between('onLoad' . $seed, 0, 5) / 100,
+        ];
+        return $timings + ['avg_page_load_time' => round(array_sum($timings), 2)];
     }
 
     /**

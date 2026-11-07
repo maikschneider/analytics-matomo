@@ -149,7 +149,15 @@ final readonly class ReportModuleController
                 $baseUrl = (string)$this->uriBuilder->buildUriFromRoute($route, ['id' => $pageId, 'report' => $report]);
                 $definitions = $this->catalog->getReports($section, $report);
                 foreach ($reports as $index => $data) {
-                    $variables['tables'][] = $this->tableFactory->create($data['current'], $data['previous'], $parameters, $baseUrl, ($definitions[$index]['rows'] ?? '') === 'url' ? $selection->site : null, (int)$moduleData->get('language'), $pageId);
+                    $definition = $definitions[$index];
+                    $options = array_intersect_key($definition, ['minimum' => true, 'sort' => true]);
+                    if (isset($definition['title'])) {
+                        $options['title'] = $this->label($definition['title']);
+                    }
+                    foreach ($definition['columns'] ?? [] as $key => [$label, $type]) {
+                        $options['columns'][$key] = [$this->label($label), $type];
+                    }
+                    $variables['tables'][] = $this->tableFactory->create($data['current'], $data['previous'], $parameters, $baseUrl, ($definition['rows'] ?? '') === 'url' ? $selection->site : null, (int)$moduleData->get('language'), $pageId, $options);
                 }
                 if ($reports === []) {
                     $variables['emptyMessage'] = $this->label('report.placeholder');

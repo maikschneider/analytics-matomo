@@ -36,7 +36,9 @@ Every other report page shows one or more Matomo reports as tables:
     per visit, visit number, days since the last visit)
 
 :guilabel:`Behaviour`
-    Pages
+    Pages, Entry pages, Exit pages, Page titles and Performance (average
+    timings of Matomo's page performance tracking and the slowest pages; pages
+    with fewer than five measured page views are left out)
 
 :guilabel:`Acquisition`
     All channels

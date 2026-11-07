@@ -417,6 +417,75 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function behaviourReportPagesRenderRecordedReports(): void
+    {
+        $pages = [
+            'entryPages' => ['<h2>Entry pages</h2>', '>Entrances</a>'],
+            'exitPages' => ['<h2>Exit pages</h2>', '>Exits</a>'],
+            'pageTitles' => ['<h2>Page titles</h2>', '<td>Virtual Drums: A 3D drum set!</td>'],
+            'performance' => ['<h2>Performance overview</h2>', '<td>Avg. page load time</td>', '<td>1.56 s</td>', '<h2>Slowest pages</h2>', '>Measured page views</a>'],
+        ];
+        foreach ($pages as $report => $snippets) {
+            $this->fixture = 'ProcessedBehaviour' . ucfirst($report);
+            $html = (string)$this->render(1, ['site' => 'main', 'report' => $report], 'behaviour')->getBody();
+            foreach ($snippets as $snippet) {
+                self::assertStringContainsString($snippet, $html, $report);
+            }
+        }
+        self::assertStringNotContainsString('Web Vitals', $html);
+        parse_str((string)$this->sentRequests[3]->getBody(), $body);
+        self::assertIsArray($body['urls']);
+        parse_str($body['urls'][1], $slowest);
+        self::assertSame(['getPageUrls', '1', '1'], [$slowest['apiAction'], $slowest['flat'], $slowest['showRawMetrics']]);
+    }
+
+    #[Test]
+    public function entryAndExitPagesFilterUrlsBySiteLanguageAndSubtree(): void
+    {
+        $this->fixture = 'SyntheticProcessedPages';
+        $this->get(ConnectionPool::class)->getConnectionForTable('pages')->insert('pages', ['uid' => 8, 'pid' => 2, 'title' => 'Child', 'slug' => '/about/child', 'perms_everybody' => 1]);
+        foreach (['entryPages', 'exitPages'] as $report) {
+            $german = $this->tableHtml(1, ['id' => '1', 'language' => '1', 'report' => $report]);
+            self::assertStringContainsString('main-german', $german, $report);
+            self::assertStringNotContainsString('main-about', $german, $report);
+            self::assertStringNotContainsString('shop-german', $german, $report);
+            $subtree = $this->tableHtml(1, ['id' => '2', 'language' => '-1', 'report' => $report]);
+            self::assertStringContainsString('child-page', $subtree, $report);
+            self::assertStringNotContainsString('hidden-page', $subtree, $report);
+            $shop = $this->tableHtml(1, ['id' => '10', 'language' => '1', 'report' => $report]);
+            self::assertStringContainsString('shop-german', $shop, $report);
+            self::assertStringNotContainsString('main-german', $shop, $report);
+        }
+        $actions = [];
+        foreach ($this->sentRequests as $request) {
+            parse_str((string)$request->getBody(), $body);
+            self::assertIsArray($body['urls']);
+            parse_str($body['urls'][0], $subRequest);
+            self::assertIsString($subRequest['apiAction']);
+            $actions[$subRequest['apiAction']] = $subRequest['flat'];
+        }
+        self::assertSame(['getEntryPageUrls' => '1', 'getExitPageUrls' => '1'], $actions);
+    }
+
+    #[Test]
+    public function slowestPagesNeedEnoughSamplesAndRespectSiteAndLanguage(): void
+    {
+        $this->fixture = 'SyntheticProcessedPerformance';
+        $this->get(ConnectionPool::class)->getConnectionForTable('pages')->insert('pages', ['uid' => 8, 'pid' => 2, 'title' => 'Child', 'slug' => '/about/child', 'perms_everybody' => 1]);
+        $main = $this->tableHtml(1, ['id' => '1', 'report' => 'performance']);
+        $slowest = substr($main, (int)strpos($main, '<h2>Slowest pages</h2>'));
+        self::assertLessThan((int)strpos($slowest, 'main-about'), (int)strpos($slowest, 'main-german'));
+        self::assertStringContainsString('<td>3.40 s</td>', $slowest);
+        self::assertStringNotContainsString('child-page', $slowest);
+        self::assertStringNotContainsString('shop-german', $slowest);
+        $german = $this->tableHtml(1, ['id' => '1', 'language' => '1', 'report' => 'performance']);
+        self::assertStringNotContainsString('main-about', $german);
+        self::assertStringContainsString('main-german', $german);
+        $shop = $this->tableHtml(1, ['id' => '10', 'report' => 'performance']);
+        self::assertStringContainsString('shop-german', $shop);
+    }
+
+    #[Test]
     public function reportsWithoutDimensionRenderAsMetricList(): void
     {
         $this->fixture = 'ProcessedVisitorsEngagement';

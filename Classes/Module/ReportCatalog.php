@@ -4,7 +4,12 @@ declare(strict_types=1);
 
 namespace MaikSchneider\AnalyticsMatomo\Module;
 
-/** @phpstan-type Definition array{module: string, action: string, params?: array<string, int|string>, rows?: string} */
+/**
+ * Report pages per section. A report may have its own title and columns (label keys of locallang_mod.xlf),
+ * hide rows below a minimum and set a default sort column.
+ *
+ * @phpstan-type Definition array{module: string, action: string, params?: array<string, int|string>, rows?: string, title?: string, columns?: array<string, array{string, string}>, minimum?: array{string, int}, sort?: string}
+ */
 final readonly class ReportCatalog
 {
     private const PAGES = [
@@ -42,6 +47,30 @@ final readonly class ReportCatalog
         ],
         'behaviour' => [
             'pages' => ['reports' => [['module' => 'Actions', 'action' => 'getPageUrls', 'params' => ['flat' => 1], 'rows' => 'url']]],
+            'entryPages' => ['reports' => [['module' => 'Actions', 'action' => 'getEntryPageUrls', 'params' => ['flat' => 1], 'rows' => 'url']]],
+            'exitPages' => ['reports' => [['module' => 'Actions', 'action' => 'getExitPageUrls', 'params' => ['flat' => 1], 'rows' => 'url']]],
+            'pageTitles' => ['reports' => [['module' => 'Actions', 'action' => 'getPageTitles', 'params' => ['flat' => 1]]]],
+            'performance' => ['reports' => [
+                ['module' => 'PagePerformance', 'action' => 'get'],
+                [
+                    'module' => 'Actions', 'action' => 'getPageUrls', 'params' => ['flat' => 1, 'showRawMetrics' => 1], 'rows' => 'url',
+                    'title' => 'report.slowestPages',
+                    // Timing columns are raw metrics of the pages report
+                    'columns' => [
+                        'nb_hits' => ['column.nb_hits', 'number'],
+                        'avg_page_load_time' => ['column.avg_page_load_time', 'duration_s'],
+                        'avg_time_network' => ['column.avg_time_network', 'duration_s'],
+                        'avg_time_server' => ['column.avg_time_server', 'duration_s'],
+                        'avg_time_transfer' => ['column.avg_time_transfer', 'duration_s'],
+                        'avg_time_dom_processing' => ['column.avg_time_dom_processing', 'duration_s'],
+                        'avg_time_dom_completion' => ['column.avg_time_dom_completion', 'duration_s'],
+                        'avg_time_on_load' => ['column.avg_time_on_load', 'duration_s'],
+                        'nb_hits_with_time_network' => ['column.nb_hits_with_time_network', 'number'],
+                    ],
+                    'minimum' => ['nb_hits_with_time_network', 5],
+                    'sort' => 'avg_page_load_time',
+                ],
+            ]],
         ],
         'acquisition' => [
             'channels' => ['reports' => [['module' => 'Referrers', 'action' => 'getReferrerType']]],

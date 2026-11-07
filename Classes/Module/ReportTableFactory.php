@@ -31,14 +31,24 @@ final readonly class ReportTableFactory
      * @param Report $report
      * @param Report|null $previous
      * @param array<string, mixed> $query
+     * @param array{title?: string, columns?: array<string, array{string, string}>, minimum?: array{string, int}, sort?: string} $options
+     *        catalog options: own title, own columns (name and metric type, e.g. raw metrics), minimum value of a column, default sort column
      * @return array<string, mixed>
      */
-    public function create(array $report, ?array $previous, array $query, string $baseUrl, ?Site $site = null, int $languageId = -1, int $selectedPageId = 0): array
+    public function create(array $report, ?array $previous, array $query, string $baseUrl, ?Site $site = null, int $languageId = -1, int $selectedPageId = 0, array $options = []): array
     {
         if (!isset($report['columns']['label'])) {
             return $this->createMetricList($report, $previous);
         }
+        if (isset($options['columns'])) {
+            $report['columns'] = ['label' => $report['columns']['label']] + array_map(static fn (array $column): string => $column[0], $options['columns']);
+            $report['metadata']['metricTypes'] = array_map(static fn (array $column): string => $column[1], $options['columns']) + (array)($report['metadata']['metricTypes'] ?? []);
+        }
         $rows = $this->rows($report);
+        if (isset($options['minimum'])) {
+            [$column, $minimum] = $options['minimum'];
+            $rows = array_values(array_filter($rows, static fn (array $row): bool => PageUrlMapper::isSummaryRow($row) || (float)($row[$column] ?? 0) >= $minimum));
+        }
         $truncated = false;
         if ($site !== null) {
             $mapped = $this->mapper->mapReport($site, $rows);
@@ -83,7 +93,7 @@ final readonly class ReportTableFactory
         if ($search !== '') {
             $rows = array_values(array_filter($rows, static fn (array $row): bool => mb_stripos((string)($row['label'] ?? ''), $search) !== false));
         }
-        $sort = (string)($query['sort'] ?? '');
+        $sort = (string)($query['sort'] ?? '') !== '' ? (string)$query['sort'] : ($options['sort'] ?? '');
         $direction = ($query['dir'] ?? '') === 'asc' ? 'asc' : 'desc';
         if (isset($report['columns'][$sort])) {
             usort($rows, static function (array $a, array $b) use ($sort, $direction): int {
@@ -115,7 +125,7 @@ final readonly class ReportTableFactory
         parse_str((string)parse_url($baseUrl, PHP_URL_QUERY), $searchParameters);
         return [
             'searchParameters' => $searchParameters, 'truncated' => $truncated, 'urlRows' => $site !== null,
-            'title' => (string)($report['metadata']['name'] ?? ''), 'columns' => $columns, 'rows' => $renderedRows,
+            'title' => $options['title'] ?? (string)($report['metadata']['name'] ?? ''), 'columns' => $columns, 'rows' => $renderedRows,
             'compare' => $previous !== null, 'total' => $total, 'page' => $page, 'pages' => $pages, 'query' => $search,
             'searchUrl' => $baseUrl, 'sort' => $sort, 'direction' => $direction,
             'previousUrl' => $page > 1 ? $link(['page' => $page - 1]) : '', 'nextUrl' => $page < $pages ? $link(['page' => $page + 1]) : '',
