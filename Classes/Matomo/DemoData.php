@@ -14,6 +14,11 @@ use MaikSchneider\AnalyticsMatomo\Configuration\MatomoConfiguration;
  */
 final readonly class DemoData
 {
+    public const VERSION = '5.4.0';
+    private const STATUS_METHODS = [
+        'API.getMatomoVersion', 'SitesManager.getSiteFromId', 'SitesManager.getSiteUrlsFromId', 'Live.getLastVisitsDetails',
+        'SitesManager.getSitesIdWithAdminAccess', 'SitesManager.getSitesIdWithAtLeastViewAccess', 'UsersManager.getSitesAccessFromUser',
+    ];
     private const FALLBACK_PATHS = ['', 'about', 'products', 'news', 'contact', 'jobs', 'blog', 'imprint'];
     /**
      * Processed reports: name, dimension (empty for reports without one), metric set and the labels
@@ -127,7 +132,27 @@ final readonly class DemoData
         }
         // A segment is the same site with its own seed and a smaller share of the traffic
         $site = $configuration->url . ($configuration->segment === '' ? '' : '#' . $configuration->segment);
-        return array_map(fn (array $request): mixed => $this->result($request, $site, $pageUrls), $requests);
+        return array_map(fn (array $request): mixed => in_array($request['method'] ?? '', self::STATUS_METHODS, true) ? $this->status((string)$request['method'], $configuration) : $this->result($request, $site, $pageUrls), $requests);
+    }
+
+    /**
+     * Answers of the connection check: a healthy site with a view-only token
+     */
+    private function status(string $method, MatomoConfiguration $configuration): mixed
+    {
+        return match ($method) {
+            'API.getMatomoVersion' => ['value' => self::VERSION],
+            'SitesManager.getSiteFromId' => [
+                'idsite' => $configuration->idSite, 'main_url' => $configuration->url, 'ts_created' => '2024-01-15 09:00:00',
+                'timezone' => 'Europe/Berlin', 'exclude_unknown_urls' => 1, 'sitesearch' => 1,
+            ],
+            'SitesManager.getSiteUrlsFromId' => [$configuration->url],
+            'Live.getLastVisitsDetails' => [['lastActionTimestamp' => time() - 420]],
+            'SitesManager.getSitesIdWithAdminAccess' => [],
+            'SitesManager.getSitesIdWithAtLeastViewAccess' => [$configuration->idSite],
+            'UsersManager.getSitesAccessFromUser' => ['result' => 'error', 'message' => "You can't access this resource as it requires a 'superuser' access."],
+            default => throw new MatomoApiException('The demo data have no answer for ' . $method, 1793960302),
+        };
     }
 
     /**

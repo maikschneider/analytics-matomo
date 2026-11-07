@@ -1,0 +1,68 @@
+{
+	"API.getMatomoVersion": {
+		"value": "6.0.0-rc1"
+	},
+	"SitesManager.getSiteFromId": {
+		"idsite": 3,
+		"name": "virtual-drums.com",
+		"description": "",
+		"main_url": "http://www.virtual-drums.com",
+		"ts_created": "2008-01-27 01:41:53",
+		"timezone": "America/New_York",
+		"currency": "USD",
+		"exclude_unknown_urls": 1,
+		"excluded_ips": "",
+		"excluded_parameters": "",
+		"excluded_user_agents": "",
+		"excluded_referrers": "",
+		"sitesearch": 1,
+		"sitesearch_keyword_parameters": "",
+		"sitesearch_category_parameters": "",
+		"group": "",
+		"type": "website",
+		"keep_url_fragment": 0,
+		"ecommerce": 0,
+		"timezone_name": "United States - New York",
+		"currency_name": "US Dollar"
+	},
+	"SitesManager.getSiteUrlsFromId": [
+		"http://www.virtual-drums.com"
+	],
+	"Live.getLastVisitsDetails": [
+		{
+			"lastActionTimestamp": 1794050780,
+			"serverTimestamp": 1794050780
+		}
+	],
+	"SitesManager.getSitesIdWithAdminAccess": [],
+	"SitesManager.getSitesIdWithAtLeastViewAccess": [
+		3,
+		33,
+		44
+	],
+	"UsersManager.getSitesAccessFromUser": {
+		"result": "error",
+		"message": "You can't access this resource as it requires a 'superuser' access."
+	},
+	"Live.getCounters": [
+		{
+			"visits": 2,
+			"actions": 2,
+			"visitors": 2,
+			"visitsConverted": 0
+		}
+	],
+	"VisitsSummary.get": {
+		"nb_uniq_visitors": 1,
+		"nb_users": 0,
+		"nb_visits": 1,
+		"nb_actions": 1,
+		"nb_visits_converted": 0,
+		"bounce_count": 1,
+		"sum_visit_length": 0,
+		"max_actions": 1,
+		"bounce_rate": 1,
+		"nb_actions_per_visit": 1,
+		"avg_time_on_site": 0
+	}
+}

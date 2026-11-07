@@ -38,6 +38,14 @@ Site settings
     the repository with an environment variable. The token is sent in the body
     of a POST request, never in the URL. Empty: anonymous access.
 
+    To create one, add a Matomo user with view access to this site only, log in
+    as that user and create a token in the :guilabel:`Auth tokens` section of
+    the personal security settings. Tick :guilabel:`Only allow secure requests`,
+    so Matomo accepts the token in POST requests only, as Matomo recommends.
+    View access still lets a token create annotations; this extension never
+    writes to Matomo, but a leaked token could. The :ref:`connection status
+    <connection-status>` warns about tokens with admin or superuser access.
+
 ..  confval:: analyticsMatomo.demoData
     :type: bool
     :default: false
@@ -55,6 +63,41 @@ Site settings
     Reading speed for the estimated reading time in :ref:`page details
     <page-details>`. 220 words per minute is a common value for adults reading
     on screen; lower it for difficult texts or a younger audience.
+
+..  confval:: analyticsMatomo.statusMaxHoursWithoutVisits
+    :type: int
+    :default: 24
+
+    The :ref:`connection status <connection-status>` warns when Matomo has
+    tracked no visit for this many hours. Raise it for sites with little
+    traffic; `0` turns the warning off.
+
+..  _connection-status:
+
+Connection status
+=================
+
+With EXT:reports installed, :guilabel:`Reports > Status Report` has a section
+:guilabel:`Matomo Analytics` with one status per site. It runs with the view
+access of the site's token and shows:
+
+*   whether the site is configured, Matomo is reachable, its version, and
+    whether the token may view the site ID (error)
+*   tokens of a superuser (error), with admin access (warning) or with view
+    access to Matomo sites no TYPO3 site uses with that token (notice)
+*   site languages whose base URL Matomo drops, because the Matomo site only
+    tracks its own URLs (:guilabel:`Only track visits and actions when the
+    action URL starts with one of the above URLs`) and the language's host or
+    path is not among them (warning)
+*   no visit tracked yet, or none for
+    :confval:`analyticsMatomo.statusMaxHoursWithoutVisits` hours (warning)
+*   site search turned off in Matomo, tracking younger than 90 days, and fewer
+    visits of today in the reports than in the raw log (info). The last one is a
+    heuristic for lagging archiving; the exact archiving state needs a
+    superuser token.
+
+Matomo's answers are cached for ten minutes. The token is never shown. Demo
+sites run the same checks against the demo data.
 
 Reuse of other Matomo extensions
 ================================

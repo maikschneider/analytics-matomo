@@ -42,6 +42,7 @@
 		"symfony/translation": "^7.2",
 		"symfony/yaml": "^7.2",
 		"typo3/cms-install": "^13.4 || ^14.3",
+		"typo3/cms-reports": "^13.4 || ^14.3",
 		"typo3/testing-framework": "^9.5"
 	},
 	"autoload": {

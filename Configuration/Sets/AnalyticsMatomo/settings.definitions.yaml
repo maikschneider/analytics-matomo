@@ -33,3 +33,9 @@ settings:
     category: analyticsMatomo
     type: int
     default: 220
+  analyticsMatomo.statusMaxHoursWithoutVisits:
+    label: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:settings.statusMaxHoursWithoutVisits'
+    description: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:settings.statusMaxHoursWithoutVisits.description'
+    category: analyticsMatomo
+    type: int
+    default: 24

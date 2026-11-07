@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Connection status per site in the Reports module (EXT:reports, optional): reachability, Matomo version, view access to the site ID, site languages Matomo drops with "exclude unknown URLs", stalled tracking (setting `analyticsMatomo.statusMaxHoursWithoutVisits`), site search off, young tracking and an archive-lag heuristic. Warns about tokens with superuser, admin or extra site access. Answers cached for ten minutes.
 - All sites in Visitors and as a dashboard widget: visits, page views, bounce rate and visit duration of every site the user may see, with comparison. One bulk request per Matomo URL and token, each site with its own token; a site without view access or an unreachable Matomo leaves the other sites. A row opens the site in the module.
 - Stored Matomo segments as a module filter: pre-processed segments visible to the token, kept per site, part of the cache key; empty state without archived segment data. Demo sites offer two segments.
 - CSV export of every module table: the rows the user may see (page access, page tree, language and search), translated headers and raw numbers, built from the cached report. Formula-like text cells are neutralised.

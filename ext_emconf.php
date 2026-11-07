@@ -16,6 +16,8 @@ $EM_CONF[$_EXTKEY] = [
             'dashboard' => '13.4.0-14.99.99',
         ],
         'conflicts' => [],
-        'suggests' => [],
+        'suggests' => [
+            'reports' => '13.4.0-14.99.99',
+        ],
     ],
 ];

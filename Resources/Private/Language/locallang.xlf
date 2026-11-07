@@ -230,6 +230,23 @@
 			<trans-unit id="metric.revenue" resname="metric.revenue"><source>Revenue</source></trans-unit>
 			<trans-unit id="settings.wordsPerMinute" resname="settings.wordsPerMinute"><source>Reading speed (words per minute)</source></trans-unit>
 			<trans-unit id="settings.wordsPerMinute.description" resname="settings.wordsPerMinute.description"><source>Used to estimate the reading time of a page in the page details of the Matomo Analytics module.</source></trans-unit>
+			<trans-unit id="settings.statusMaxHoursWithoutVisits" resname="settings.statusMaxHoursWithoutVisits"><source>Hours without visits before a warning</source></trans-unit>
+			<trans-unit id="settings.statusMaxHoursWithoutVisits.description" resname="settings.statusMaxHoursWithoutVisits.description"><source>The Reports module warns when Matomo has tracked no visit for this many hours. Raise it for sites with little traffic; 0 turns the warning off.</source></trans-unit>
+			<trans-unit id="status.notConfigured" resname="status.notConfigured"><source>Not configured</source></trans-unit>
+			<trans-unit id="status.unreachable" resname="status.unreachable"><source>Not reachable</source></trans-unit>
+			<trans-unit id="status.version" resname="status.version"><source>Matomo %s</source></trans-unit>
+			<trans-unit id="status.healthy" resname="status.healthy"><source>Reachable, and the token may view Matomo site %d.</source></trans-unit>
+			<trans-unit id="status.connection" resname="status.connection"><source>Matomo is not reachable or rejects the token: %s</source></trans-unit>
+			<trans-unit id="status.siteAccess" resname="status.siteAccess"><source>The token may not view Matomo site %d: %s</source></trans-unit>
+			<trans-unit id="status.superuser" resname="status.superuser"><source>The token belongs to a Matomo superuser. Create a token of a user with view access only: a leaked superuser token can change all of Matomo.</source></trans-unit>
+			<trans-unit id="status.adminAccess" resname="status.adminAccess"><source>The token has admin access to the Matomo sites %s. View access is enough; a leaked admin token can change these sites.</source></trans-unit>
+			<trans-unit id="status.extraSites" resname="status.extraSites"><source>The token may also view the Matomo sites %s, which no TYPO3 site uses with it. A token per site with view access to that site only limits a leak.</source></trans-unit>
+			<trans-unit id="status.unknownUrls" resname="status.unknownUrls"><source>Matomo drops the visits of %s: the Matomo site only tracks its own URLs, and these site languages are not among them.</source></trans-unit>
+			<trans-unit id="status.stalled" resname="status.stalled"><source>The last visit was tracked %d hours ago. Is the tracking code still on the site?</source></trans-unit>
+			<trans-unit id="status.noVisits" resname="status.noVisits"><source>No visit has been tracked yet.</source></trans-unit>
+			<trans-unit id="status.siteSearch" resname="status.siteSearch"><source>Site search is off in Matomo, so the site search reports stay empty.</source></trans-unit>
+			<trans-unit id="status.young" resname="status.young"><source>Matomo tracks this site since %s; trends and comparisons need about %d days of data.</source></trans-unit>
+			<trans-unit id="status.archiveLag" resname="status.archiveLag"><source>Heuristic: the reports show %d visits today, the raw log %d. Archiving may lag behind; the reports catch up with the next archiving run.</source></trans-unit>
 		</body>
 	</file>
 </xliff>
