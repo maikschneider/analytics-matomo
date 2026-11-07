@@ -1,6 +1,6 @@
 # analytics_matomo — plan
 
-Show Matomo statistics in the TYPO3 backend — a statistics bar for the current page in the Page module and dashboard widgets for whole sites — with the look and feel of [TYPO3GmbH/analytics](https://github.com/TYPO3GmbH/analytics), but with data from your own Matomo.
+Show Matomo statistics in the TYPO3 backend — a "Matomo Analytics" backend module for exploring the core Matomo reports, a statistics bar for the current page in the Page module and a few dashboard widgets — with the look and feel of [TYPO3GmbH/analytics](https://github.com/TYPO3GmbH/analytics), but with data from your own Matomo. The module is designed in [MODULE.md](MODULE.md).
 
 Research behind this plan: TYPO3GmbH/analytics 1.1.1 (`2cd555b`), pagemachine/typo3-matomo-tracking 2.0.0 (`0567f8c`), brotkrueml/typo3-matomo-widgets and matomo_integration, Matomo Reporting API checked live against demo.matomo.org (Matomo 6.0.0-rc1).
 
@@ -20,15 +20,15 @@ t3g/analytics is the backend of a SaaS: it registers the TYPO3 instance, injects
 | Site performance widget | `SitePerformanceWidget(V14)` | `VisitsSummary.get`, `Actions.get` (range, previous, per day) | **done** ([#6](https://github.com/maikschneider/analytics-matomo/issues/6)) |
 | Traffic graph widget | `TrafficGraphWidget(V14)`, Chart.js | `VisitsSummary.get` + `VisitFrequency.get` per day | **done** ([#7](https://github.com/maikschneider/analytics-matomo/issues/7)): visits, visitors, new and returning visits |
 | Top pages widget | `TopPagesWidget(V14)` | `Actions.getPageUrls` (`flat=1`, current + previous) + `Actions.get` for the share | **done** ([#8](https://github.com/maikschneider/analytics-matomo/issues/8)): only URLs of the selected site, linked to the Page module when readable |
-| Traffic sources widget (v13: one widget, v14: section setting channel/devices/browser/countries) | `TrafficSourcesWidget(V14)` | `Referrers.getReferrerType`, `DevicesDetection.getType`, `DevicesDetection.getBrowsers`, `UserCountry.getCountry` | **done** ([#9](https://github.com/maikschneider/analytics-matomo/issues/9)) as four widgets on both versions; labels translated by Matomo (`language`) |
-| Site/period selection in widgets | v13: none per widget, v14: native widget settings | – | **done** as one selection per user (site + period, stored in `uc`), shared by all widgets; native v14 settings: [#12](https://github.com/maikschneider/analytics-matomo/issues/12) |
+| Traffic sources widget (v13: one widget, v14: section setting channel/devices/browser/countries) | `TrafficSourcesWidget(V14)` | `Referrers.getReferrerType`, `DevicesDetection.getType`, `DevicesDetection.getBrowsers`, `UserCountry.getCountry` | **done** ([#9](https://github.com/maikschneider/analytics-matomo/issues/9)) as four widgets on both versions; labels translated by Matomo (`language`). These four move into the module and are removed as widgets ([#40](https://github.com/maikschneider/analytics-matomo/issues/40)) |
+| Site/period selection in widgets | v13: none per widget, v14: native widget settings | – | **done** as one selection per user (site + period, stored in `uc`), shared by all widgets and later the module; native v14 settings dropped ([#12](https://github.com/maikschneider/analytics-matomo/issues/12)) |
 | Multi-site | `AnalyticsSiteProvider`: sites with a website ID | sites with a Matomo connection | **done**: only sites whose root page the user may see; several sites per Matomo site are told apart by URL |
 | Multi-language | page URL per `SiteLanguage` | same | **done**: bar uses the URL of the selected language, top pages show the language flag |
 | Demo data | `DemoAnalyticsDataClient` | generated Reporting API answers | **done** ([#10](https://github.com/maikschneider/analytics-matomo/issues/10)): site setting `analyticsMatomo.demoData` |
-| Backend module (iframe of the SaaS dashboard, registration, status, plans) | `BackendModuleController`, `InstanceRegistrationService`, `PlansService` | Matomo's own UI | **skip**: Matomo has its own UI, every view links to it. Instead a connection status in the Reports module ([#13](https://github.com/maikschneider/analytics-matomo/issues/13)) |
+| Backend module (iframe of the SaaS dashboard, registration, status, plans) | `BackendModuleController`, `InstanceRegistrationService`, `PlansService` | Matomo's core reports | **different**: no iframe, registration or plans, but an own module with the core Matomo reports ([MODULE.md](MODULE.md), [#37](https://github.com/maikschneider/analytics-matomo/issues/37)); connection status in the Reports module ([#13](https://github.com/maikschneider/analytics-matomo/issues/13)) |
 | Tracking code injection | `TrackingCodeMiddleware` | – | **skip**: tracking is the job of matomo_integration / matomo_tracking, which this extension reuses the connection of |
 | Instance secret, HMAC, API keys, encryption wizard | `CipherService`, `HmacSigner`, `ApiKeyService`, upgrade wizard | `token_auth` | **skip**: one view-only token in the site settings (`%env()%`), sent in the POST body only |
-| Manager permission | `tx_analytics:manager` custom option | – | **skip**: no module to manage; view permissions instead (#4) |
+| Manager permission | `tx_analytics:manager` custom option | – | **skip**: nothing to manage; view permissions (#4), module access per section (#17) |
 | Transitions (where from / where to) | – | `Transitions.getTransitionsForAction` | **extra** ([#14](https://github.com/maikschneider/analytics-matomo/issues/14)) |
 
 ## Architecture
@@ -58,6 +58,8 @@ Dashboard
 
 Why a placeholder + AJAX: a slow or unreachable Matomo must never slow down the Page module. TYPO3GmbH/analytics does the same; dashboard widgets are loaded asynchronously by the dashboard itself.
 
+The backend module (milestone 0.3.0 on) is designed in [MODULE.md](MODULE.md#technical-approach): one controller for all sections, a report catalog and one generic table and chart.
+
 | Class | Job |
 |---|---|
 | `Configuration\MatomoConfigurationResolver` | URL, site ID and token of a site (site settings + fallbacks, demo data) |
@@ -77,7 +79,7 @@ No Extbase, no TCA, no database tables of our own (only the cache tables TYPO3 c
 
 ## Matomo API calls per view
 
-Every view is one HTTP request (`API.getBulkRequest`, `format_metrics=0`). No segments: ad-hoc segments are slow or disabled on many Matomo instances (they returned nothing on demo.matomo.org).
+Every view is one HTTP request (`API.getBulkRequest`, `format_metrics=0`). No ad-hoc segments: they are slow or disabled on many Matomo instances (they returned nothing on demo.matomo.org); the module may later offer stored, pre-processed segments (#47). Module calls: [MODULE.md](MODULE.md).
 
 | View | Calls |
 |---|---|
@@ -124,17 +126,20 @@ TYPO3 cache `analytics_matomo` (default `VariableFrontend` + database backend), 
 
 ## Roadmap
 
-All planned features must work with Matomo core (no premium plugins) and a view-only token.
+All planned features must work with Matomo core (no premium plugins) and a view-only token. The backend module ([MODULE.md](MODULE.md)) is the main place for statistics; widgets and the page bar link into it.
 
 | Milestone | Scope |
 |---|---|
 | 0.1 | Statistics bar: config + fallbacks, client, 4 tiles, period select, caching, CI. *Done.* |
 | [0.2.0](https://github.com/maikschneider/analytics-matomo/milestone/1) | Parity with t3g/analytics: strict SCA, permissions, dashboard widgets, demo data, fixtures (#1–#11). *Done.* |
-| [0.3.0](https://github.com/maikschneider/analytics-matomo/milestone/2) | v14 widget settings (#12), health check (#13), Transitions (#14) with outlinks/downloads (#18), per-feature permissions (#17), token check (#19) |
-| [0.4.0](https://github.com/maikschneider/analytics-matomo/milestone/4) | Editor insights: page speed (#20), languages (#21), goals (#22), trending pages (#23), site search (#24), reading time (#25) |
-| [0.5.0](https://github.com/maikschneider/analytics-matomo/milestone/5) | Content workflow: URL-to-page mapper (#26), annotations (#27), page tree badges (#28), content cleanup (#29) |
-| [0.6.0](https://github.com/maikschneider/analytics-matomo/milestone/6) | Admin monitoring: multi-site overview (#30), anomaly alerts (#31), weekly digest (#32) |
+| [0.3.0](https://github.com/maikschneider/analytics-matomo/milestone/2) | Module foundation: module + global controls (#37), report table (#38), evolution chart + Visitors overview (#39), URL-to-page mapper (#26), permissions (#17), hidden-page fix (#36) |
+| [0.4.0](https://github.com/maikschneider/analytics-matomo/milestone/4) | Module reports: Visitors (#41), Behaviour pages (#42) and interactions (#43), Acquisition (#44), site search (#24), widgets as entry points into these reports (#40) |
+| [0.5.0](https://github.com/maikschneider/analytics-matomo/milestone/5) | Page details (#45) with Transitions (#14, #18), languages (#21), page speed (#20), reading time (#25); Goals (#22); trending pages (#23) |
+| [0.6.0](https://github.com/maikschneider/analytics-matomo/milestone/6) | Admin: connection status (#13), token check (#19), multi-site overview (#30), CSV export (#46), stored segments (#47) |
+| [0.7.0](https://github.com/maikschneider/analytics-matomo/milestone/8) | Content workflow and monitoring: annotations (#27), page tree badges (#28), content review (#29), anomaly alerts (#31), weekly digest (#32) |
 | [1.0.0](https://github.com/maikschneider/analytics-matomo/milestone/3) | Real Matomo 5 + 6 with a view token (#15), site-side setup docs (#33), first TER + Packagist release (#16) |
-| [Backlog](https://github.com/maikschneider/analytics-matomo/milestone/7) | 404 → redirect suggestions (#34) |
+| [Backlog](https://github.com/maikschneider/analytics-matomo/milestone/7) | 404 → redirect suggestions (#34), privacy-safe visits log (#48, needs a decision) |
+
+Dropped: native per-widget settings on v14 (#12): widgets and module share one selection per user. Ecommerce reports: see [MODULE.md](MODULE.md#goals).
 
 Not planned, as Matomo core has no built-in report for them or a view token can't read them: consent rate (declined visitors send nothing), scroll depth and media clicks (only custom events without a per-page report; Heatmaps and Media Analytics are premium), exact archiving status (needs a superuser token).
