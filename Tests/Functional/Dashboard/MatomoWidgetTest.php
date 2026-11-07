@@ -191,6 +191,29 @@ final class MatomoWidgetTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function customRangeSurvivesASiteChangeSubmittedFromTheWidget(): void
+    {
+        $resolver = $this->get(DashboardSelectionResolver::class);
+        $resolver->save($this->setUpBackendUser(1), 'trial', 'custom', '2026-09-01', '2026-09-17');
+        $html = $this->render(1, 'analyticsMatomoPerformance', 'SitePerformance');
+        $document = new \DOMDocument();
+        @$document->loadHTML($html);
+        $xpath = new \DOMXPath($document);
+        $fields = ['site' => 'shop', 'period' => 'custom'];
+        foreach ($xpath->query('//form[@data-analytics-matomo-selection]//input[@type="hidden"]') ?: [] as $input) {
+            self::assertInstanceOf(\DOMElement::class, $input);
+            $fields[$input->getAttribute('name')] = $input->getAttribute('value');
+        }
+        $response = $this->get(DashboardSelectionController::class)($this->request()->withParsedBody($fields));
+        self::assertSame(200, $response->getStatusCode());
+        $selection = $resolver->resolve($this->setUpBackendUser(1));
+        self::assertNotNull($selection);
+        self::assertSame('shop', $selection->site->getIdentifier());
+        self::assertSame('custom', $selection->period->preset);
+        self::assertSame('2026-09-01,2026-09-17', $selection->period->toMatomoDate());
+    }
+
+    #[Test]
     public function selectionIsStoredForAllowedSitesOnly(): void
     {
         $GLOBALS['BE_USER'] = $this->setUpBackendUser(5);

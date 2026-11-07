@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MaikSchneider\AnalyticsMatomo\Module;
 
+use MaikSchneider\AnalyticsMatomo\Statistics\PageRecordResolver;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageUrlMapper;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -22,6 +23,7 @@ final readonly class ReportTableFactory
         private MetricFormatter $formatter,
         private PageUrlMapper $mapper,
         private UriBuilder $uriBuilder,
+        private PageRecordResolver $pageRecordResolver,
     ) {
     }
 
@@ -64,7 +66,7 @@ final readonly class ReportTableFactory
                         ['key' => 'details', 'url' => (string)$this->uriBuilder->buildUriFromRoute('analytics_matomo_page', ['id' => $id, 'language' => $language])],
                         ['key' => 'layout', 'url' => (string)$this->uriBuilder->buildUriFromRoute('web_layout', ['id' => $id, 'language' => $language])],
                         ['key' => 'edit', 'url' => (string)$this->uriBuilder->buildUriFromRoute('record_edit', ['edit' => ['pages' => [$id => 'edit']], 'returnUrl' => $baseUrl])],
-                        ['key' => 'view', 'url' => (string)$site->getRouter()->generateUri($id, ['_language' => $match->language])],
+                        ['key' => 'view', 'url' => (string)$site->getRouter()->generateUri($this->pageRecordResolver->resolve($id, $match->language), ['_language' => $match->language])],
                     ];
                 }
                 $rows[] = $row;

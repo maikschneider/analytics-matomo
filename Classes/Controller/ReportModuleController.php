@@ -180,10 +180,10 @@ final readonly class ReportModuleController
         if ($options === []) {
             return;
         }
+        $activeLabel = $options[$active] ?? '';
         $button = GeneralUtility::makeInstance(DropDownButton::class)
-            ->setLabel($this->label('control.' . $parameter))
-            ->setShowLabelText(true)
-            ->setShowActiveLabelText(true);
+            ->setLabel($this->label('control.' . $parameter) . ': ' . (str_starts_with($activeLabel, 'LLL:') ? $this->translate($activeLabel) : $activeLabel))
+            ->setShowLabelText(true);
         foreach ($options as $value => $label) {
             $button->addItem(GeneralUtility::makeInstance(DropDownRadio::class)
                 ->setLabel(str_starts_with($label, 'LLL:') ? $this->translate($label) : $label)

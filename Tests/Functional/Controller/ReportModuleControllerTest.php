@@ -344,6 +344,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     {
         $html = (string)$this->render(1, ['site' => 'trial', 'period' => 'lastMonth'])->getBody();
 
+        self::assertStringContainsString('Period: Last month', $html);
         self::assertStringContainsString('href="#matomo-custom-range"', $html);
         self::assertStringNotContainsString('period=custom', $html);
     }
@@ -445,6 +446,15 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function hiddenPageRowActionsLinkToTheirFrontendSlugs(): void
+    {
+        $this->fixture = 'SyntheticProcessedPages';
+        $html = $this->tableHtml(1, ['site' => 'main']);
+        self::assertStringContainsString('href="https://example.com/summer-sale"', $html);
+        self::assertStringContainsString('href="https://example.com/de/sommerschlussverkauf"', $html);
+    }
+
+    #[Test]
     public function compareAddsPreviousSubRequestAndMatchesRowsByUrl(): void
     {
         $this->fixture = 'SyntheticProcessedPages';
@@ -480,14 +490,16 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     }
 
     #[Test]
-    public function recordedPagesAndChannelsUseTheSameTable(): void
+    public function recordedChannelsRenderTheirMetricValues(): void
     {
-        foreach (['ProcessedPages' => ['behaviour', 'pages', 'Page URL'], 'ProcessedChannels' => ['acquisition', 'channels', 'Channel Type']] as $fixture => [$section, $report, $column]) {
-            $this->fixture = $fixture;
-            $html = (string)$this->render(1, ['site' => 'main', 'report' => $report], $section)->getBody();
-            self::assertTrue(str_contains($html, 'class="table'));
-            self::assertTrue(str_contains($html, $column));
-        }
+        $this->fixture = 'ProcessedChannels';
+        $html = (string)$this->render(1, ['site' => 'main', 'report' => 'channels'], 'acquisition')->getBody();
+        self::assertStringContainsString('class="table', $html);
+        self::assertStringContainsString('Channel Type', $html);
+        self::assertStringContainsString('<td>Search Engines</td>', $html);
+        self::assertStringContainsString('<td>241,403</td>', $html);
+        self::assertStringContainsString('<td>55.1 %</td>', $html);
+        self::assertStringContainsString('<td>0:01:45</td>', $html);
     }
 
     #[Test]

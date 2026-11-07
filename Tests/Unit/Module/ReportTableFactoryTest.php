@@ -6,6 +6,7 @@ namespace MaikSchneider\AnalyticsMatomo\Tests\Unit\Module;
 
 use MaikSchneider\AnalyticsMatomo\Module\MetricFormatter;
 use MaikSchneider\AnalyticsMatomo\Module\ReportTableFactory;
+use MaikSchneider\AnalyticsMatomo\Statistics\PageRecordResolver;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageUrlMapper;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
@@ -17,7 +18,7 @@ final class ReportTableFactoryTest extends UnitTestCase
     #[Test]
     public function searchesThenSortsRawNumbersAndPagesTwentyFiveRows(): void
     {
-        $factory = new ReportTableFactory(new MetricFormatter(), new PageUrlMapper(new Context()), $this->createMock(UriBuilder::class));
+        $factory = new ReportTableFactory(new MetricFormatter(), new PageUrlMapper(new Context()), $this->createMock(UriBuilder::class), new PageRecordResolver(new Context()));
         $rows = [];
         for ($i = 1; $i <= 60; $i++) {
             $rows[] = ['label' => ($i <= 55 ? 'Device ' : 'Other ') . $i, 'nb_visits' => $i];
@@ -37,7 +38,7 @@ final class ReportTableFactoryTest extends UnitTestCase
     #[Test]
     public function comparisonMatchesLabelsAndKeepsMissingPreviousRowsUnknown(): void
     {
-        $factory = new ReportTableFactory(new MetricFormatter(), new PageUrlMapper(new Context()), $this->createMock(UriBuilder::class));
+        $factory = new ReportTableFactory(new MetricFormatter(), new PageUrlMapper(new Context()), $this->createMock(UriBuilder::class), new PageRecordResolver(new Context()));
         $report = ['metadata' => ['name' => 'Devices', 'metricTypes' => ['nb_visits' => 'number']], 'columns' => ['label' => 'Device', 'nb_visits' => 'Visits'], 'reportData' => [['label' => 'Desktop', 'nb_visits' => 30], ['label' => 'Tablet', 'nb_visits' => 10]], 'reportMetadata' => [], 'reportTotal' => []];
         $previous = array_replace($report, ['reportData' => [['label' => 'Desktop', 'nb_visits' => 20]]]);
         $table = $factory->create($report, $previous, [], '/module?report=devices');

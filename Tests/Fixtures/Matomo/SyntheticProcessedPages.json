@@ -10,6 +10,7 @@
 			{"label": "main-about", "nb_hits": 30},
 			{"label": "main-german", "nb_hits": 20},
 			{"label": "hidden-page", "nb_hits": 15},
+			{"label": "hidden-german", "nb_hits": 5},
 			{"label": "child-page", "nb_hits": 10},
 			{"label": "restricted-page", "nb_hits": 8},
 			{"label": "unknown-page", "nb_hits": 6},
@@ -21,6 +22,7 @@
 			{"url": "https://example.com/about"},
 			{"url": "https://example.com/de/ueber-uns"},
 			{"url": "https://example.com/summer-sale"},
+			{"url": "https://example.com/de/sommerschlussverkauf"},
 			{"url": "https://example.com/about/child"},
 			{"url": "https://example.com/restricted"},
 			{"url": "https://example.com/no-page"},
@@ -28,7 +30,7 @@
 			{"url": "https://shop.example.de/produkte/"},
 			{"is_summary": true}
 		],
-		"reportTotal": {"nb_hits": 196}
+		"reportTotal": {"nb_hits": 201}
 	},
 	{
 		"metadata": {"name": "Page URLs", "metricTypes": {"nb_hits": "number"}},
