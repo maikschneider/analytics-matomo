@@ -6,9 +6,9 @@ namespace MaikSchneider\AnalyticsMatomo\Module;
 
 /**
  * Report pages per section. A report may have its own title and columns (label keys of locallang_mod.xlf),
- * hide rows below a minimum and set a default sort column.
+ * hide rows below a minimum, set a default sort column and explain an empty result (label key).
  *
- * @phpstan-type Definition array{module: string, action: string, params?: array<string, int|string>, rows?: string, title?: string, columns?: array<string, array{string, string}>, minimum?: array{string, int}, sort?: string}
+ * @phpstan-type Definition array{module: string, action: string, params?: array<string, int|string>, rows?: string, title?: string, columns?: array<string, array{string, string}>, minimum?: array{string, int}, sort?: string, empty?: string}
  */
 final readonly class ReportCatalog
 {
@@ -70,6 +70,17 @@ final readonly class ReportCatalog
                     'minimum' => ['nb_hits_with_time_network', 5],
                     'sort' => 'avg_page_load_time',
                 ],
+            ]],
+            'outlinks' => ['reports' => [['module' => 'Actions', 'action' => 'getOutlinks', 'params' => ['flat' => 1], 'empty' => 'empty.linkTracking']]],
+            'downloads' => ['reports' => [['module' => 'Actions', 'action' => 'getDownloads', 'params' => ['flat' => 1], 'empty' => 'empty.linkTracking']]],
+            'events' => ['reports' => [
+                ['module' => 'Events', 'action' => 'getCategory', 'params' => ['flat' => 1], 'empty' => 'empty.eventTracking'],
+                ['module' => 'Events', 'action' => 'getAction', 'params' => ['flat' => 1], 'empty' => 'empty.eventTracking'],
+                ['module' => 'Events', 'action' => 'getName', 'params' => ['flat' => 1], 'empty' => 'empty.eventTracking'],
+            ]],
+            'contents' => ['reports' => [
+                ['module' => 'Contents', 'action' => 'getContentNames', 'params' => ['flat' => 1], 'empty' => 'empty.contentTracking'],
+                ['module' => 'Contents', 'action' => 'getContentPieces', 'params' => ['flat' => 1], 'empty' => 'empty.contentTracking'],
             ]],
         ],
         'acquisition' => [

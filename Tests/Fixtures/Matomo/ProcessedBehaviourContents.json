@@ -1,0 +1,92 @@
+[
+	{
+		"website": "virtual-drums.com",
+		"prettyDate": "January 1 – November 6, 2026",
+		"metadata": {
+			"category": "Behaviour",
+			"subcategory": "Contents",
+			"name": "Content Name",
+			"module": "Contents",
+			"action": "getContentNames",
+			"dimension": "Content Name",
+			"documentation": "This report shows the names of the content your visitors viewed and interacted with.",
+			"onlineGuideUrl": "https://matomo.org/docs/content-tracking/",
+			"metrics": {
+				"nb_impressions": "Impressions",
+				"nb_interactions": "Content Interactions"
+			},
+			"metricsDocumentation": {
+				"nb_impressions": "An impression is counted each time your website is displayed in a search engine results page.",
+				"nb_interactions": "The number of times a content block was interacted with (eg, a 'click' on a banner or ad).",
+				"interaction_rate": "The ratio of content impressions to interactions."
+			},
+			"processedMetrics": {
+				"interaction_rate": "Interaction Rate"
+			},
+			"metricTypes": {
+				"nb_impressions": "number",
+				"nb_interactions": "number",
+				"interaction_rate": "percent"
+			},
+			"actionToLoadSubTables": "getContentNames",
+			"imageGraphUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=Contents&apiAction=getContentNames&period=range&date=2026-01-01,2026-11-06",
+			"imageGraphEvolutionUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=Contents&apiAction=getContentNames&period=day&date=2026-01-01,2026-11-06",
+			"uniqueId": "Contents_getContentNames"
+		},
+		"columns": {
+			"label": "Content Name",
+			"nb_impressions": "Impressions",
+			"nb_interactions": "Content Interactions",
+			"interaction_rate": "Interaction Rate"
+		},
+		"reportData": [],
+		"reportMetadata": [],
+		"reportTotal": [],
+		"timerMillis": "94"
+	},
+	{
+		"website": "virtual-drums.com",
+		"prettyDate": "January 1 – November 6, 2026",
+		"metadata": {
+			"category": "Behaviour",
+			"subcategory": "Contents",
+			"name": "Content Piece",
+			"module": "Contents",
+			"action": "getContentPieces",
+			"dimension": "Content Piece",
+			"documentation": "This report shows the pieces of content your visitors viewed and interacted with.",
+			"onlineGuideUrl": "https://matomo.org/docs/content-tracking/",
+			"metrics": {
+				"nb_impressions": "Impressions",
+				"nb_interactions": "Content Interactions"
+			},
+			"metricsDocumentation": {
+				"nb_impressions": "An impression is counted each time your website is displayed in a search engine results page.",
+				"nb_interactions": "The number of times a content block was interacted with (eg, a 'click' on a banner or ad).",
+				"interaction_rate": "The ratio of content impressions to interactions."
+			},
+			"processedMetrics": {
+				"interaction_rate": "Interaction Rate"
+			},
+			"metricTypes": {
+				"nb_impressions": "number",
+				"nb_interactions": "number",
+				"interaction_rate": "percent"
+			},
+			"actionToLoadSubTables": "getContentPieces",
+			"imageGraphUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=Contents&apiAction=getContentPieces&period=range&date=2026-01-01,2026-11-06",
+			"imageGraphEvolutionUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=Contents&apiAction=getContentPieces&period=day&date=2026-01-01,2026-11-06",
+			"uniqueId": "Contents_getContentPieces"
+		},
+		"columns": {
+			"label": "Content Piece",
+			"nb_impressions": "Impressions",
+			"nb_interactions": "Content Interactions",
+			"interaction_rate": "Interaction Rate"
+		},
+		"reportData": [],
+		"reportMetadata": [],
+		"reportTotal": [],
+		"timerMillis": "109"
+	}
+]

@@ -417,6 +417,28 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function interactionReportPagesRenderRecordedReportsAndNameTheTrackingRequirement(): void
+    {
+        $pages = [
+            'outlinks' => ['<h2>Outlinks</h2>', '<td>clubelek.insa-lyon.fr/</td>'],
+            'downloads' => ['<h2>Downloads</h2>', 'enableLinkTracking'],
+            'events' => ['<h2>Event Categories</h2>', '<h2>Event Actions</h2>', '<h2>Event Names</h2>', '<td>MediaVideo - pause</td>'],
+            'contents' => ['<h2>Content Name</h2>', '<h2>Content Piece</h2>', 'trackAllContentImpressions'],
+        ];
+        foreach ($pages as $report => $snippets) {
+            $this->fixture = 'ProcessedBehaviour' . ucfirst($report);
+            $html = (string)$this->render(1, ['site' => 'main', 'report' => $report], 'behaviour')->getBody();
+            foreach ($snippets as $snippet) {
+                self::assertStringContainsString($snippet, $html, $report);
+            }
+        }
+        $this->fixture = 'ProcessedBehaviourEvents';
+        $search = (string)$this->render(1, ['site' => 'main', 'report' => 'events', 'q' => 'nothing-matches'], 'behaviour')->getBody();
+        self::assertStringNotContainsString('trackEvent', $search);
+        self::assertStringContainsString('No matching rows.', $search);
+    }
+
+    #[Test]
     public function behaviourReportPagesRenderRecordedReports(): void
     {
         $pages = [

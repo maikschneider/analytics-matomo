@@ -160,6 +160,9 @@
 			<trans-unit id="column.avg_time_dom_completion"><source>DOM completion time</source></trans-unit>
 			<trans-unit id="column.avg_time_on_load"><source>On load time</source></trans-unit>
 			<trans-unit id="column.nb_hits_with_time_network"><source>Measured page views</source></trans-unit>
+			<trans-unit id="empty.linkTracking"><source>No clicks recorded. Outlinks and downloads need link tracking (enableLinkTracking) in the Matomo tracking code.</source></trans-unit>
+			<trans-unit id="empty.eventTracking"><source>No events recorded. Events need trackEvent calls in the Matomo tracking code.</source></trans-unit>
+			<trans-unit id="empty.contentTracking"><source>No content impressions recorded. Content tracking needs data-track-content markup and trackAllContentImpressions or trackVisibleContentImpressions in the Matomo tracking code.</source></trans-unit>
 			<trans-unit id="action.details"><source>Page details</source></trans-unit>
 			<trans-unit id="action.layout"><source>Page module</source></trans-unit>
 			<trans-unit id="action.edit"><source>Edit page properties</source></trans-unit>

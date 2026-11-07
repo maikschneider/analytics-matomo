@@ -1,0 +1,40 @@
+[
+	{
+		"website": "virtual-drums.com",
+		"prettyDate": "January 1 – November 6, 2026",
+		"metadata": {
+			"category": "Behaviour",
+			"subcategory": "Downloads",
+			"name": "Downloads",
+			"module": "Actions",
+			"action": "getDownloads",
+			"dimension": "Download URL",
+			"documentation": "In this report, you can see which files your visitors have downloaded. <br /> What Matomo counts as a download is the click on a download link. Whether the download was completed or not isn't known to Matomo.",
+			"metrics": {
+				"nb_visits": "Unique Downloads",
+				"nb_hits": "Downloads"
+			},
+			"metricsDocumentation": {
+				"nb_visits": "The number of visits that involved a click on this link. If a link was clicked multiple times during one visit, it is only counted once.",
+				"nb_hits": "The number of times this link was clicked."
+			},
+			"metricTypes": {
+				"nb_visits": "number",
+				"nb_hits": "number"
+			},
+			"actionToLoadSubTables": "getDownloads",
+			"imageGraphUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=Actions&apiAction=getDownloads&period=range&date=2026-01-01,2026-11-06",
+			"imageGraphEvolutionUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=Actions&apiAction=getDownloads&period=day&date=2026-01-01,2026-11-06",
+			"uniqueId": "Actions_getDownloads"
+		},
+		"columns": {
+			"label": "Download URL",
+			"nb_visits": "Unique Downloads",
+			"nb_hits": "Downloads"
+		},
+		"reportData": [],
+		"reportMetadata": [],
+		"reportTotal": [],
+		"timerMillis": "110"
+	}
+]

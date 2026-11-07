@@ -1,0 +1,332 @@
+[
+	{
+		"website": "virtual-drums.com",
+		"prettyDate": "January 1 – November 6, 2026",
+		"metadata": {
+			"category": "Behaviour",
+			"subcategory": "Events",
+			"name": "Event Categories",
+			"module": "Events",
+			"action": "getCategory",
+			"dimension": "Event Category",
+			"documentation": "This report shows the categories of each tracked event and how many times they occurred. You can view the event actions and names that were tracked along with each event category in each row's subtable. You can change which is shown by changing the secondary dimension with the link at the bottom of the report.",
+			"onlineGuideUrl": "https://matomo.org/docs/event-tracking/",
+			"dimensions": {
+				"Events_EventCategory": "Event Category",
+				"Events_EventAction": "Event Action"
+			},
+			"metrics": {
+				"nb_events": "Events",
+				"nb_visits": "Visits",
+				"sum_event_value": "Event value",
+				"min_event_value": "Minimum Event value",
+				"max_event_value": "Maximum Event value",
+				"nb_events_with_value": "Events with a value"
+			},
+			"metricsDocumentation": {
+				"nb_events": "Total number of events",
+				"nb_visits": "The total number of visits where at least one event was triggered.",
+				"nb_uniq_visitors": "The number of deduplicated visitors who triggered an event on your website. Every visitor is only counted once, even if they visit or trigger multiple events on the website.",
+				"sum_event_value": "The sum of event values",
+				"min_event_value": "The minimum value for this event",
+				"max_event_value": "The maximum value for this event",
+				"nb_events_with_value": "Number of events where an Event value was set",
+				"avg_event_value": "The average of all values for this event",
+				"nb_visits_percent_of_total": "The percentage of the report's total Visits that this row represents."
+			},
+			"processedMetrics": {
+				"avg_event_value": "The average of all values for this event"
+			},
+			"metricTypes": {
+				"nb_events": "number",
+				"nb_visits": "number",
+				"nb_uniq_visitors": "number",
+				"sum_event_value": "number",
+				"min_event_value": "number",
+				"max_event_value": "number",
+				"nb_events_with_value": "number",
+				"avg_event_value": "number",
+				"nb_visits_percent_of_total": "percent"
+			},
+			"actionToLoadSubTables": "getActionFromCategoryId",
+			"imageGraphUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=Events&apiAction=getCategory&period=range&date=2026-01-01,2026-11-06",
+			"imageGraphEvolutionUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=Events&apiAction=getCategory&period=day&date=2026-01-01,2026-11-06",
+			"uniqueId": "Events_getCategory"
+		},
+		"columns": {
+			"label": "Event Category",
+			"nb_events": "Events",
+			"nb_visits": "Visits",
+			"nb_visits_percent_of_total": "Visits (%)",
+			"sum_event_value": "Event value",
+			"min_event_value": "Minimum Event value",
+			"max_event_value": "Maximum Event value",
+			"nb_events_with_value": "Events with a value",
+			"avg_event_value": "The average of all values for this event"
+		},
+		"reportData": [
+			{
+				"label": "MediaVideo - pause",
+				"nb_visits": 2,
+				"nb_events": 2,
+				"nb_events_with_value": 2,
+				"sum_event_value": 199,
+				"min_event_value": 70,
+				"max_event_value": 129,
+				"nb_visits_percent_of_total": 0.5,
+				"avg_event_value": 99.5
+			},
+			{
+				"label": "MediaVideo - resume",
+				"nb_visits": 2,
+				"nb_events": 2,
+				"nb_events_with_value": 2,
+				"sum_event_value": 77,
+				"min_event_value": 7,
+				"max_event_value": 70,
+				"nb_visits_percent_of_total": 0.5,
+				"avg_event_value": 38.5
+			}
+		],
+		"reportMetadata": [
+			{
+				"Events_EventCategory": "MediaVideo",
+				"Events_EventAction": "pause"
+			},
+			{
+				"Events_EventCategory": "MediaVideo",
+				"Events_EventAction": "resume"
+			}
+		],
+		"reportTotal": {
+			"nb_visits": 4,
+			"nb_events": 4,
+			"nb_events_with_value": 4,
+			"sum_event_value": 276,
+			"min_event_value": 7,
+			"max_event_value": 129,
+			"sum_daily_nb_uniq_visitors": 4
+		},
+		"timerMillis": "99"
+	},
+	{
+		"website": "virtual-drums.com",
+		"prettyDate": "January 1 – November 6, 2026",
+		"metadata": {
+			"category": "Behaviour",
+			"subcategory": "Events",
+			"name": "Event Actions",
+			"module": "Events",
+			"action": "getAction",
+			"dimension": "Event Action",
+			"documentation": "This report shows you the number of times each event action occurred. You can view the event categories and names that were tracked along with each event action in the row's subtable. You can change which is shown by changing the secondary dimension with the link at the bottom of the report.",
+			"onlineGuideUrl": "https://matomo.org/docs/event-tracking/",
+			"dimensions": {
+				"Events_EventAction": "Event Action",
+				"Events_EventName": "Event Name"
+			},
+			"metrics": {
+				"nb_events": "Events",
+				"nb_visits": "Visits",
+				"sum_event_value": "Event value",
+				"min_event_value": "Minimum Event value",
+				"max_event_value": "Maximum Event value",
+				"nb_events_with_value": "Events with a value"
+			},
+			"metricsDocumentation": {
+				"nb_events": "Total number of events",
+				"nb_visits": "The total number of visits where at least one event was triggered.",
+				"nb_uniq_visitors": "The number of deduplicated visitors who triggered an event on your website. Every visitor is only counted once, even if they visit or trigger multiple events on the website.",
+				"sum_event_value": "The sum of event values",
+				"min_event_value": "The minimum value for this event",
+				"max_event_value": "The maximum value for this event",
+				"nb_events_with_value": "Number of events where an Event value was set",
+				"avg_event_value": "The average of all values for this event",
+				"nb_visits_percent_of_total": "The percentage of the report's total Visits that this row represents."
+			},
+			"processedMetrics": {
+				"avg_event_value": "The average of all values for this event"
+			},
+			"metricTypes": {
+				"nb_events": "number",
+				"nb_visits": "number",
+				"nb_uniq_visitors": "number",
+				"sum_event_value": "number",
+				"min_event_value": "number",
+				"max_event_value": "number",
+				"nb_events_with_value": "number",
+				"avg_event_value": "number",
+				"nb_visits_percent_of_total": "percent"
+			},
+			"actionToLoadSubTables": "getNameFromActionId",
+			"imageGraphUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=Events&apiAction=getAction&period=range&date=2026-01-01,2026-11-06",
+			"imageGraphEvolutionUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=Events&apiAction=getAction&period=day&date=2026-01-01,2026-11-06",
+			"uniqueId": "Events_getAction"
+		},
+		"columns": {
+			"label": "Event Action",
+			"nb_events": "Events",
+			"nb_visits": "Visits",
+			"nb_visits_percent_of_total": "Visits (%)",
+			"sum_event_value": "Event value",
+			"min_event_value": "Minimum Event value",
+			"max_event_value": "Maximum Event value",
+			"nb_events_with_value": "Events with a value",
+			"avg_event_value": "The average of all values for this event"
+		},
+		"reportData": [
+			{
+				"label": "pause - Virtual Drums, play the virtual drum kit!",
+				"nb_visits": 2,
+				"nb_events": 2,
+				"nb_events_with_value": 2,
+				"sum_event_value": 199,
+				"min_event_value": 70,
+				"max_event_value": 129,
+				"nb_visits_percent_of_total": 0.5,
+				"avg_event_value": 99.5
+			},
+			{
+				"label": "resume - Virtual Drums, play the virtual drum kit!",
+				"nb_visits": 2,
+				"nb_events": 2,
+				"nb_events_with_value": 2,
+				"sum_event_value": 77,
+				"min_event_value": 7,
+				"max_event_value": 70,
+				"nb_visits_percent_of_total": 0.5,
+				"avg_event_value": 38.5
+			}
+		],
+		"reportMetadata": [
+			{
+				"Events_EventAction": "pause",
+				"Events_EventName": "Virtual Drums, play the virtual drum kit!"
+			},
+			{
+				"Events_EventAction": "resume",
+				"Events_EventName": "Virtual Drums, play the virtual drum kit!"
+			}
+		],
+		"reportTotal": {
+			"nb_visits": 4,
+			"nb_events": 4,
+			"nb_events_with_value": 4,
+			"sum_event_value": 276,
+			"min_event_value": 7,
+			"max_event_value": 129,
+			"sum_daily_nb_uniq_visitors": 4
+		},
+		"timerMillis": "83"
+	},
+	{
+		"website": "virtual-drums.com",
+		"prettyDate": "January 1 – November 6, 2026",
+		"metadata": {
+			"category": "Behaviour",
+			"subcategory": "Events",
+			"name": "Event Names",
+			"module": "Events",
+			"action": "getName",
+			"dimension": "Event Name",
+			"documentation": "This report shows you the names associated with each tracked event and how many times they occurred. You can view the event actions and categories that were tracked along with each event name in each row's subtable. You can change which is shown by changing the secondary dimension with the link at the bottom of the report.",
+			"onlineGuideUrl": "https://matomo.org/docs/event-tracking/",
+			"dimensions": {
+				"Events_EventName": "Event Name",
+				"Events_EventAction": "Event Action"
+			},
+			"metrics": {
+				"nb_events": "Events",
+				"nb_visits": "Visits",
+				"sum_event_value": "Event value",
+				"min_event_value": "Minimum Event value",
+				"max_event_value": "Maximum Event value",
+				"nb_events_with_value": "Events with a value"
+			},
+			"metricsDocumentation": {
+				"nb_events": "Total number of events",
+				"nb_visits": "The total number of visits where at least one event was triggered.",
+				"nb_uniq_visitors": "The number of deduplicated visitors who triggered an event on your website. Every visitor is only counted once, even if they visit or trigger multiple events on the website.",
+				"sum_event_value": "The sum of event values",
+				"min_event_value": "The minimum value for this event",
+				"max_event_value": "The maximum value for this event",
+				"nb_events_with_value": "Number of events where an Event value was set",
+				"avg_event_value": "The average of all values for this event",
+				"nb_visits_percent_of_total": "The percentage of the report's total Visits that this row represents."
+			},
+			"processedMetrics": {
+				"avg_event_value": "The average of all values for this event"
+			},
+			"metricTypes": {
+				"nb_events": "number",
+				"nb_visits": "number",
+				"nb_uniq_visitors": "number",
+				"sum_event_value": "number",
+				"min_event_value": "number",
+				"max_event_value": "number",
+				"nb_events_with_value": "number",
+				"avg_event_value": "number",
+				"nb_visits_percent_of_total": "percent"
+			},
+			"actionToLoadSubTables": "getActionFromNameId",
+			"imageGraphUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=Events&apiAction=getName&period=range&date=2026-01-01,2026-11-06",
+			"imageGraphEvolutionUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=Events&apiAction=getName&period=day&date=2026-01-01,2026-11-06",
+			"uniqueId": "Events_getName"
+		},
+		"columns": {
+			"label": "Event Name",
+			"nb_events": "Events",
+			"nb_visits": "Visits",
+			"nb_visits_percent_of_total": "Visits (%)",
+			"sum_event_value": "Event value",
+			"min_event_value": "Minimum Event value",
+			"max_event_value": "Maximum Event value",
+			"nb_events_with_value": "Events with a value",
+			"avg_event_value": "The average of all values for this event"
+		},
+		"reportData": [
+			{
+				"label": "Virtual Drums, play the virtual drum kit! - pause",
+				"nb_visits": 2,
+				"nb_events": 2,
+				"nb_events_with_value": 2,
+				"sum_event_value": 199,
+				"min_event_value": 70,
+				"max_event_value": 129,
+				"nb_visits_percent_of_total": 0.5,
+				"avg_event_value": 99.5
+			},
+			{
+				"label": "Virtual Drums, play the virtual drum kit! - resume",
+				"nb_visits": 2,
+				"nb_events": 2,
+				"nb_events_with_value": 2,
+				"sum_event_value": 77,
+				"min_event_value": 7,
+				"max_event_value": 70,
+				"nb_visits_percent_of_total": 0.5,
+				"avg_event_value": 38.5
+			}
+		],
+		"reportMetadata": [
+			{
+				"Events_EventName": "Virtual Drums, play the virtual drum kit!",
+				"Events_EventAction": "pause"
+			},
+			{
+				"Events_EventName": "Virtual Drums, play the virtual drum kit!",
+				"Events_EventAction": "resume"
+			}
+		],
+		"reportTotal": {
+			"nb_visits": 4,
+			"nb_events": 4,
+			"nb_events_with_value": 4,
+			"sum_event_value": 276,
+			"min_event_value": 7,
+			"max_event_value": 129,
+			"sum_daily_nb_uniq_visitors": 4
+		},
+		"timerMillis": "119"
+	}
+]

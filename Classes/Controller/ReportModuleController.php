@@ -151,8 +151,10 @@ final readonly class ReportModuleController
                 foreach ($reports as $index => $data) {
                     $definition = $definitions[$index];
                     $options = array_intersect_key($definition, ['minimum' => true, 'sort' => true]);
-                    if (isset($definition['title'])) {
-                        $options['title'] = $this->label($definition['title']);
+                    foreach (['title', 'empty'] as $option) {
+                        if (isset($definition[$option])) {
+                            $options[$option] = $this->label($definition[$option]);
+                        }
                     }
                     foreach ($definition['columns'] ?? [] as $key => [$label, $type]) {
                         $options['columns'][$key] = [$this->label($label), $type];

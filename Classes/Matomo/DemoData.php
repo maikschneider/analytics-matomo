@@ -41,6 +41,13 @@ final readonly class DemoData
         'VisitorInterest.getNumberOfVisitsPerPage' => ['Pages per visit', 'Pages per visit', 'share', ['1 page' => 44, '2 pages' => 18, '3 pages' => 12, '4 pages' => 8, '5 pages' => 6, '6–7 pages' => 5, '8–10 pages' => 4, '11–14 pages' => 2, '15–20 pages' => 1]],
         'VisitorInterest.getNumberOfVisitsByVisitCount' => ['Visits by visit number', 'Visits by visit number', 'share', ['1 visit' => 72, '2 visits' => 12, '3 visits' => 6, '4 visits' => 3, '5 visits' => 2, '6–7 visits' => 2, '8–10 visits' => 1, '11–14 visits' => 1, '15–25 visits' => 1]],
         'VisitorInterest.getNumberOfVisitsByDaysSinceLast' => ['Visits by days since last visit', 'Days since last visit', 'share', ['New visits' => 72, '0 days' => 9, '1 day' => 5, '2 days' => 3, '3 days' => 2, '4 days' => 2, '5–7 days' => 2, '8–14 days' => 2, '15–30 days' => 2, '31–60 days' => 1]],
+        'Actions.getOutlinks' => ['Outlinks', 'Clicked Outlink', 'clicks', ['typo3.org/' => 6, 'matomo.org/docs/' => 4, 'github.com/maikschneider/analytics-matomo' => 3, 'www.linkedin.com/company/' => 2, 'www.openstreetmap.org/' => 1]],
+        'Actions.getDownloads' => ['Downloads', 'Download URL', 'clicks', ['fileadmin/downloads/product-sheet.pdf' => 5, 'fileadmin/downloads/price-list-2026.pdf' => 3, 'fileadmin/downloads/terms.pdf' => 2, 'fileadmin/press/logo-package.zip' => 1]],
+        'Events.getCategory' => ['Event Categories', 'Event Category', 'events', ['Video' => 9, 'Newsletter' => 4, 'Contact form' => 3, 'Accordion' => 2]],
+        'Events.getAction' => ['Event Actions', 'Event Action', 'events', ['play' => 7, 'open' => 5, 'submit' => 4, 'pause' => 2]],
+        'Events.getName' => ['Event Names', 'Event Name', 'events', ['Image film' => 7, 'Footer sign-up' => 4, 'Contact page' => 3, 'FAQ' => 2]],
+        'Contents.getContentNames' => ['Content Name', 'Content Name', 'contents', ['Hero banner' => 40, 'Newsletter teaser' => 22, 'Job offers' => 9]],
+        'Contents.getContentPieces' => ['Content Piece', 'Content Piece', 'contents', ['fileadmin/hero/spring.jpg' => 32, 'Sign up now' => 22, 'fileadmin/hero/team.jpg' => 8, 'We are hiring' => 9]],
     ];
     /** URL reports: name, dimension and columns */
     private const URL_REPORTS = [
@@ -57,6 +64,9 @@ final readonly class DemoData
     private const METRICS = [
         'visits' => ['nb_visits' => ['Visits', 'number'], 'nb_actions' => ['Actions', 'number'], 'nb_actions_per_visit' => ['Actions per Visit', 'number'], 'avg_time_on_site' => ['Avg. Time on Website', 'duration_s'], 'bounce_rate' => ['Bounce Rate', 'percent']],
         'share' => ['nb_visits' => ['Visits', 'number'], 'nb_visits_percent_of_total' => ['Visits (%)', 'percent']],
+        'clicks' => ['nb_visits' => ['Unique Clicks', 'number'], 'nb_hits' => ['Clicks', 'number']],
+        'events' => ['nb_events' => ['Events', 'number'], 'nb_visits' => ['Visits', 'number'], 'sum_event_value' => ['Event value', 'number'], 'avg_event_value' => ['The average of all values for this event', 'number']],
+        'contents' => ['nb_impressions' => ['Impressions', 'number'], 'nb_interactions' => ['Content Interactions', 'number'], 'interaction_rate' => ['Interaction Rate', 'percent']],
         'frequency' => [
             'nb_visits_new' => ['New Visits', 'number'], 'nb_visits_returning' => ['Returning Visits', 'number'],
             'nb_actions_per_visit_new' => ['Avg. Actions per New Visit', 'number'], 'nb_actions_per_visit_returning' => ['Avg. Actions per Returning Visit', 'number'],
@@ -285,6 +295,7 @@ final readonly class DemoData
     private function metrics(string $set, string $seed, int $visits, int $total): array
     {
         $actions = intdiv($visits * $this->between('actions' . $seed, 110, 450), 100);
+        $interactions = intdiv($visits * $this->between('interactions' . $seed, 2, 12), 100);
         $returning = intdiv($visits * 3, 10);
         return match ($set) {
             'visits' => [
@@ -292,6 +303,12 @@ final readonly class DemoData
                 'avg_time_on_site' => $this->between('time' . $seed, 20, 320), 'bounce_rate' => $this->between('bounce' . $seed, 25, 75) / 100,
             ],
             'share' => ['nb_visits' => $visits, 'nb_visits_percent_of_total' => $total > 0 ? round($visits / $total, 3) : 0],
+            'clicks' => ['nb_visits' => $visits, 'nb_hits' => intdiv($visits * $this->between('clicks' . $seed, 100, 140), 100)],
+            'events' => [
+                'nb_events' => intdiv($visits * $this->between('events' . $seed, 100, 180), 100), 'nb_visits' => $visits,
+                'sum_event_value' => $visits * 2, 'avg_event_value' => 2,
+            ],
+            'contents' => ['nb_impressions' => $visits, 'nb_interactions' => $interactions, 'interaction_rate' => $visits > 0 ? round($interactions / $visits, 3) : 0],
             'frequency' => [
                 'nb_visits_new' => $visits - $returning, 'nb_visits_returning' => $returning,
                 'nb_actions_per_visit_new' => $this->between('actionsNew' . $seed, 15, 35) / 10, 'nb_actions_per_visit_returning' => $this->between('actionsReturning' . $seed, 25, 60) / 10,

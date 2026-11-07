@@ -42,7 +42,7 @@
             </tbody>
         </table>
     </div>
-    <f:if condition="!{table.rows}"><p><f:translate key="{ll}table.empty" /></p></f:if>
+    <f:if condition="!{table.rows}"><p><f:if condition="{table.emptyMessage}"><f:then>{table.emptyMessage}</f:then><f:else><f:translate key="{ll}table.empty" /></f:else></f:if></p></f:if>
     <f:if condition="!{table.metricList}">
         <nav aria-label="{table.title}">
             <f:if condition="{table.previousUrl}"><a href="{table.previousUrl}"><f:translate key="{ll}table.previous" /></a></f:if>

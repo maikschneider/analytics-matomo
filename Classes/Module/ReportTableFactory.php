@@ -31,8 +31,8 @@ final readonly class ReportTableFactory
      * @param Report $report
      * @param Report|null $previous
      * @param array<string, mixed> $query
-     * @param array{title?: string, columns?: array<string, array{string, string}>, minimum?: array{string, int}, sort?: string} $options
-     *        catalog options: own title, own columns (name and metric type, e.g. raw metrics), minimum value of a column, default sort column
+     * @param array{title?: string, columns?: array<string, array{string, string}>, minimum?: array{string, int}, sort?: string, empty?: string} $options
+     *        catalog options: own title, own columns (name and metric type, e.g. raw metrics), minimum value of a column, default sort column, message for a report without rows
      * @return array<string, mixed>
      */
     public function create(array $report, ?array $previous, array $query, string $baseUrl, ?Site $site = null, int $languageId = -1, int $selectedPageId = 0, array $options = []): array
@@ -126,6 +126,7 @@ final readonly class ReportTableFactory
         return [
             'searchParameters' => $searchParameters, 'truncated' => $truncated, 'urlRows' => $site !== null,
             'title' => $options['title'] ?? (string)($report['metadata']['name'] ?? ''), 'columns' => $columns, 'rows' => $renderedRows,
+            'emptyMessage' => $search === '' ? $options['empty'] ?? '' : '',
             'compare' => $previous !== null, 'total' => $total, 'page' => $page, 'pages' => $pages, 'query' => $search,
             'searchUrl' => $baseUrl, 'sort' => $sort, 'direction' => $direction,
             'previousUrl' => $page > 1 ? $link(['page' => $page - 1]) : '', 'nextUrl' => $page < $pages ? $link(['page' => $page + 1]) : '',
