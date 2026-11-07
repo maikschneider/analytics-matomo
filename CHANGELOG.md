@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Page details in the module: tiles and evolution chart for the frontend URL of the selected page and language, in one bulk request. The statistics bar links there with page, language and period preselected.
+- Page load and server time in page details, with the number of measured page views; no average below five measurements.
 - Visitors report pages Locations, Devices, Software, Times and Engagement in the module, from catalog entries only. Reports without a dimension (returning visits) render as a metric list. Demo mode answers every report.
 - Behaviour report pages Entry pages, Exit pages, Page titles and Performance. URL reports follow the selected page subtree and language; the slowest pages need at least five measured page views. Durations under a minute show fractions of seconds.
 - Behaviour report pages Outlinks, Downloads, Events and Contents. Without data, they name the tracking code they need.

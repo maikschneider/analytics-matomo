@@ -86,6 +86,12 @@ bulk request for the page's frontend URL. Hidden pages use their own URL.
 Users with access to this section do not also need the statistics bar
 permission.
 
+:guilabel:`Speed` shows the average page load time and server time with the
+number of measured page views. Matomo collects these timings with its
+JavaScript tracker by default; server-side tracking has none. With fewer than
+five measurements no average is shown, because single outliers would dominate
+it.
+
 Statistics bar
 ==============
 

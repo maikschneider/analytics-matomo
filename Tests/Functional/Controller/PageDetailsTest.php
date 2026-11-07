@@ -44,6 +44,7 @@ final class PageDetailsTest extends FunctionalTestCase
         $pageDetails = $this->fixture('PageDetails');
         $this->fixtures = [
             'range' => $pageDetails[0], 'day' => $pageDetails[1], 'rangePrevious' => $pageDetails[2], 'dayPrevious' => $pageDetails[3],
+            'pageRow' => $this->fixture('PageSpeed'),
         ];
         $GLOBALS['TYPO3_CONF_VARS']['HTTP']['handler']['matomo'] = fn (callable $handler): \Closure => function (RequestInterface $request): FulfilledPromise {
             $this->requests++;
@@ -145,6 +146,34 @@ final class PageDetailsTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function showsPageLoadAndServerTimeWithTheirSampleCount(): void
+    {
+        $html = (string)$this->render(1, ['id' => '2', 'language' => '0'], 'page')->getBody();
+
+        self::assertStringContainsString('3.38 s', $html);
+        self::assertStringContainsString('0.28 s', $html);
+        self::assertStringContainsString('30 measured page views', $html);
+        self::assertSame(1, $this->requests);
+        $rowCalls = array_values(array_filter($this->calls, static fn (array $call): bool => $call['method'] === 'Actions.getPageUrls'));
+        self::assertCount(1, $rowCalls);
+        self::assertSame(['1', 'url', '^https?://example\.com/about$', '-1', 'range'], [
+            $rowCalls[0]['flat'], $rowCalls[0]['filter_column'], $rowCalls[0]['filter_pattern'], $rowCalls[0]['filter_limit'], $rowCalls[0]['period'],
+        ]);
+    }
+
+    #[Test]
+    public function hidesSpeedAveragesBelowTheMinimumSampleCount(): void
+    {
+        $this->fixtures['pageRow'][0]['nb_hits_with_time_network'] = 4;
+        $this->fixtures['pageRow'][0]['nb_hits_with_time_server'] = 4;
+        $html = (string)$this->render(1, ['id' => '2', 'language' => '0'], 'page')->getBody();
+
+        self::assertStringNotContainsString('3.38 s', $html);
+        self::assertStringNotContainsString('0.28 s', $html);
+        self::assertStringContainsString('Fewer than 5 measured page views', $html);
+    }
+
+    #[Test]
     public function takesThePeriodFromTheBarLink(): void
     {
         $html = (string)$this->render(1, ['id' => '2', 'language' => '1', 'period' => '14'], 'page')->getBody();
@@ -161,6 +190,7 @@ final class PageDetailsTest extends FunctionalTestCase
 
         self::assertStringContainsString('/about', $html);
         self::assertGreaterThan(0, $this->chartData($html)['metrics']['views']['current'][0]);
+        self::assertSame(2, substr_count($html, 'measured page views</small>'));
         self::assertSame(0, $this->requests);
     }
 
@@ -172,6 +202,7 @@ final class PageDetailsTest extends FunctionalTestCase
         $previous = str_starts_with($parameters['date'] ?? '', '2026-10-20');
         return match ($parameters['method']) {
             'Actions.getPageUrl' => $this->fixtures[($parameters['period'] === 'range' ? 'range' : 'day') . ($previous ? 'Previous' : '')],
+            'Actions.getPageUrls' => $this->fixtures['pageRow'],
             default => self::fail('Unexpected Matomo call ' . $parameters['method']),
         };
     }

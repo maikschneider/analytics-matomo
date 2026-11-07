@@ -62,6 +62,21 @@ final class DemoDataTest extends UnitTestCase
     }
 
     #[Test]
+    public function pageUrlsFilteredByUrlPatternAnswerWithTimingsOfThatPage(): void
+    {
+        [$result] = (new DemoData())->results([[
+            'method' => 'Actions.getPageUrls', 'flat' => 1, 'period' => 'range', 'date' => $this->period->toMatomoDate(),
+            'filter_column' => 'url', 'filter_pattern' => '^https?://example\.com/about$', 'filter_limit' => -1,
+        ]], $this->configuration);
+
+        self::assertCount(1, $result);
+        self::assertSame('https://example.com/about', $result[0]['url']);
+        self::assertGreaterThan(0, $result[0]['nb_hits_with_time_network']);
+        self::assertGreaterThan(0, $result[0]['avg_page_load_time']);
+        self::assertGreaterThan(0, $result[0]['nb_hits_with_time_server']);
+    }
+
+    #[Test]
     public function pageStatisticsUseThePageUrlOfTheRequest(): void
     {
         [$result] = (new DemoData())->results([

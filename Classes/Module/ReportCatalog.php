@@ -17,6 +17,8 @@ use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
  */
 final readonly class ReportCatalog
 {
+    /** Timing averages from fewer measured page views are skewed by single outliers */
+    public const MINIMUM_TIMING_SAMPLES = 5;
     private const PAGES = [
         'visitors' => [
             'overview' => ['reports' => []],
@@ -78,7 +80,7 @@ final readonly class ReportCatalog
                         'avg_time_on_load' => ['column.avg_time_on_load', 'duration_s'],
                         'nb_hits_with_time_network' => ['column.nb_hits_with_time_network', 'number'],
                     ],
-                    'minimum' => ['nb_hits_with_time_network', 5],
+                    'minimum' => ['nb_hits_with_time_network', self::MINIMUM_TIMING_SAMPLES],
                     'sort' => 'avg_page_load_time',
                 ],
             ]],

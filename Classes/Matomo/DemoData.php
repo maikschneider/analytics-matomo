@@ -161,7 +161,7 @@ final readonly class DemoData
             'VisitFrequency.get' => ['nb_visits_returning' => intdiv($visits * 3, 10)],
             'Actions.get' => ['nb_pageviews' => $this->pageViews($site, $dates)],
             'Actions.getPageUrl' => [$this->pageRow($site, (string)($request['pageUrl'] ?? ''), $dates)],
-            'Actions.getPageUrls' => $this->pageUrls($site, $pageUrls, $dates, (int)($request['filter_limit'] ?? -1)),
+            'Actions.getPageUrls' => $this->filter($request, array_map($this->withTimings(...), $this->pageUrls($site, $pageUrls, $dates, (int)($request['filter_limit'] ?? -1)))),
             default => throw new MatomoApiException('The demo data have no answer for ' . $method, 1793960301),
         };
     }
@@ -229,12 +229,11 @@ final readonly class DemoData
             $metadata[] = ['url' => $row['url']];
             $hits = (int)$row['nb_hits'];
             $entries = intdiv($hits * $this->between('entry' . $row['url'], 20, 70), 100);
-            $row += [
+            $row = $this->withTimings($row + [
                 'entry_nb_visits' => $entries,
                 'entry_bounce_count' => intdiv($entries * (int)round((float)$row['bounce_rate'] * 100), 100),
                 'exit_nb_visits' => intdiv($hits * (int)round((float)$row['exit_rate'] * 100), 100),
-                'nb_hits_with_time_network' => intdiv($hits * $this->between('measured' . $row['url'], 50, 95), 100),
-            ] + $this->timings((string)$row['url']);
+            ]);
             unset($row['url']);
         }
         unset($row);
@@ -269,6 +268,33 @@ final readonly class DemoData
             'reportData' => $rows, 'reportMetadata' => array_fill(0, count($rows), []),
             'reportTotal' => ['nb_hits' => array_sum(array_column($rows, 'nb_hits'))],
         ];
+    }
+
+    /**
+     * @param array<string, int|float|string> $row page URL row with url and nb_hits
+     * @return array<string, int|float|string>
+     */
+    private function withTimings(array $row): array
+    {
+        $measured = intdiv((int)$row['nb_hits'] * $this->between('measured' . $row['url'], 50, 95), 100);
+        return $row + ['nb_hits_with_time_network' => $measured, 'nb_hits_with_time_server' => $measured] + $this->timings((string)$row['url']);
+    }
+
+    /**
+     * Matomo's generic pattern filter, which page details use to pick one URL from the page URL report
+     *
+     * @param array<string, int|string> $request
+     * @param list<array<string, int|float|string>> $rows
+     * @return list<array<string, int|float|string>>
+     */
+    private function filter(array $request, array $rows): array
+    {
+        if (!isset($request['filter_column'], $request['filter_pattern'])) {
+            return $rows;
+        }
+        $pattern = '/' . str_replace('/', '\/', (string)$request['filter_pattern']) . '/i';
+        // Matomo stores absolute URLs; demo rows of a site with a relative base have no host
+        return array_values(array_filter($rows, static fn (array $row): bool => preg_match($pattern, (string)preg_replace('#^/#', 'https://localhost/', (string)($row[(string)$request['filter_column']] ?? ''))) === 1));
     }
 
     /**

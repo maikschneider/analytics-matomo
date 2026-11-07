@@ -6,4 +6,21 @@
     </f:for>
 </div>
 <f:render partial="Module/EvolutionChart" arguments="{chart: chart, ll: ll, sharedLabels: sharedLabels}" />
+<h2><f:translate key="{ll}page.speed" /></h2>
+<p class="text-body-secondary"><f:translate key="{ll}page.speed.hint" /></p>
+<dl class="row">
+    <f:for each="{pageDetails.speed}" as="timing" key="key">
+        <div class="col-sm-4" data-speed="{key}">
+            <dt><f:translate key="{ll}page.speed.{key}" /></dt>
+            <f:if condition="{timing.value}">
+                <f:then>
+                    <dd>{timing.value} <small class="text-body-secondary"><f:translate key="{ll}page.speed.samples" arguments="{0: timing.samples}" /></small></dd>
+                </f:then>
+                <f:else>
+                    <dd class="text-body-secondary"><f:translate key="{ll}page.speed.tooFew" arguments="{0: minimumSamples}" /></dd>
+                </f:else>
+            </f:if>
+        </div>
+    </f:for>
+</dl>
 </html>

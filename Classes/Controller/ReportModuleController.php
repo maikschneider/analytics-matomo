@@ -7,6 +7,7 @@ namespace MaikSchneider\AnalyticsMatomo\Controller;
 use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelectionResolver;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
 use MaikSchneider\AnalyticsMatomo\Module\EvolutionChartFactory;
+use MaikSchneider\AnalyticsMatomo\Module\MetricFormatter;
 use MaikSchneider\AnalyticsMatomo\Module\PageDetailsService;
 use MaikSchneider\AnalyticsMatomo\Module\ReportCatalog;
 use MaikSchneider\AnalyticsMatomo\Module\ReportService;
@@ -220,10 +221,28 @@ final readonly class ReportModuleController
         $this->pageRenderer->addCssFile('EXT:analytics_matomo/Resources/Public/Css/dashboard.css');
         $this->pageRenderer->loadJavaScriptModule('@maikschneider/analytics-matomo/evolution-chart.js');
         return [
-            'pageDetails' => ['url' => $target->pageUrl],
+            'pageDetails' => ['url' => $target->pageUrl, 'speed' => $this->speed($details['pageRow'])],
+            'minimumSamples' => ReportCatalog::MINIMUM_TIMING_SAMPLES,
             'tiles' => $this->tileFactory->createForOverview($details['current'], $details['previous'], EvolutionChartFactory::PAGE_METRICS),
             'chart' => $details['chart'],
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     * @return array<string, array{samples: int, value: string|null}>
+     */
+    private function speed(array $row): array
+    {
+        $speed = [];
+        foreach (['pageLoadTime' => ['avg_page_load_time', 'nb_hits_with_time_network'], 'serverTime' => ['avg_time_server', 'nb_hits_with_time_server']] as $key => [$column, $samplesColumn]) {
+            $samples = (int)($row[$samplesColumn] ?? 0);
+            $speed[$key] = [
+                'samples' => $samples,
+                'value' => $samples >= ReportCatalog::MINIMUM_TIMING_SAMPLES && is_numeric($row[$column] ?? null) ? (new MetricFormatter())->format($row[$column], 'duration_s') : null,
+            ];
+        }
+        return $speed;
     }
 
     /**
