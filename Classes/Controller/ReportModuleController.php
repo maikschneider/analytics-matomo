@@ -110,6 +110,19 @@ final readonly class ReportModuleController
             $template->assignMultiple($variables + ['emptyMessage' => $this->label('empty.site')]);
             return $template->renderResponse('Module/Report');
         }
+        try {
+            $available = $this->reportService->filterAvailablePages($selection->configuration, $section, $pages);
+        } catch (MatomoApiException $exception) {
+            // The report request shows the error; until then, offer only what every Matomo has
+            $this->logger->warning('Checking the Matomo reports failed: {message}', ['message' => $exception->getMessage(), 'site' => $selection->site->getIdentifier()]);
+            $available = array_diff_key($pages, $this->catalog->getOptionalPages($section));
+        }
+        if ($available !== $pages) {
+            $pages = $available;
+            $moduleData->clean('report', array_keys($pages));
+            $report = (string)$moduleData->get('report');
+            $variables['title'] = $this->translate($pages[$report] ?? self::LABELS . 'section.' . $section);
+        }
 
         $this->addMenu($template, $route, $pageId, 'report', $pages, $report);
         if ($pageId === 0) {

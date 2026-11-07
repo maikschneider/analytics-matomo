@@ -48,6 +48,14 @@ final readonly class DemoData
         'Events.getName' => ['Event Names', 'Event Name', 'events', ['Image film' => 7, 'Footer sign-up' => 4, 'Contact page' => 3, 'FAQ' => 2]],
         'Contents.getContentNames' => ['Content Name', 'Content Name', 'contents', ['Hero banner' => 40, 'Newsletter teaser' => 22, 'Job offers' => 9]],
         'Contents.getContentPieces' => ['Content Piece', 'Content Piece', 'contents', ['fileadmin/hero/spring.jpg' => 32, 'Sign up now' => 22, 'fileadmin/hero/team.jpg' => 8, 'We are hiring' => 9]],
+        'Referrers.getAll' => ['All Channels', 'Referrer', 'visits', ['Keyword not defined' => 38, 'typo3.org' => 6, 'ChatGPT' => 4, 'LinkedIn' => 3, 'newsletter' => 3, 'xing.com' => 2]],
+        'Referrers.getWebsites' => ['Websites', 'Website', 'visits', ['typo3.org' => 6, 'docs.typo3.org' => 3, 'xing.com' => 2, 'dresden.de' => 1, 'example-partner.de' => 1]],
+        'Referrers.getSearchEngines' => ['Search Engines', 'Search Engine', 'visits', ['Google' => 44, 'Bing' => 4, 'DuckDuckGo' => 2, 'Ecosia' => 1, 'Qwant' => 1]],
+        'Referrers.getKeywords' => ['Keywords', 'Keyword', 'visits', ['Keyword not defined' => 50, 'typo3 agency dresden' => 1, 'matomo typo3' => 1]],
+        'Referrers.getSocials' => ['Social Networks', 'Social Network', 'visits', ['LinkedIn' => 4, 'Mastodon' => 2, 'Facebook' => 1, 'YouTube' => 1]],
+        'Referrers.getAIAssistants' => ['AI Assistants', 'AI Assistant', 'visits', ['ChatGPT' => 3, 'Perplexity' => 1, 'Gemini' => 1, 'Copilot' => 1]],
+        'Referrers.getCampaigns' => ['Campaigns', 'Campaign', 'visits', ['newsletter' => 3, 'spring-sale' => 2, 'job-ads' => 1]],
+        'Referrers.getCampaigns.flat' => ['Campaigns', 'Campaign', 'visits', ['newsletter - november' => 2, 'newsletter - october' => 1, 'spring-sale - social' => 1, 'spring-sale - Keyword not defined' => 1, 'job-ads - stepstone' => 1]],
     ];
     /** URL reports: name, dimension and columns */
     private const URL_REPORTS = [
@@ -144,6 +152,8 @@ final readonly class DemoData
             ],
             'Live.getCounters' => [['visits' => $this->between('liveVisits' . $site, 2, 20), 'actions' => $this->between('liveActions' . $site, 30, 80), 'visitors' => $this->between('liveVisitors' . $site, 1, 10)]],
             'API.getProcessedReport' => $this->processedReport($request, $site, $dates, $pageUrls),
+            // The demo Matomo offers every report of the catalog
+            'API.getMetadata' => [['module' => (string)($request['apiModule'] ?? ''), 'action' => (string)($request['apiAction'] ?? '')]],
             'VisitsSummary.get' => $this->visitsSummary($site, $dates, $visits),
             'VisitFrequency.get' => ['nb_visits_returning' => intdiv($visits * 3, 10)],
             'Actions.get' => ['nb_pageviews' => $this->pageViews($site, $dates)],
@@ -163,6 +173,9 @@ final readonly class DemoData
     private function processedReport(array $request, string $site, array $dates, array $pageUrls): array
     {
         $method = (string)($request['apiModule'] ?? '') . '.' . (string)($request['apiAction'] ?? '');
+        if (isset(self::REPORTS[$method . '.flat']) && (int)($request['flat'] ?? 0) === 1) {
+            $method .= '.flat';
+        }
         if (isset(self::URL_REPORTS[$method])) {
             return $this->urlReport($method, $site, $dates, $pageUrls);
         }

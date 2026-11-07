@@ -45,6 +45,25 @@ final readonly class ReportService
         });
     }
 
+    /**
+     * @param array<string, string> $pages page => label
+     * @return array<string, string> the pages whose first report the Matomo site offers
+     */
+    public function filterAvailablePages(MatomoConfiguration $configuration, string $section, array $pages): array
+    {
+        $optional = array_intersect_key($this->catalog->getOptionalPages($section), $pages);
+        if ($optional === []) {
+            return $pages;
+        }
+        $availability = $this->cache->remember(['availability', $configuration->getCacheIdentifier(), implode(',', array_keys($optional))], function () use ($configuration, $optional): array {
+            $requests = array_values(array_map(static fn (array $definition): array => ['method' => 'API.getMetadata', 'apiModule' => $definition['module'], 'apiAction' => $definition['action']], $optional));
+            // Matomo answers ['value' => false] for a report it does not have, a list of report metadata otherwise
+            $results = $this->client->bulkRequest($configuration, $requests);
+            return ['missing' => array_keys(array_filter(array_combine(array_keys($optional), $results), static fn (mixed $result): bool => !is_array($result) || $result === [] || !array_is_list($result)))];
+        });
+        return array_diff_key($pages, array_flip($availability['missing']));
+    }
+
     /** @return Report */
     private function validate(mixed $result): array
     {

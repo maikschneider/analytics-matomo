@@ -7,6 +7,7 @@ namespace MaikSchneider\AnalyticsMatomo\Module;
 /**
  * Report pages per section. A report may have its own title and columns (label keys of locallang_mod.xlf),
  * hide rows below a minimum, set a default sort column and explain an empty result (label key).
+ * Optional pages are only offered when the site's Matomo has their first report.
  *
  * @phpstan-type Definition array{module: string, action: string, params?: array<string, int|string>, rows?: string, title?: string, columns?: array<string, array{string, string}>, minimum?: array{string, int}, sort?: string, empty?: string}
  */
@@ -84,7 +85,17 @@ final readonly class ReportCatalog
             ]],
         ],
         'acquisition' => [
-            'channels' => ['reports' => [['module' => 'Referrers', 'action' => 'getReferrerType']]],
+            'channels' => ['reports' => [['module' => 'Referrers', 'action' => 'getReferrerType'], ['module' => 'Referrers', 'action' => 'getAll']]],
+            'websites' => ['reports' => [['module' => 'Referrers', 'action' => 'getWebsites']]],
+            'searchEngines' => ['reports' => [['module' => 'Referrers', 'action' => 'getSearchEngines'], ['module' => 'Referrers', 'action' => 'getKeywords']]],
+            'socialNetworks' => ['reports' => [['module' => 'Referrers', 'action' => 'getSocials']]],
+            // Newer Matomo versions only
+            'aiAssistants' => ['optional' => true, 'reports' => [['module' => 'Referrers', 'action' => 'getAIAssistants']]],
+            // The MarketingCampaignsReporting plugin replaces the core report
+            'campaigns' => ['optional' => true, 'reports' => [
+                ['module' => 'Referrers', 'action' => 'getCampaigns'],
+                ['module' => 'Referrers', 'action' => 'getCampaigns', 'params' => ['flat' => 1], 'title' => 'report.campaignKeywords'],
+            ]],
         ],
     ];
 
@@ -96,6 +107,15 @@ final readonly class ReportCatalog
             $pages[$page] = 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang_mod.xlf:report.' . $page;
         }
         return $pages;
+    }
+
+    /**
+     * @return array<string, Definition> pages whose first report not every Matomo offers
+     */
+    public function getOptionalPages(string $section): array
+    {
+        $pages = array_filter(self::PAGES[$section] ?? [], static fn (array $page): bool => $page['optional'] ?? false);
+        return array_map(static fn (array $page): array => $page['reports'][0], $pages);
     }
 
     /** @return list<Definition> */

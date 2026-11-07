@@ -151,6 +151,7 @@
 			<trans-unit id="table.metric"><source>Metric</source></trans-unit>
 			<trans-unit id="table.value"><source>Value</source></trans-unit>
 			<trans-unit id="report.slowestPages"><source>Slowest pages</source></trans-unit>
+			<trans-unit id="report.campaignKeywords"><source>Campaign keywords</source></trans-unit>
 			<trans-unit id="column.nb_hits"><source>Page views</source></trans-unit>
 			<trans-unit id="column.avg_page_load_time"><source>Page load time</source></trans-unit>
 			<trans-unit id="column.avg_time_network"><source>Network time</source></trans-unit>

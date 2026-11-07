@@ -44,7 +44,11 @@ Every other report page shows one or more Matomo reports as tables:
     they need: link tracking, ``trackEvent`` or content tracking.
 
 :guilabel:`Acquisition`
-    All channels
+    All channels (channel types and all referrers), Websites, Search engines
+    and keywords, Social networks, AI assistants and Campaigns (names and
+    keywords). AI assistants need a Matomo version with that report.
+    Campaigns use the core report; when the MarketingCampaignsReporting plugin
+    replaces it, the page is not offered.
 
 Column headings and metric documentation come from Matomo in the backend user's
 language. Click a column heading to sort, search labels, or browse 25 rows per

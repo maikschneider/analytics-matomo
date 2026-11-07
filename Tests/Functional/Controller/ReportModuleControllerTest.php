@@ -38,6 +38,8 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     /** @var list<RequestInterface> */
     private array $sentRequests = [];
     private string $fixture = 'SyntheticOverview';
+    /** @var list<array{string, string}> reports the mocked Matomo does not offer: module, action */
+    private array $missingReports = [];
     private int $status = 200;
     private ?ServerRequestInterface $previousRequest = null;
 
@@ -74,7 +76,16 @@ final class ReportModuleControllerTest extends FunctionalTestCase
                 parse_str((string)$request->getBody(), $body);
                 self::assertIsArray($body['urls']);
                 $results = json_decode($content, true);
-                $content = (string)json_encode(array_map(static fn (int $index): mixed => $results[$index % count($results)], array_keys($body['urls'])));
+                // Recorded answers for a present and a missing report
+                $metadata = json_decode((string)file_get_contents(__DIR__ . '/../../Fixtures/Matomo/MetadataAvailability.json'), true);
+                $answers = [];
+                foreach (array_values($body['urls']) as $index => $url) {
+                    parse_str($url, $parameters);
+                    $answers[] = ($parameters['method'] ?? '') === 'API.getMetadata'
+                        ? $metadata[in_array([$parameters['apiModule'] ?? '', $parameters['apiAction'] ?? ''], $this->missingReports, true) ? 1 : 0]
+                        : $results[$index % count($results)];
+                }
+                $content = (string)json_encode($answers);
             }
             return new FulfilledPromise(new Response($this->status, [], $content));
         };
@@ -436,6 +447,61 @@ final class ReportModuleControllerTest extends FunctionalTestCase
         $search = (string)$this->render(1, ['site' => 'main', 'report' => 'events', 'q' => 'nothing-matches'], 'behaviour')->getBody();
         self::assertStringNotContainsString('trackEvent', $search);
         self::assertStringContainsString('No matching rows.', $search);
+    }
+
+    #[Test]
+    public function acquisitionReportPagesRenderRecordedReports(): void
+    {
+        $pages = [
+            'channels' => ['<h2>Channel Type</h2>', '<h2>All Channels</h2>', '<td>Keyword not defined</td>'],
+            'websites' => ['<h2>Websites</h2>', '<td>developer.matomo.org</td>'],
+            'searchEngines' => ['<h2>Search Engines</h2>', '<h2>Keywords</h2>', '<td>Google</td>'],
+            'socialNetworks' => ['<h2>Social Networks</h2>', 'No matching rows.'],
+            'aiAssistants' => ['<h2>AI Assistants</h2>', '<td>ChatGPT</td>'],
+        ];
+        foreach ($pages as $report => $snippets) {
+            $this->fixture = 'ProcessedAcquisition' . ucfirst($report);
+            $html = (string)$this->render(1, ['site' => 'main', 'report' => $report], 'acquisition')->getBody();
+            foreach ($snippets as $snippet) {
+                self::assertStringContainsString($snippet, $html, $report);
+            }
+        }
+        $this->fixture = 'SyntheticProcessedCampaigns';
+        $html = (string)$this->render(1, ['site' => 'main', 'report' => 'campaigns'], 'acquisition')->getBody();
+        self::assertStringContainsString('<h2>Campaigns</h2>', $html);
+        self::assertStringContainsString('<h2>Campaign keywords</h2>', $html);
+        self::assertStringContainsString('<td>spring-sale - newsletter</td>', $html);
+        $actions = [];
+        foreach ($this->sentRequests as $request) {
+            parse_str((string)$request->getBody(), $body);
+            self::assertIsArray($body['urls']);
+            foreach ($body['urls'] as $url) {
+                self::assertIsString($url);
+                parse_str($url, $subRequest);
+                $actions[] = [$subRequest['apiAction'] ?? null, $subRequest['flat'] ?? null];
+            }
+        }
+        self::assertContains(['getCampaigns', '1'], $actions);
+    }
+
+    #[Test]
+    public function reportPagesAreHiddenWhenMatomoLacksTheirReport(): void
+    {
+        $this->fixture = 'ProcessedAcquisitionChannels';
+        $this->missingReports = [['Referrers', 'getAIAssistants']];
+        $html = (string)$this->render(1, ['site' => 'main'], 'acquisition')->getBody();
+        self::assertStringContainsString('report=campaigns', $html);
+        self::assertStringNotContainsString('report=aiAssistants', $html);
+
+        $direct = (string)$this->render(1, ['site' => 'main', 'report' => 'aiAssistants'], 'acquisition')->getBody();
+        self::assertStringContainsString('<h1>All channels</h1>', $direct);
+        self::assertStringNotContainsString('<h2>AI Assistants</h2>', $direct);
+
+        $this->missingReports = [['Referrers', 'getCampaigns']];
+        $this->render(1, ['site' => 'main'], 'acquisition');
+        self::assertCount(2, $this->sentRequests, 'Availability and reports are cached');
+        $this->render(1, ['site' => 'shop', 'report' => 'campaigns'], 'acquisition');
+        self::assertCount(4, $this->sentRequests, 'Every Matomo site has its own availability');
     }
 
     #[Test]

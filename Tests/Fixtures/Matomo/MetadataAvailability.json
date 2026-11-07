@@ -1,0 +1,68 @@
+[
+	[
+		{
+			"category": "Acquisition",
+			"subcategory": "AI Assistants",
+			"name": "AI Assistants",
+			"module": "Referrers",
+			"action": "getAIAssistants",
+			"dimension": "AI Assistant",
+			"documentation": "This report shows which AI assistants led visitors to your website.<br />By clicking on a row in the table, you can see from which AI assistant pages visitors came to your website.",
+			"dimensions": {
+				"Referrers_AIAssistant": "AI Assistant",
+				"Actions_EntryPageUrl": "Entry Page URL"
+			},
+			"metrics": {
+				"nb_visits": "Visits",
+				"nb_uniq_visitors": "Unique visitors",
+				"nb_actions": "Actions",
+				"nb_users": "Users"
+			},
+			"metricsDocumentation": {
+				"nb_visits": "If a visitor comes to your website for the first time or if they visit a page more than 30 minutes after their last page view, this will be recorded as a new visit.",
+				"nb_uniq_visitors": "The number of unduplicated visitors coming to your website. Every user is only counted once, even if they visit the website multiple times a day.",
+				"nb_actions": "The number of actions performed by your visitors. Actions can be page views, internal site searches, downloads or outlinks.",
+				"nb_users": "The number of users logged in your website. It is the number of unique active users that have a User ID set (via the Tracking code function 'setUserId').",
+				"nb_actions_per_visit": "The average number of actions (page views, site searches, downloads or outlinks) that were performed during the visits.",
+				"avg_time_on_site": "The average duration of a visit.",
+				"bounce_rate": "The percentage of visits that only had a single pageview. This means, that the visitor left the website directly from the entrance page.",
+				"conversion_rate": "The percentage of visits that triggered a conversion. The conversion rate is calculated using the number of visits that converted at least one goal. Visits converting multiple goals are only counted once in the conversion rate."
+			},
+			"processedMetrics": {
+				"nb_actions_per_visit": "Actions per Visit",
+				"avg_time_on_site": "Avg. Time on Website",
+				"bounce_rate": "Bounce Rate"
+			},
+			"metricTypes": {
+				"nb_visits": "number",
+				"nb_uniq_visitors": "number",
+				"nb_actions": "number",
+				"nb_users": "number",
+				"nb_actions_per_visit": "number",
+				"avg_time_on_site": "duration_s",
+				"bounce_rate": "percent",
+				"conversion_rate": "percent"
+			},
+			"actionToLoadSubTables": "getEntryPageUrlsForAIAssistant",
+			"metricsGoal": {
+				"nb_conversions": "Conversions",
+				"revenue": "Revenue"
+			},
+			"processedMetricsGoal": {
+				"revenue_per_visit": "Revenue per Visit"
+			},
+			"metricTypesGoal": {
+				"revenue_per_visit": "money",
+				"nb_conversions": "number",
+				"conversion_rate": "percent",
+				"revenue": "money"
+			},
+			"imageGraphUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=Referrers&apiAction=getAIAssistants&period=day&date=today",
+			"imageGraphEvolutionUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=Referrers&apiAction=getAIAssistants&period=day&date=2026-10-09,2026-11-07",
+			"uniqueId": "Referrers_getAIAssistants"
+		}
+	],
+	{
+		"value": false
+	}
+]

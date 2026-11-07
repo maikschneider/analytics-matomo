@@ -1,0 +1,183 @@
+[
+	{
+		"website": "virtual-drums.com",
+		"prettyDate": "October 1 – 31, 2026",
+		"metadata": {
+			"category": "Acquisition",
+			"subcategory": "All Channels",
+			"name": "Campaigns",
+			"module": "Referrers",
+			"action": "getAll",
+			"dimension": "Referrer",
+			"documentation": "This report shows all your Referrers in one unified report, listing all Websites, Search keywords and Campaigns used by your visitors to find your website.",
+			"metrics": {
+				"nb_visits": "Visits",
+				"nb_actions": "Actions"
+			},
+			"metricsDocumentation": {
+				"nb_visits": "If a visitor comes to your website for the first time or if they visit a page more than 30 minutes after their last page view, this will be recorded as a new visit.",
+				"nb_uniq_visitors": "The number of unduplicated visitors coming to your website. Every user is only counted once, even if they visit the website multiple times a day.",
+				"nb_actions": "The number of actions performed by your visitors. Actions can be page views, internal site searches, downloads or outlinks.",
+				"nb_users": "The number of users logged in your website. It is the number of unique active users that have a User ID set (via the Tracking code function 'setUserId').",
+				"nb_actions_per_visit": "The average number of actions (page views, site searches, downloads or outlinks) that were performed during the visits.",
+				"avg_time_on_site": "The average duration of a visit.",
+				"bounce_rate": "The percentage of visits that only had a single pageview. This means, that the visitor left the website directly from the entrance page.",
+				"conversion_rate": "The percentage of visits that triggered a conversion. The conversion rate is calculated using the number of visits that converted at least one goal. Visits converting multiple goals are only counted once in the conversion rate.",
+				"nb_visits_percent_of_total": "The percentage of the report's total Visits that this row represents.",
+				"nb_actions_percent_of_total": "The percentage of the report's total Actions that this row represents."
+			},
+			"processedMetrics": {
+				"nb_actions_per_visit": "Actions per Visit",
+				"avg_time_on_site": "Avg. Time on Website",
+				"bounce_rate": "Bounce Rate",
+				"conversion_rate": "Conversion Rate"
+			},
+			"metricTypes": {
+				"nb_visits": "number",
+				"nb_uniq_visitors": "number",
+				"nb_actions": "number",
+				"nb_users": "number",
+				"nb_actions_per_visit": "number",
+				"avg_time_on_site": "duration_s",
+				"bounce_rate": "percent",
+				"conversion_rate": "percent",
+				"nb_visits_percent_of_total": "percent",
+				"nb_actions_percent_of_total": "percent"
+			},
+			"imageGraphUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=Referrers&apiAction=getAll&period=range&date=2026-10-01,2026-10-31",
+			"uniqueId": "Referrers_getAll"
+		},
+		"columns": {
+			"label": "Campaign",
+			"nb_visits": "Visits",
+			"nb_visits_percent_of_total": "Visits (%)",
+			"nb_actions": "Actions",
+			"nb_actions_percent_of_total": "Actions (%)",
+			"nb_actions_per_visit": "Actions per Visit",
+			"avg_time_on_site": "Avg. Time on Website",
+			"bounce_rate": "Bounce Rate",
+			"conversion_rate": "Conversion Rate"
+		},
+		"reportData": [
+			{
+				"label": "spring-sale",
+				"nb_visits": 120,
+				"nb_actions": 310,
+				"nb_actions_per_visit": 2.6,
+				"avg_time_on_site": 95,
+				"bounce_rate": 0.41
+			},
+			{
+				"label": "black-friday",
+				"nb_visits": 64,
+				"nb_actions": 140,
+				"nb_actions_per_visit": 2.2,
+				"avg_time_on_site": 71,
+				"bounce_rate": 0.52
+			}
+		],
+		"reportMetadata": [
+			{},
+			{}
+		],
+		"reportTotal": {
+			"nb_visits": 184
+		},
+		"timerMillis": "117"
+	},
+	{
+		"website": "virtual-drums.com",
+		"prettyDate": "October 1 – 31, 2026",
+		"metadata": {
+			"category": "Acquisition",
+			"subcategory": "All Channels",
+			"name": "Campaigns",
+			"module": "Referrers",
+			"action": "getAll",
+			"dimension": "Referrer",
+			"documentation": "This report shows all your Referrers in one unified report, listing all Websites, Search keywords and Campaigns used by your visitors to find your website.",
+			"metrics": {
+				"nb_visits": "Visits",
+				"nb_actions": "Actions"
+			},
+			"metricsDocumentation": {
+				"nb_visits": "If a visitor comes to your website for the first time or if they visit a page more than 30 minutes after their last page view, this will be recorded as a new visit.",
+				"nb_uniq_visitors": "The number of unduplicated visitors coming to your website. Every user is only counted once, even if they visit the website multiple times a day.",
+				"nb_actions": "The number of actions performed by your visitors. Actions can be page views, internal site searches, downloads or outlinks.",
+				"nb_users": "The number of users logged in your website. It is the number of unique active users that have a User ID set (via the Tracking code function 'setUserId').",
+				"nb_actions_per_visit": "The average number of actions (page views, site searches, downloads or outlinks) that were performed during the visits.",
+				"avg_time_on_site": "The average duration of a visit.",
+				"bounce_rate": "The percentage of visits that only had a single pageview. This means, that the visitor left the website directly from the entrance page.",
+				"conversion_rate": "The percentage of visits that triggered a conversion. The conversion rate is calculated using the number of visits that converted at least one goal. Visits converting multiple goals are only counted once in the conversion rate.",
+				"nb_visits_percent_of_total": "The percentage of the report's total Visits that this row represents.",
+				"nb_actions_percent_of_total": "The percentage of the report's total Actions that this row represents."
+			},
+			"processedMetrics": {
+				"nb_actions_per_visit": "Actions per Visit",
+				"avg_time_on_site": "Avg. Time on Website",
+				"bounce_rate": "Bounce Rate",
+				"conversion_rate": "Conversion Rate"
+			},
+			"metricTypes": {
+				"nb_visits": "number",
+				"nb_uniq_visitors": "number",
+				"nb_actions": "number",
+				"nb_users": "number",
+				"nb_actions_per_visit": "number",
+				"avg_time_on_site": "duration_s",
+				"bounce_rate": "percent",
+				"conversion_rate": "percent",
+				"nb_visits_percent_of_total": "percent",
+				"nb_actions_percent_of_total": "percent"
+			},
+			"imageGraphUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=Referrers&apiAction=getAll&period=range&date=2026-10-01,2026-10-31",
+			"uniqueId": "Referrers_getAll"
+		},
+		"columns": {
+			"label": "Campaign",
+			"nb_visits": "Visits",
+			"nb_visits_percent_of_total": "Visits (%)",
+			"nb_actions": "Actions",
+			"nb_actions_percent_of_total": "Actions (%)",
+			"nb_actions_per_visit": "Actions per Visit",
+			"avg_time_on_site": "Avg. Time on Website",
+			"bounce_rate": "Bounce Rate",
+			"conversion_rate": "Conversion Rate"
+		},
+		"reportData": [
+			{
+				"label": "spring-sale - newsletter",
+				"nb_visits": 80,
+				"nb_actions": 220,
+				"nb_actions_per_visit": 2.8,
+				"avg_time_on_site": 110,
+				"bounce_rate": 0.35
+			},
+			{
+				"label": "spring-sale - social",
+				"nb_visits": 40,
+				"nb_actions": 90,
+				"nb_actions_per_visit": 2.3,
+				"avg_time_on_site": 64,
+				"bounce_rate": 0.53
+			},
+			{
+				"label": "black-friday - Keyword not defined",
+				"nb_visits": 64,
+				"nb_actions": 140,
+				"nb_actions_per_visit": 2.2,
+				"avg_time_on_site": 71,
+				"bounce_rate": 0.52
+			}
+		],
+		"reportMetadata": [
+			{},
+			{},
+			{}
+		],
+		"reportTotal": {
+			"nb_visits": 184
+		},
+		"timerMillis": "117"
+	}
+]

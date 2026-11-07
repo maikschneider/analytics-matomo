@@ -197,6 +197,7 @@
 			<trans-unit id="table.metric"><source>Metric</source><target>Kennzahl</target></trans-unit>
 			<trans-unit id="table.value"><source>Value</source><target>Wert</target></trans-unit>
 			<trans-unit id="report.slowestPages"><source>Slowest pages</source><target>Langsamste Seiten</target></trans-unit>
+			<trans-unit id="report.campaignKeywords"><source>Campaign keywords</source><target>Kampagnen-Keywords</target></trans-unit>
 			<trans-unit id="column.nb_hits"><source>Page views</source><target>Seitenaufrufe</target></trans-unit>
 			<trans-unit id="column.avg_page_load_time"><source>Page load time</source><target>Ladezeit der Seite</target></trans-unit>
 			<trans-unit id="column.avg_time_network"><source>Network time</source><target>Netzwerkzeit</target></trans-unit>
