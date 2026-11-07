@@ -20,7 +20,7 @@ t3g/analytics is the backend of a SaaS: it registers the TYPO3 instance, injects
 | Site performance widget | `SitePerformanceWidget(V14)` | `VisitsSummary.get`, `Actions.get` (range, previous, per day) | **done** ([#6](https://github.com/maikschneider/analytics-matomo/issues/6)) |
 | Traffic graph widget | `TrafficGraphWidget(V14)`, Chart.js | `VisitsSummary.get` + `VisitFrequency.get` per day | **done** ([#7](https://github.com/maikschneider/analytics-matomo/issues/7)): visits, visitors, new and returning visits |
 | Top pages widget | `TopPagesWidget(V14)` | `Actions.getPageUrls` (`flat=1`, current + previous) + `Actions.get` for the share | **done** ([#8](https://github.com/maikschneider/analytics-matomo/issues/8)): only URLs of the selected site, linked to the Page module when readable |
-| Traffic sources widget (v13: one widget, v14: section setting channel/devices/browser/countries) | `TrafficSourcesWidget(V14)` | `Referrers.getReferrerType`, `DevicesDetection.getType`, `DevicesDetection.getBrowsers`, `UserCountry.getCountry` | **done** ([#9](https://github.com/maikschneider/analytics-matomo/issues/9)) as four widgets on both versions; labels translated by Matomo (`language`). These four move into the module and are removed as widgets ([#40](https://github.com/maikschneider/analytics-matomo/issues/40)) |
+| Traffic sources widget (v13: one widget, v14: section setting channel/devices/browser/countries) | `TrafficSourcesWidget(V14)` | `Referrers.getReferrerType`, `DevicesDetection.getType`, `DevicesDetection.getBrowsers`, `UserCountry.getCountry` | **done** in the module ([#40](https://github.com/maikschneider/analytics-matomo/issues/40)); the four former widgets are removed, labels translated by Matomo (`language`) |
 | Site/period selection in widgets | v13: none per widget, v14: native widget settings | – | **done** as one selection per user (site + period, stored in `uc`), shared by all widgets and later the module; native v14 settings dropped ([#12](https://github.com/maikschneider/analytics-matomo/issues/12)) |
 | Multi-site | `AnalyticsSiteProvider`: sites with a website ID | sites with a Matomo connection | **done**: only sites whose root page the user may see; several sites per Matomo site are told apart by URL |
 | Multi-language | page URL per `SiteLanguage` | same | **done**: bar uses the URL of the selected language, top pages show the language flag |
@@ -49,7 +49,7 @@ statistics-bar.js (ES module, AjaxRequest)
         └─ JSON {html} ──► replaces the placeholder
 
 Dashboard
-  MatomoWidget (one class, option "report" = performance|traffic|topPages|channel|devices|browsers|countries)
+  MatomoWidget (one class, option "report" = performance|traffic|topPages; details links into the module)
     DashboardSelectionResolver: permission, sites with connection + readable root page, site/period from uc
     SiteStatisticsService ─► StatisticsCache ─► MatomoClient (1 bulk POST per widget)
     PageUrlMapper: Matomo URL → site language + page (top pages)
@@ -95,7 +95,7 @@ Every view is one HTTP request (`API.getBulkRequest`, `format_metrics=0`). No ad
 | Site performance | `VisitsSummary.get` + `Actions.get` (`nb_pageviews`) for the range, the previous range and per day |
 | Visits over time | `VisitsSummary.get` + `VisitFrequency.get` (`nb_visits_returning`) per day |
 | Top pages | `Actions.getPageUrls` (`flat=1`, sorted by `nb_hits`) for the range and the previous range, `Actions.get` for the total |
-| Channels, devices, browsers, countries | the report for the range and the previous range, `language` of the backend user on the outer request (Matomo ignores it inside the single requests) |
+| Channels, devices, browsers, countries and other catalog reports | `API.getProcessedReport` for the range and optionally the previous range, `language` of the backend user on the outer request; optional Acquisition pages use cached `API.getMetadata` availability checks |
 
 Bar tiles: page views (`nb_hits`), bounce rate (`bounce_rate`, entry based), avg. time on page (`avg_time_on_page`), exit rate (`exit_rate`). Exit rate replaces t3g's "continuation rate" (100 − bounce): it is the Matomo-native number for "visitors left after this page".
 
@@ -141,7 +141,7 @@ All planned features must work with Matomo core (no premium plugins) and a view-
 | 0.1 | Statistics bar: config + fallbacks, client, 4 tiles, period select, caching, CI. *Done.* |
 | [0.2.0](https://github.com/maikschneider/analytics-matomo/milestone/1) | Parity with t3g/analytics: strict SCA, permissions, dashboard widgets, demo data, fixtures (#1–#11). *Done.* |
 | [0.3.0](https://github.com/maikschneider/analytics-matomo/milestone/2) | Module foundation: module + global controls (#37), report table (#38), evolution chart + Visitors overview (#39), URL-to-page mapper (#26), permissions (#17), hidden-page fix (#36) |
-| [0.4.0](https://github.com/maikschneider/analytics-matomo/milestone/4) | Module reports: Visitors (#41), Behaviour pages (#42) and interactions (#43), Acquisition (#44), site search (#24), widgets as entry points into these reports (#40) |
+| [0.4.0](https://github.com/maikschneider/analytics-matomo/milestone/4) | Module reports: Visitors (#41), Behaviour pages (#42) and interactions (#43), Acquisition (#44), site search (#24), widgets as entry points into these reports (#40). *Done.* |
 | [0.5.0](https://github.com/maikschneider/analytics-matomo/milestone/5) | Page details (#45) with Transitions (#14, #18), languages (#21), page speed (#20), reading time (#25); Goals (#22); trending pages (#23) |
 | [0.6.0](https://github.com/maikschneider/analytics-matomo/milestone/6) | Admin: connection status (#13), token check (#19), multi-site overview (#30), CSV export (#46), stored segments (#47) |
 | [0.7.0](https://github.com/maikschneider/analytics-matomo/milestone/8) | Content workflow and monitoring: annotations (#27), page tree badges (#28), content review (#29), anomaly alerts (#31), weekly digest (#32) |
