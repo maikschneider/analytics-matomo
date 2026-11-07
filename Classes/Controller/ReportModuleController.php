@@ -14,6 +14,8 @@ use MaikSchneider\AnalyticsMatomo\Module\ReadingTimeEstimator;
 use MaikSchneider\AnalyticsMatomo\Module\ReportCatalog;
 use MaikSchneider\AnalyticsMatomo\Module\ReportService;
 use MaikSchneider\AnalyticsMatomo\Module\ReportTableFactory;
+use MaikSchneider\AnalyticsMatomo\Module\TransitionsPanelFactory;
+use MaikSchneider\AnalyticsMatomo\Module\TransitionsService;
 use MaikSchneider\AnalyticsMatomo\Module\VisitorsOverviewService;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageTarget;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageTargetResolver;
@@ -59,6 +61,8 @@ final readonly class ReportModuleController
         private PageTargetResolver $pageTargetResolver,
         private PageDetailsService $pageDetailsService,
         private ReadingTimeEstimator $readingTimeEstimator,
+        private TransitionsService $transitionsService,
+        private TransitionsPanelFactory $transitionsPanelFactory,
     ) {
     }
 
@@ -159,7 +163,7 @@ final readonly class ReportModuleController
         $this->addMenu($template, $route, $pageId, 'compare', ['0' => self::LABELS . 'compare.off', '1' => self::LABELS . 'compare.on'], $selection->compare ? '1' : '0');
         try {
             if ($section === 'page') {
-                $variables += $this->pageDetails($pageId, (int)$moduleData->get('language'), $selection);
+                $variables += $this->pageDetails($pageId, (int)$moduleData->get('language'), $selection, (bool)($parameters['transitions'] ?? false), $user);
             } elseif ($section === 'visitors' && $report === 'overview') {
                 $overview = $this->overviewService->getOverview($selection->configuration, $selection->period, $selection->compare);
                 $variables['tiles'] = $this->tileFactory->createForOverview($overview['current'], $overview['previous']);
@@ -211,7 +215,7 @@ final readonly class ReportModuleController
      * @return array<string, mixed>
      * @throws MatomoApiException
      */
-    private function pageDetails(int $pageId, int $languageId, DashboardSelection $selection): array
+    private function pageDetails(int $pageId, int $languageId, DashboardSelection $selection, bool $withTransitions, BackendUserAuthentication $user): array
     {
         if ($pageId === 0) {
             return ['emptyMessage' => $this->label('empty.page')];
@@ -233,11 +237,23 @@ final readonly class ReportModuleController
                 'speed' => $this->speed($details['pageRow']),
                 'reading' => $this->reading($target, $details['current'], (int)$selection->site->getSettings()->get('analyticsMatomo.wordsPerMinute', 220)),
                 'languages' => $this->languages($selection, $pageId, $languageId, [$languageId => $details['current']] + $details['languages']),
+                'transitionsUrl' => (string)$this->uriBuilder->buildUriFromRoute('analytics_matomo_page', ['id' => $pageId, 'language' => $languageId, 'transitions' => 1]),
+                'transitions' => $withTransitions ? $this->transitions($selection, $target, $user) : null,
             ],
             'minimumSamples' => ReportCatalog::MINIMUM_TIMING_SAMPLES,
             'tiles' => $this->tileFactory->createForOverview($details['current'], $details['previous'], EvolutionChartFactory::PAGE_METRICS),
             'chart' => $details['chart'],
         ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     * @throws MatomoApiException
+     */
+    private function transitions(DashboardSelection $selection, PageTarget $target, BackendUserAuthentication $user): array
+    {
+        $transitions = $this->transitionsService->getTransitions($target->configuration, $target->pageUrl, $selection->period);
+        return $transitions === null ? ['empty' => true] : $this->transitionsPanelFactory->create($selection->site, $transitions, $user);
     }
 
     /**

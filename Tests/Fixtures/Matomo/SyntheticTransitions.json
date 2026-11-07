@@ -1,0 +1,98 @@
+[
+	{
+		"date": "Jan 1 – Nov 6, 2026",
+		"previousPages": [
+			{
+				"label": "example.com/",
+				"referrals": 19
+			},
+			{
+				"label": "example.com/de/ueber-uns",
+				"referrals": 11
+			},
+			{
+				"label": "example.com/storage",
+				"referrals": 5
+			},
+			{
+				"label": "Others",
+				"referrals": 8
+			}
+		],
+		"previousSiteSearches": [],
+		"pageMetrics": {
+			"loops": 6,
+			"pageviews": 102,
+			"entries": 40,
+			"exits": 49
+		},
+		"followingPages": [
+			{
+				"label": "example.com/summer-sale",
+				"referrals": 15
+			},
+			{
+				"label": "example.com/s%C3%A4chsische-schweiz",
+				"referrals": 7
+			}
+		],
+		"followingSiteSearches": [],
+		"outlinks": [
+			{
+				"label": "http://www.dailymotion.com/video/xxss8_virtual-drums-batterie-virtuelle",
+				"referrals": 1
+			}
+		],
+		"downloads": [
+			{
+				"label": "example.com/fileadmin/price-list.pdf",
+				"referrals": 3
+			}
+		],
+		"referrers": [
+			{
+				"label": "Direct entries",
+				"shortName": "direct",
+				"visits": 17,
+				"details": []
+			},
+			{
+				"label": "From search engines",
+				"shortName": "search",
+				"visits": 15,
+				"details": [
+					{
+						"label": "Google",
+						"referrals": "9"
+					},
+					{
+						"label": "Yandex",
+						"referrals": "6"
+					}
+				]
+			},
+			{
+				"label": "From AI assistants",
+				"shortName": "ai",
+				"visits": 7,
+				"details": [
+					{
+						"label": "ChatGPT",
+						"referrals": "7"
+					}
+				]
+			},
+			{
+				"label": "From campaigns",
+				"shortName": "campaign",
+				"visits": 1,
+				"details": [
+					{
+						"label": "perplexity ",
+						"referrals": "1"
+					}
+				]
+			}
+		]
+	}
+]

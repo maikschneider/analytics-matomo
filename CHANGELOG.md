@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Page details in the module: tiles and evolution chart for the frontend URL of the selected page and language, in one bulk request. The statistics bar links there with page, language and period preselected.
 - Page load and server time in page details, with the number of measured page views; no average below five measurements.
 - Language comparison in page details: views, bounce rate and time on page per translation the user may access, in the same bulk request; a click switches the language.
+- Transitions in page details, loaded on demand: channels and referrers, previous and next pages linked to the Page module (editors see only pages they may access), outlinks and downloads. Pages without data show an empty state.
 - Reading time in page details: average time on page against an estimate from the words of the visible content elements, with the new site setting `analyticsMatomo.wordsPerMinute` (default 220). No estimate below 100 words.
 - Visitors report pages Locations, Devices, Software, Times and Engagement in the module, from catalog entries only. Reports without a dimension (returning visits) render as a metric list. Demo mode answers every report.
 - Behaviour report pages Entry pages, Exit pages, Page titles and Performance. URL reports follow the selected page subtree and language; the slowest pages need at least five measured page views. Durations under a minute show fractions of seconds.

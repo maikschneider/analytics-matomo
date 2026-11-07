@@ -42,6 +42,7 @@
         </table>
     </div>
 </f:if>
+<f:render partial="Module/Transitions" arguments="{transitions: pageDetails.transitions, transitionsUrl: pageDetails.transitionsUrl, ll: ll}" />
 <f:if condition="{pageDetails.reading}">
     <h2><f:translate key="{ll}page.reading" /></h2>
     <p class="text-body-secondary"><f:translate key="{ll}page.reading.hint" /></p>

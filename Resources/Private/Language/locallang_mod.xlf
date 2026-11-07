@@ -194,6 +194,16 @@
 			<trans-unit id="page.languages" resname="page.languages"><source>Languages</source></trans-unit>
 			<trans-unit id="page.languages.hint" resname="page.languages.hint"><source>Audiences per language differ, so compare the numbers with care. Languages without a translation of the page are not listed.</source></trans-unit>
 			<trans-unit id="page.languages.language" resname="page.languages.language"><source>Language</source></trans-unit>
+			<trans-unit id="page.transitions" resname="page.transitions"><source>Transitions</source></trans-unit>
+			<trans-unit id="page.transitions.hint" resname="page.transitions.hint"><source>Where visitors come from and where they continue. Matomo computes this from the raw visit logs, which takes a moment on large instances.</source></trans-unit>
+			<trans-unit id="page.transitions.show" resname="page.transitions.show"><source>Show transitions</source></trans-unit>
+			<trans-unit id="page.transitions.empty" resname="page.transitions.empty"><source>No transitions for this page in the selected period.</source></trans-unit>
+			<trans-unit id="page.transitions.referrers" resname="page.transitions.referrers"><source>Coming from outside</source></trans-unit>
+			<trans-unit id="page.transitions.previousPages" resname="page.transitions.previousPages"><source>Previous pages</source></trans-unit>
+			<trans-unit id="page.transitions.followingPages" resname="page.transitions.followingPages"><source>Next pages</source></trans-unit>
+			<trans-unit id="page.transitions.outlinks" resname="page.transitions.outlinks"><source>Outlinks</source></trans-unit>
+			<trans-unit id="page.transitions.downloads" resname="page.transitions.downloads"><source>Downloads</source></trans-unit>
+			<trans-unit id="page.transitions.noPages" resname="page.transitions.noPages"><source>No pages.</source></trans-unit>
 		</body>
 	</file>
 </xliff>

@@ -235,6 +235,69 @@ final class PageDetailsTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function loadsTransitionsOnDemandOnly(): void
+    {
+        $html = (string)$this->render(1, ['id' => '2', 'language' => '0'], 'page')->getBody();
+
+        self::assertNotContains('Transitions.getTransitionsForAction', array_column($this->calls, 'method'));
+        self::assertMatchesRegularExpression('#href="[^"]*/module/analytics-matomo/page\?[^"]*id=2&amp;language=0&amp;transitions=1#', $html);
+    }
+
+    #[Test]
+    public function showsWhereVisitorsComeFromAndGoTo(): void
+    {
+        $this->fixtures['transitions'] = $this->fixture('SyntheticTransitions')[0];
+        $html = (string)$this->render(1, ['id' => '2', 'language' => '0', 'transitions' => '1'], 'page')->getBody();
+
+        $call = array_values(array_filter($this->calls, static fn (array $call): bool => $call['method'] === 'Transitions.getTransitionsForAction'))[0];
+        self::assertSame(['url', 'https://example.com/about', 'range', '2026-10-27,2026-11-02'], [$call['actionType'], $call['actionName'], $call['period'], $call['date']]);
+        self::assertStringContainsString('data-transitions', $html);
+        self::assertStringContainsString('From search engines', $html);
+        self::assertStringContainsString('Google', $html);
+        self::assertMatchesRegularExpression('#href="[^"]*/module/web/layout\?[^"]*id=1"[^>]*>Root</a>#', $html);
+        self::assertMatchesRegularExpression('#href="[^"]*/module/web/layout\?[^"]*id=2"[^>]*>Über uns</a>#', $html);
+        self::assertMatchesRegularExpression('#data-identifier="flags-de".{0,800}Über uns#s', $html);
+        self::assertStringContainsString('Summer sale', $html);
+        self::assertStringContainsString('Saxon Switzerland', $html);
+        self::assertStringContainsString('Others', $html);
+        self::assertStringContainsString('example.com/storage', $html);
+        self::assertStringContainsString('http://www.dailymotion.com/video/xxss8_virtual-drums-batterie-virtuelle', $html);
+        self::assertStringContainsString('example.com/fileadmin/price-list.pdf', $html);
+    }
+
+    #[Test]
+    public function transitionsShowEditorsOnlyPagesTheyMaySee(): void
+    {
+        $this->fixtures['transitions'] = $this->fixture('SyntheticTransitions')[0];
+        $html = (string)$this->render(3, ['id' => '2', 'language' => '0', 'transitions' => '1'], 'page')->getBody();
+
+        self::assertMatchesRegularExpression('#href="[^"]*/module/web/layout\?[^"]*id=1"[^>]*>Root</a>#', $html);
+        // A German page for an editor of English only, and a URL without a readable page
+        self::assertStringNotContainsString('Über uns', $html);
+        self::assertStringNotContainsString('example.com/storage', $html);
+    }
+
+    #[Test]
+    public function transitionsWithoutDataShowAnEmptyState(): void
+    {
+        $this->fixtures['transitions'] = $this->fixture('TransitionsNoData')[0];
+        $html = (string)$this->render(1, ['id' => '2', 'language' => '0', 'transitions' => '1'], 'page')->getBody();
+
+        self::assertStringContainsString('data-transitions', $html);
+        self::assertStringContainsString('No transitions for this page in the selected period.', $html);
+        self::assertStringContainsString('tx-analytics-matomo-metric--views', $html);
+    }
+
+    #[Test]
+    public function transitionsWithoutClicksNameTheTrackingRequirement(): void
+    {
+        $this->fixtures['transitions'] = $this->fixture('Transitions')[0];
+        $html = (string)$this->render(1, ['id' => '2', 'language' => '0', 'transitions' => '1'], 'page')->getBody();
+
+        self::assertStringContainsString('No clicks recorded. Outlinks and downloads need link tracking (enableLinkTracking) in the Matomo tracking code.', $html);
+    }
+
+    #[Test]
     public function takesThePeriodFromTheBarLink(): void
     {
         $html = (string)$this->render(1, ['id' => '2', 'language' => '1', 'period' => '14'], 'page')->getBody();
@@ -264,6 +327,7 @@ final class PageDetailsTest extends FunctionalTestCase
         return match ($parameters['method']) {
             'Actions.getPageUrl' => $this->fixtures[($parameters['period'] === 'range' ? 'range' : 'day') . ($previous ? 'Previous' : '')],
             'Actions.getPageUrls' => $this->fixtures['pageRow'],
+            'Transitions.getTransitionsForAction' => $this->fixtures['transitions'] ?? self::fail('Unexpected Transitions call'),
             default => self::fail('Unexpected Matomo call ' . $parameters['method']),
         };
     }

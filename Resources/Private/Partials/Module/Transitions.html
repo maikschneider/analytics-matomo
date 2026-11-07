@@ -1,0 +1,97 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+<h2><f:translate key="{ll}page.transitions" /></h2>
+<f:if condition="{transitions}">
+    <f:then>
+        <div data-transitions>
+            <f:if condition="{transitions.empty}">
+                <f:then>
+                    <p class="text-body-secondary"><f:translate key="{ll}page.transitions.empty" /></p>
+                </f:then>
+                <f:else>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <h3><f:translate key="{ll}page.transitions.referrers" /></h3>
+                            <ul class="list-unstyled">
+                                <f:for each="{transitions.referrers}" as="referrer">
+                                    <li>
+                                        <strong>{referrer.label}</strong> <span class="text-body-secondary">{referrer.visits}</span>
+                                        <f:if condition="{referrer.details}">
+                                            <ul>
+                                                <f:for each="{referrer.details}" as="detail">
+                                                    <li>{detail.label} <span class="text-body-secondary">{detail.visits}</span></li>
+                                                </f:for>
+                                            </ul>
+                                        </f:if>
+                                    </li>
+                                </f:for>
+                            </ul>
+                        </div>
+                        <div class="col-lg-4">
+                            <h3><f:translate key="{ll}page.transitions.previousPages" /></h3>
+                            <f:render section="Pages" arguments="{pages: transitions.previousPages, ll: ll}" />
+                        </div>
+                        <div class="col-lg-4">
+                            <h3><f:translate key="{ll}page.transitions.followingPages" /></h3>
+                            <f:render section="Pages" arguments="{pages: transitions.followingPages, ll: ll}" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <h3><f:translate key="{ll}page.transitions.outlinks" /></h3>
+                            <f:render section="Clicks" arguments="{clicks: transitions.outlinks, ll: ll}" />
+                        </div>
+                        <div class="col-lg-6">
+                            <h3><f:translate key="{ll}page.transitions.downloads" /></h3>
+                            <f:render section="Clicks" arguments="{clicks: transitions.downloads, ll: ll}" />
+                        </div>
+                    </div>
+                </f:else>
+            </f:if>
+        </div>
+    </f:then>
+    <f:else>
+        <p class="text-body-secondary"><f:translate key="{ll}page.transitions.hint" /></p>
+        <a href="{transitionsUrl}" class="btn btn-default"><f:translate key="{ll}page.transitions.show" /></a>
+    </f:else>
+</f:if>
+
+<f:section name="Pages">
+    <f:if condition="{pages}">
+        <f:then>
+            <ul class="list-unstyled">
+                <f:for each="{pages}" as="page">
+                    <li>
+                        <f:if condition="{page.url}">
+                            <f:then><core:icon identifier="{page.flag}" size="small" /> <a href="{page.url}" title="{page.label}">{page.title}</a></f:then>
+                            <f:else>{page.label}</f:else>
+                        </f:if>
+                        <span class="text-body-secondary">{page.visits}</span>
+                    </li>
+                </f:for>
+            </ul>
+        </f:then>
+        <f:else>
+            <p class="text-body-secondary"><f:translate key="{ll}page.transitions.noPages" /></p>
+        </f:else>
+    </f:if>
+</f:section>
+
+<f:section name="Clicks">
+    <f:if condition="{clicks}">
+        <f:then>
+            <ul class="list-unstyled">
+                <f:for each="{clicks}" as="click">
+                    <li><span class="text-break">{click.label}</span> <span class="text-body-secondary">{click.visits}</span></li>
+                </f:for>
+            </ul>
+        </f:then>
+        <f:else>
+            <p class="text-body-secondary"><f:translate key="{ll}empty.linkTracking" /></p>
+        </f:else>
+    </f:if>
+</f:section>
+</html>

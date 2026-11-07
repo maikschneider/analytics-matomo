@@ -240,6 +240,16 @@
 			<trans-unit id="page.languages" resname="page.languages"><source>Languages</source><target>Sprachen</target></trans-unit>
 			<trans-unit id="page.languages.hint" resname="page.languages.hint"><source>Audiences per language differ, so compare the numbers with care. Languages without a translation of the page are not listed.</source><target>Die Besucher je Sprache unterscheiden sich, vergleichen Sie die Zahlen daher mit Vorsicht. Sprachen ohne Übersetzung der Seite fehlen.</target></trans-unit>
 			<trans-unit id="page.languages.language" resname="page.languages.language"><source>Language</source><target>Sprache</target></trans-unit>
+			<trans-unit id="page.transitions" resname="page.transitions"><source>Transitions</source><target>Übergänge</target></trans-unit>
+			<trans-unit id="page.transitions.hint" resname="page.transitions.hint"><source>Where visitors come from and where they continue. Matomo computes this from the raw visit logs, which takes a moment on large instances.</source><target>Woher Besucher kommen und wohin sie weitergehen. Matomo berechnet das aus den Rohdaten der Besuche, was bei großen Instanzen etwas dauert.</target></trans-unit>
+			<trans-unit id="page.transitions.show" resname="page.transitions.show"><source>Show transitions</source><target>Übergänge anzeigen</target></trans-unit>
+			<trans-unit id="page.transitions.empty" resname="page.transitions.empty"><source>No transitions for this page in the selected period.</source><target>Keine Übergänge für diese Seite im gewählten Zeitraum.</target></trans-unit>
+			<trans-unit id="page.transitions.referrers" resname="page.transitions.referrers"><source>Coming from outside</source><target>Von außerhalb</target></trans-unit>
+			<trans-unit id="page.transitions.previousPages" resname="page.transitions.previousPages"><source>Previous pages</source><target>Vorherige Seiten</target></trans-unit>
+			<trans-unit id="page.transitions.followingPages" resname="page.transitions.followingPages"><source>Next pages</source><target>Folgende Seiten</target></trans-unit>
+			<trans-unit id="page.transitions.outlinks" resname="page.transitions.outlinks"><source>Outlinks</source><target>Ausgehende Links</target></trans-unit>
+			<trans-unit id="page.transitions.downloads" resname="page.transitions.downloads"><source>Downloads</source><target>Downloads</target></trans-unit>
+			<trans-unit id="page.transitions.noPages" resname="page.transitions.noPages"><source>No pages.</source><target>Keine Seiten.</target></trans-unit>
 		</body>
 	</file>
 </xliff>

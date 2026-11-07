@@ -88,6 +88,13 @@ final readonly class DemoData
     /** Daily views of a page by the number of segments of its path */
     private const PAGE_HITS = [[25, 60], [5, 20], [3, 12]];
     private const DEEP_PAGE_HITS = [2, 6];
+    /** Where visitors of a page come from: label, share of the entries in percent and details with their share */
+    private const TRANSITION_REFERRERS = [
+        'search' => ['From search engines', 45, ['Google' => 78, 'Bing' => 12, 'DuckDuckGo' => 7]],
+        'direct' => ['Direct entries', 30, []],
+        'website' => ['From websites', 15, ['typo3.org' => 60, 'github.com' => 40]],
+        'social' => ['From social networks', 10, ['LinkedIn' => 70, 'Mastodon' => 30]],
+    ];
 
     public function __construct(
         private ?DemoPageUrls $pageUrls = null,
@@ -101,7 +108,7 @@ final readonly class DemoData
     public function results(array $requests, MatomoConfiguration $configuration): array
     {
         $pageUrls = [];
-        if (in_array('Actions.getPageUrls', array_column($requests, 'method'), true) || array_intersect(['getPageUrls', 'getEntryPageUrls', 'getExitPageUrls', 'getPageTitles'], array_column($requests, 'apiAction')) !== []) {
+        if (array_intersect(['Actions.getPageUrls', 'Transitions.getTransitionsForAction'], array_column($requests, 'method')) !== [] || array_intersect(['getPageUrls', 'getEntryPageUrls', 'getExitPageUrls', 'getPageTitles'], array_column($requests, 'apiAction')) !== []) {
             $pageUrls = $this->pageUrls?->get($configuration->idSite) ?? [];
             if ($pageUrls === []) {
                 $pageUrls = array_map(static fn (string $path): string => rtrim($configuration->url, '/') . '/' . $path, self::FALLBACK_PATHS);
@@ -162,6 +169,7 @@ final readonly class DemoData
             'Actions.get' => ['nb_pageviews' => $this->pageViews($site, $dates)],
             'Actions.getPageUrl' => [$this->pageRow($site, (string)($request['pageUrl'] ?? ''), $dates)],
             'Actions.getPageUrls' => $this->filter($request, array_map($this->withTimings(...), $this->pageUrls($site, $pageUrls, $dates, (int)($request['filter_limit'] ?? -1)))),
+            'Transitions.getTransitionsForAction' => $this->transitions($site, (string)($request['actionName'] ?? ''), $pageUrls, $dates),
             default => throw new MatomoApiException('The demo data have no answer for ' . $method, 1793960301),
         };
     }
@@ -379,6 +387,51 @@ final readonly class DemoData
             'sum_visit_length' => $length,
             'bounce_rate' => $visits > 0 ? round($bounces / $visits, 2) : 0,
             'avg_time_on_site' => $visits > 0 ? intdiv($length, $visits) : 0,
+        ];
+    }
+
+    /**
+     * Previous and next pages are other pages of the site, labelled without scheme like Matomo does
+     *
+     * @param list<string> $pageUrls
+     * @param list<string> $dates
+     * @return array<string, mixed>
+     */
+    private function transitions(string $site, string $url, array $pageUrls, array $dates): array
+    {
+        $views = (int)$this->pageRow($site, $url, $dates)['nb_hits'];
+        $entries = intdiv($views * $this->between('entries' . $url, 20, 50), 100);
+        $pages = function (string $direction) use ($url, $pageUrls, $views): array {
+            $rows = [];
+            foreach (array_slice(array_values(array_diff($pageUrls, [$url])), 0, 6) as $other) {
+                $rows[] = ['label' => (string)preg_replace('#^https?://#', '', $other), 'referrals' => max(1, intdiv($views * $this->between($direction . $url . $other, 2, 15), 100))];
+            }
+            usort($rows, static fn (array $a, array $b): int => $b['referrals'] <=> $a['referrals']);
+            return $rows;
+        };
+        $clicks = function (string $method, int $min) use ($url, $views): array {
+            $labels = self::REPORTS[$method][3];
+            $rows = [];
+            foreach (array_slice(is_array($labels) ? array_keys($labels) : [], 0, $this->between($method . $url, $min, 3)) as $label) {
+                $rows[] = ['label' => $label, 'referrals' => intdiv($views * $this->between($method . $url . $label, 1, 8) + 99, 100)];
+            }
+            return $rows;
+        };
+        $referrers = [];
+        foreach (self::TRANSITION_REFERRERS as $shortName => [$label, $percent, $details]) {
+            $visits = intdiv($entries * $percent, 100);
+            $referrers[] = [
+                'label' => $label, 'shortName' => $shortName, 'visits' => $visits,
+                'details' => array_map(static fn (string $detail, int $share): array => ['label' => $detail, 'referrals' => (string)intdiv($visits * $share, 100)], array_keys($details), $details),
+            ];
+        }
+        return [
+            'previousPages' => $pages('previous'),
+            'followingPages' => $pages('following'),
+            'outlinks' => $clicks('Actions.getOutlinks', 1),
+            'downloads' => $clicks('Actions.getDownloads', 0),
+            'referrers' => $referrers,
+            'pageMetrics' => ['loops' => intdiv($views, 20), 'pageviews' => $views, 'entries' => $entries, 'exits' => intdiv($views * $this->between('exit' . $url, 15, 60), 100)],
         ];
     }
 

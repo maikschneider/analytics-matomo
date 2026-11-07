@@ -91,6 +91,15 @@ page in every language it is translated to and the user may access, from the
 same request. A click on a language switches the page details to it. The
 audiences of the languages differ, so read the numbers side by side with care.
 
+:guilabel:`Transitions` shows where visitors of the page come from (search
+engines, websites, direct entries and other channels), the previous and next
+pages, and the clicked outlinks and downloads. Matomo computes them from the
+raw visit logs, so they load only after a click on :guilabel:`Show
+transitions` and are cached like every report. Pages link to the
+:guilabel:`Page` module; like in the URL reports, editors only see pages they
+may access. Outlinks and downloads need the link tracking of the JavaScript
+tracker.
+
 :guilabel:`Speed` shows the average page load time and server time with the
 number of measured page views. Matomo collects these timings with its
 JavaScript tracker by default; server-side tracking has none. With fewer than

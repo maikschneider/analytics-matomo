@@ -77,6 +77,28 @@ final class DemoDataTest extends UnitTestCase
     }
 
     #[Test]
+    public function transitionsLinkThePageWithOtherPagesOfTheSite(): void
+    {
+        [$result] = (new DemoData())->results([[
+            'method' => 'Transitions.getTransitionsForAction', 'actionType' => 'url', 'actionName' => 'https://example.com/about',
+            'period' => 'range', 'date' => $this->period->toMatomoDate(),
+        ]], $this->configuration);
+
+        self::assertSame(['previousPages', 'followingPages', 'outlinks', 'downloads', 'referrers', 'pageMetrics'], array_keys($result));
+        $previous = array_column($result['previousPages'], 'label');
+        self::assertContains('example.com/', $previous);
+        self::assertNotContains('example.com/about', $previous);
+        $referrals = array_column($result['previousPages'], 'referrals');
+        $sorted = $referrals;
+        rsort($sorted);
+        self::assertSame($sorted, $referrals);
+        self::assertNotEmpty($result['followingPages']);
+        self::assertNotEmpty($result['outlinks']);
+        self::assertSame('search', $result['referrers'][0]['shortName']);
+        self::assertNotEmpty($result['referrers'][0]['details']);
+    }
+
+    #[Test]
     public function pageStatisticsUseThePageUrlOfTheRequest(): void
     {
         [$result] = (new DemoData())->results([
