@@ -74,6 +74,8 @@ final class DemoDataTest extends UnitTestCase
         self::assertGreaterThan(0, $result[0]['nb_hits_with_time_network']);
         self::assertGreaterThan(0, $result[0]['avg_page_load_time']);
         self::assertGreaterThan(0, $result[0]['nb_hits_with_time_server']);
+        self::assertGreaterThan(0, $result[0]['goals']['idgoal=1']['nb_conversions_page_uniq']);
+        self::assertLessThanOrEqual($result[0]['goals']['idgoal=1']['nb_conversions_page_uniq'], $result[0]['goals']['idgoal=1']['nb_conversions_attrib']);
     }
 
     #[Test]
@@ -96,6 +98,28 @@ final class DemoDataTest extends UnitTestCase
         self::assertNotEmpty($result['outlinks']);
         self::assertSame('search', $result['referrers'][0]['shortName']);
         self::assertNotEmpty($result['referrers'][0]['details']);
+    }
+
+    #[Test]
+    public function goalsAddUpOverTheGoalsAndTheirChannels(): void
+    {
+        $date = ['period' => 'range', 'date' => $this->period->toMatomoDate(), 'format_metrics' => 0];
+        [$goals, $all, $first, $second, $channels, $entryPages] = (new DemoData())->results([
+            ['method' => 'Goals.getGoals'],
+            ['method' => 'Goals.get'] + $date,
+            ['method' => 'Goals.get', 'idGoal' => 1] + $date,
+            ['method' => 'Goals.get', 'idGoal' => 2] + $date,
+            ['method' => 'Referrers.getReferrerType', 'idGoal' => 1, 'filter_limit' => -1] + $date,
+            ['method' => 'Actions.getEntryPageUrls', 'idGoal' => 1, 'flat' => 1, 'filter_limit' => -1] + $date,
+        ], $this->configuration);
+
+        self::assertSame([1, 2], array_column($goals, 'idgoal'));
+        self::assertGreaterThan(0, $first['nb_conversions']);
+        self::assertSame($first['nb_conversions'] + $second['nb_conversions'], $all['nb_conversions']);
+        self::assertGreaterThan(0, $all['revenue']);
+        self::assertSame($first['nb_conversions'], array_sum(array_map(static fn (array $row): int => $row['goals']['idgoal=1']['nb_conversions'] ?? 0, $channels)));
+        self::assertSame('https://example.com/', $entryPages[0]['url']);
+        self::assertSame($first['nb_conversions'], array_sum(array_map(static fn (array $row): int => $row['goals']['idgoal=1']['nb_conversions_entry'] ?? 0, $entryPages)));
     }
 
     #[Test]

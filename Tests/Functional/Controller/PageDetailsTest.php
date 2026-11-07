@@ -45,6 +45,7 @@ final class PageDetailsTest extends FunctionalTestCase
         $this->fixtures = [
             'range' => $pageDetails[0], 'day' => $pageDetails[1], 'rangePrevious' => $pageDetails[2], 'dayPrevious' => $pageDetails[3],
             'pageRow' => $this->fixture('PageSpeed'),
+            'goals' => $this->fixture('Goals')['goals'],
         ];
         $GLOBALS['TYPO3_CONF_VARS']['HTTP']['handler']['matomo'] = fn (callable $handler): \Closure => function (RequestInterface $request): FulfilledPromise {
             $this->requests++;
@@ -95,6 +96,29 @@ final class PageDetailsTest extends FunctionalTestCase
 
         $this->render(1, ['id' => '2', 'language' => '0'], 'page');
         self::assertSame(1, $this->requests);
+    }
+
+    #[Test]
+    public function pageDetailsShowGoalConversionsAfterThePage(): void
+    {
+        $html = (string)$this->render(1, ['id' => '2', 'language' => '0'], 'page')->getBody();
+
+        self::assertContains('Goals.getGoals', array_column($this->calls, 'method'));
+        self::assertSame(1, $this->requests);
+        self::assertStringContainsString('<h2>Goals</h2>', $html);
+        self::assertStringContainsString('The number of conversions attributed to this page', $html);
+        self::assertMatchesRegularExpression('#<td>View Photos</td>\s*<td>2</td>\s*<td>1</td>\s*<td>2</td>#', $html);
+        self::assertMatchesRegularExpression('#<td>View Videos</td>\s*<td>2</td>\s*<td>0.67</td>\s*<td>1</td>#', $html);
+    }
+
+    #[Test]
+    public function pageDetailsHideGoalsWhenTheSiteHasNone(): void
+    {
+        $this->fixtures['goals'] = [];
+        $html = (string)$this->render(1, ['id' => '2', 'language' => '0'], 'page')->getBody();
+
+        self::assertStringContainsString('<h2>Speed</h2>', $html);
+        self::assertStringNotContainsString('<h2>Goals</h2>', $html);
     }
 
     #[Test]
@@ -327,6 +351,7 @@ final class PageDetailsTest extends FunctionalTestCase
         return match ($parameters['method']) {
             'Actions.getPageUrl' => $this->fixtures[($parameters['period'] === 'range' ? 'range' : 'day') . ($previous ? 'Previous' : '')],
             'Actions.getPageUrls' => $this->fixtures['pageRow'],
+            'Goals.getGoals' => $this->fixtures['goals'],
             'Transitions.getTransitionsForAction' => $this->fixtures['transitions'] ?? self::fail('Unexpected Transitions call'),
             default => self::fail('Unexpected Matomo call ' . $parameters['method']),
         };

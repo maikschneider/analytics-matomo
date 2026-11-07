@@ -41,7 +41,7 @@ final readonly class ReportTableFactory
             return $this->createMetricList($report, $previous);
         }
         if (isset($options['columns'])) {
-            $report['columns'] = ['label' => $report['columns']['label']] + array_map(static fn (array $column): string => $column[0], $options['columns']);
+            $report['columns'] = ['label' => $options['columns']['label'][0] ?? $report['columns']['label']] + array_map(static fn (array $column): string => $column[0], $options['columns']);
             $report['metadata']['metricTypes'] = array_map(static fn (array $column): string => $column[1], $options['columns']) + (array)($report['metadata']['metricTypes'] ?? []);
         }
         $rows = $this->rows($report);

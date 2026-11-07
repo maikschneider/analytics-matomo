@@ -283,8 +283,14 @@
 			<trans-unit id="metric.actionsPerVisit"><source>Actions per visit</source><target>Aktionen pro Besuch</target></trans-unit>
 			<trans-unit id="siteMetric.actionsPerVisit.description"><source>Average number of actions during a visit.</source><target>Durchschnittliche Anzahl von Aktionen während eines Besuchs.</target></trans-unit>
 			<trans-unit id="siteMetric.visitors.description"><source>Unique visitors reported by Matomo. This metric may be unavailable for some periods.</source><target>Eindeutige Besucher laut Matomo. Diese Kennzahl ist für manche Zeiträume nicht verfügbar.</target></trans-unit>
+			<trans-unit id="siteMetric.conversions.description" resname="siteMetric.conversions.description"><source>How often the goals were reached. A goal that allows several conversions per visit can count more than once.</source><target>Wie oft die Ziele erreicht wurden. Ein Ziel, das mehrere Konversionen pro Besuch erlaubt, kann mehrfach zählen.</target></trans-unit>
+			<trans-unit id="siteMetric.conversionRate.description" resname="siteMetric.conversionRate.description"><source>Share of the visits that reached a goal.</source><target>Anteil der Besuche, die ein Ziel erreicht haben.</target></trans-unit>
+			<trans-unit id="siteMetric.revenue.description" resname="siteMetric.revenue.description"><source>Revenue of the conversions, as set on the goals in Matomo.</source><target>Umsatz der Konversionen, wie er an den Zielen in Matomo hinterlegt ist.</target></trans-unit>
 			<trans-unit id="bar.details" resname="bar.details"><source>Details</source><target>Details</target></trans-unit>
 			<trans-unit id="bar.details.title" resname="bar.details.title"><source>Page details in the Matomo Analytics module</source><target>Seitendetails im Modul Matomo Analytics</target></trans-unit>
+			<trans-unit id="metric.conversions" resname="metric.conversions"><source>Conversions</source><target>Konversionen</target></trans-unit>
+			<trans-unit id="metric.conversionRate" resname="metric.conversionRate"><source>Conversion rate</source><target>Konversionsrate</target></trans-unit>
+			<trans-unit id="metric.revenue" resname="metric.revenue"><source>Revenue</source><target>Umsatz</target></trans-unit>
 			<trans-unit id="settings.wordsPerMinute" resname="settings.wordsPerMinute"><source>Reading speed (words per minute)</source><target>Lesegeschwindigkeit (Wörter pro Minute)</target></trans-unit>
 			<trans-unit id="settings.wordsPerMinute.description" resname="settings.wordsPerMinute.description"><source>Used to estimate the reading time of a page in the page details of the Matomo Analytics module.</source><target>Dient zur Schätzung der Lesezeit einer Seite in den Seitendetails des Moduls Matomo Analytics.</target></trans-unit>
 		</body>

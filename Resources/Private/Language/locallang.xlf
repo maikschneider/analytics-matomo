@@ -214,8 +214,14 @@
 			<trans-unit id="metric.actionsPerVisit"><source>Actions per visit</source></trans-unit>
 			<trans-unit id="siteMetric.actionsPerVisit.description"><source>Average number of actions during a visit.</source></trans-unit>
 			<trans-unit id="siteMetric.visitors.description"><source>Unique visitors reported by Matomo. This metric may be unavailable for some periods.</source></trans-unit>
+			<trans-unit id="siteMetric.conversions.description" resname="siteMetric.conversions.description"><source>How often the goals were reached. A goal that allows several conversions per visit can count more than once.</source></trans-unit>
+			<trans-unit id="siteMetric.conversionRate.description" resname="siteMetric.conversionRate.description"><source>Share of the visits that reached a goal.</source></trans-unit>
+			<trans-unit id="siteMetric.revenue.description" resname="siteMetric.revenue.description"><source>Revenue of the conversions, as set on the goals in Matomo.</source></trans-unit>
 			<trans-unit id="bar.details" resname="bar.details"><source>Details</source></trans-unit>
 			<trans-unit id="bar.details.title" resname="bar.details.title"><source>Page details in the Matomo Analytics module</source></trans-unit>
+			<trans-unit id="metric.conversions" resname="metric.conversions"><source>Conversions</source></trans-unit>
+			<trans-unit id="metric.conversionRate" resname="metric.conversionRate"><source>Conversion rate</source></trans-unit>
+			<trans-unit id="metric.revenue" resname="metric.revenue"><source>Revenue</source></trans-unit>
 			<trans-unit id="settings.wordsPerMinute" resname="settings.wordsPerMinute"><source>Reading speed (words per minute)</source></trans-unit>
 			<trans-unit id="settings.wordsPerMinute.description" resname="settings.wordsPerMinute.description"><source>Used to estimate the reading time of a page in the page details of the Matomo Analytics module.</source></trans-unit>
 		</body>

@@ -21,7 +21,7 @@ final readonly class PageDetailsService
 
     /**
      * @param array<int, string> $languageUrls URLs of the page in its other languages, by language ID
-     * @return array{current: array<string, mixed>, previous: array<string, mixed>|null, chart: array<string, mixed>, pageRow: array<string, mixed>, languages: array<int, array<string, mixed>>}
+     * @return array{current: array<string, mixed>, previous: array<string, mixed>|null, chart: array<string, mixed>, pageRow: array<string, mixed>, languages: array<int, array<string, mixed>>, goals: array<int, string>}
      * @throws MatomoApiException
      */
     public function getDetails(MatomoConfiguration $configuration, string $pageUrl, Period $period, bool $compare, array $languageUrls = []): array
@@ -44,6 +44,7 @@ final readonly class PageDetailsService
             foreach ($languageUrls as $languageId => $languageUrl) {
                 $requests['language' . $languageId] = $request + ['pageUrl' => $languageUrl, 'period' => 'range', 'date' => $period->toMatomoDate()];
             }
+            $requests['goals'] = ['method' => 'Goals.getGoals'];
             $results = array_combine(array_keys($requests), $this->client->bulkRequest($configuration, array_values($requests)));
             $pageRows = $this->rows($results['pageRows']);
             usort($pageRows, static fn (array $a, array $b): int => (int)($b['nb_hits'] ?? 0) <=> (int)($a['nb_hits'] ?? 0));
@@ -58,6 +59,7 @@ final readonly class PageDetailsService
                 // A site tracked under http and https has a row per scheme; the busier one wins
                 'pageRow' => $pageRows[0] ?? [],
                 'languages' => $languages,
+                'goals' => GoalsService::names($results['goals']),
             ];
         });
     }

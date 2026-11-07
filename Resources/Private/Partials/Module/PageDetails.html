@@ -63,6 +63,27 @@
         </f:if>
     </dl>
 </f:if>
+<f:if condition="{pageDetails.goals}">
+    <h2><f:translate key="{ll}page.goals" /></h2>
+    <table class="table table-striped table-hover">
+        <thead><tr>
+            <th scope="col"><f:translate key="{ll}column.goal" /></th>
+            <f:for each="{0: 'viewedBefore', 1: 'attributed', 2: 'entrances'}" as="column">
+                <th scope="col" title="{f:translate(key: '{ll}page.goals.{column}.description')}"><f:translate key="{ll}page.goals.{column}" /></th>
+            </f:for>
+        </tr></thead>
+        <tbody>
+            <f:for each="{pageDetails.goals}" as="goal">
+                <tr>
+                    <td>{goal.name}</td>
+                    <td>{goal.viewedBefore}</td>
+                    <td>{goal.attributed}</td>
+                    <td>{goal.entrances}</td>
+                </tr>
+            </f:for>
+        </tbody>
+    </table>
+</f:if>
 <h2><f:translate key="{ll}page.speed" /></h2>
 <p class="text-body-secondary"><f:translate key="{ll}page.speed.hint" /></p>
 <dl class="row">

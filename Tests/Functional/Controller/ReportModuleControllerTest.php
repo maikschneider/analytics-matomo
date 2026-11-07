@@ -111,7 +111,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     #[Test]
     public function allSectionsRenderTheirOwnReportPages(): void
     {
-        foreach (['visitors' => 'Overview', 'behaviour' => 'Pages', 'acquisition' => 'All channels', 'goals' => 'Goals', 'page' => 'Page details'] as $section => $title) {
+        foreach (['visitors' => 'Overview', 'behaviour' => 'Pages', 'acquisition' => 'All channels', 'goals' => 'Overview', 'page' => 'Page details'] as $section => $title) {
             $response = $this->render(1, ['site' => 'trial'], $section);
             self::assertSame(200, $response->getStatusCode());
             self::assertStringContainsString('<h1>' . $title . '</h1>', (string)$response->getBody());

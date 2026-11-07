@@ -8,6 +8,7 @@ use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelection;
 use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelectionResolver;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
 use MaikSchneider\AnalyticsMatomo\Module\EvolutionChartFactory;
+use MaikSchneider\AnalyticsMatomo\Module\GoalsService;
 use MaikSchneider\AnalyticsMatomo\Module\MetricFormatter;
 use MaikSchneider\AnalyticsMatomo\Module\PageDetailsService;
 use MaikSchneider\AnalyticsMatomo\Module\ReadingTimeEstimator;
@@ -40,6 +41,10 @@ use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
+/**
+ * @phpstan-import-type Definition from ReportCatalog
+ * @phpstan-import-type Report from ReportTableFactory
+ */
 #[AsController]
 final readonly class ReportModuleController
 {
@@ -63,6 +68,7 @@ final readonly class ReportModuleController
         private ReadingTimeEstimator $readingTimeEstimator,
         private TransitionsService $transitionsService,
         private TransitionsPanelFactory $transitionsPanelFactory,
+        private GoalsService $goalsService,
     ) {
     }
 
@@ -137,6 +143,22 @@ final readonly class ReportModuleController
             $report = (string)$moduleData->get('report');
             $variables['title'] = $this->translate($pages[$report] ?? self::LABELS . 'section.' . $section);
         }
+        $goals = null;
+        if ($section === 'goals') {
+            try {
+                $goals = $this->goalsService->getGoals($selection->configuration);
+            } catch (MatomoApiException $exception) {
+                // The goal page request shows the error
+                $this->logger->warning('Loading the Matomo goals failed: {message}', ['message' => $exception->getMessage(), 'site' => $selection->site->getIdentifier()]);
+            }
+            $pages = ['overview' => self::LABELS . 'report.overview'];
+            foreach ($goals ?? [] as $id => $name) {
+                $pages['goal' . $id] = $name;
+            }
+            $moduleData->clean('report', array_keys($pages));
+            $report = (string)$moduleData->get('report');
+            $variables['title'] = $report === 'overview' ? $this->translate($pages[$report]) : $pages[$report];
+        }
 
         $this->addMenu($template, $route, $pageId, 'report', $pages, $report);
         if ($pageId === 0) {
@@ -172,24 +194,15 @@ final readonly class ReportModuleController
                 $this->pageRenderer->addCssFile('EXT:analytics_matomo/Resources/Public/Css/statistics-bar.css');
                 $this->pageRenderer->addCssFile('EXT:analytics_matomo/Resources/Public/Css/dashboard.css');
                 $this->pageRenderer->loadJavaScriptModule('@maikschneider/analytics-matomo/evolution-chart.js');
+            } elseif ($section === 'goals') {
+                $variables += $this->goals($goals ?? $this->goalsService->getGoals($selection->configuration), $report, $selection, $parameters, $route, $pageId, (int)$moduleData->get('language'));
             } else {
-                $reports = $this->reportService->getReports($selection->configuration, $section, $report, $selection->period, $selection->compare, $GLOBALS['LANG']->getLocale()?->getLanguageCode() ?? 'en');
-                $variables['tables'] = [];
-                $baseUrl = (string)$this->uriBuilder->buildUriFromRoute($route, ['id' => $pageId, 'report' => $report]);
                 $definitions = $this->catalog->getReports($section, $report);
-                foreach ($reports as $index => $data) {
-                    $definition = $definitions[$index];
-                    $options = array_intersect_key($definition, ['minimum' => true, 'sort' => true]);
-                    foreach (['title', 'empty'] as $option) {
-                        if (isset($definition[$option])) {
-                            $options[$option] = $this->label($definition[$option]);
-                        }
-                    }
-                    foreach ($definition['columns'] ?? [] as $key => [$label, $type]) {
-                        $options['columns'][$key] = [$this->label($label), $type];
-                    }
-                    $variables['tables'][] = $this->tableFactory->create($data['current'], $data['previous'], $parameters, $baseUrl, ($definition['rows'] ?? '') === 'url' ? $selection->site : null, (int)$moduleData->get('language'), $pageId, $options);
+                $reports = [];
+                foreach ($this->reportService->getReports($selection->configuration, $section, $report, $selection->period, $selection->compare, $GLOBALS['LANG']->getLocale()?->getLanguageCode() ?? 'en') as $index => $data) {
+                    $reports[] = ['definition' => $definitions[$index]] + $data;
                 }
+                $variables['tables'] = $this->tables($reports, $selection, $parameters, $route, $pageId, $report, (int)$moduleData->get('language'));
                 if ($reports === []) {
                     $variables['emptyMessage'] = $this->label($section === 'behaviour' && $report === 'siteSearch' ? 'empty.siteSearch' : 'report.placeholder');
                 }
@@ -209,6 +222,67 @@ final readonly class ReportModuleController
             'formAction' => (string)$this->uriBuilder->buildUriFromRoute($route, ['id' => $pageId]),
         ]);
         return $template->renderResponse('Module/Report');
+    }
+
+    /**
+     * @param array<int, string> $goals
+     * @param array<string, mixed> $parameters
+     * @return array<string, mixed>
+     * @throws MatomoApiException
+     */
+    private function goals(array $goals, string $report, DashboardSelection $selection, array $parameters, string $route, int $pageId, int $languageId): array
+    {
+        if ($goals === []) {
+            return ['emptyMessage' => $this->label('empty.goals')];
+        }
+        $page = $this->goalsService->getPage($selection->configuration, $goals, $report === 'overview' ? null : (int)substr($report, 4), $selection->period, $selection->compare);
+        $metrics = GoalsService::METRICS;
+        $reports = $page['reports'];
+        // Most goals have no revenue; hide the column instead of a row of zeros
+        if ((float)($page['current']['revenue'] ?? 0) === 0.0) {
+            unset($metrics['revenue']);
+            foreach ($reports as $index => $data) {
+                $reports[$index]['definition']['columns'] = array_diff_key($data['definition']['columns'] ?? [], ['revenue' => true, 'revenue_entry' => true]);
+            }
+        }
+        $chart = $page['chart'];
+        $chart['metrics'] = array_intersect_key($chart['metrics'], $metrics);
+        $this->pageRenderer->addCssFile('EXT:analytics_matomo/Resources/Public/Css/statistics-bar.css');
+        $this->pageRenderer->addCssFile('EXT:analytics_matomo/Resources/Public/Css/dashboard.css');
+        $this->pageRenderer->loadJavaScriptModule('@maikschneider/analytics-matomo/evolution-chart.js');
+        return [
+            'tiles' => $this->tileFactory->createForOverview($page['current'], $page['previous'], $metrics),
+            'chart' => $chart,
+            'tables' => $this->tables($reports, $selection, $parameters, $route, $pageId, $report, $languageId),
+        ];
+    }
+
+    /**
+     * @param list<array{definition: Definition, current: Report, previous: Report|null}> $reports
+     * @param array<string, mixed> $parameters
+     * @return list<array<string, mixed>>
+     */
+    private function tables(array $reports, DashboardSelection $selection, array $parameters, string $route, int $pageId, string $report, int $languageId): array
+    {
+        $tables = [];
+        $baseUrl = (string)$this->uriBuilder->buildUriFromRoute($route, ['id' => $pageId, 'report' => $report]);
+        foreach ($reports as ['definition' => $definition, 'current' => $current, 'previous' => $previous]) {
+            $options = array_intersect_key($definition, ['minimum' => true, 'sort' => true]);
+            foreach (['title', 'empty'] as $option) {
+                if (isset($definition[$option])) {
+                    $options[$option] = $this->label($definition[$option]);
+                }
+            }
+            foreach ($definition['columns'] ?? [] as $key => $column) {
+                $options['columns'][$key] = [$this->label($column[0]), $column[1]];
+                // Reports built from raw answers carry no documentation of their own
+                if (isset($column[2])) {
+                    $current['metadata']['metricsDocumentation'][$key] = $this->label($column[2]);
+                }
+            }
+            $tables[] = $this->tableFactory->create($current, $previous, $parameters, $baseUrl, ($definition['rows'] ?? '') === 'url' ? $selection->site : null, $languageId, $pageId, $options);
+        }
+        return $tables;
     }
 
     /**
@@ -239,6 +313,7 @@ final readonly class ReportModuleController
                 'languages' => $this->languages($selection, $pageId, $languageId, [$languageId => $details['current']] + $details['languages']),
                 'transitionsUrl' => (string)$this->uriBuilder->buildUriFromRoute('analytics_matomo_page', ['id' => $pageId, 'language' => $languageId, 'transitions' => 1]),
                 'transitions' => $withTransitions ? $this->transitions($selection, $target, $user) : null,
+                'goals' => $this->pageGoals($details['goals'], $details['pageRow']),
             ],
             'minimumSamples' => ReportCatalog::MINIMUM_TIMING_SAMPLES,
             'tiles' => $this->tileFactory->createForOverview($details['current'], $details['previous'], EvolutionChartFactory::PAGE_METRICS),
@@ -254,6 +329,29 @@ final readonly class ReportModuleController
     {
         $transitions = $this->transitionsService->getTransitions($target->configuration, $target->pageUrl, $selection->period);
         return $transitions === null ? ['empty' => true] : $this->transitionsPanelFactory->create($selection->site, $transitions, $user);
+    }
+
+    /**
+     * Conversions of every goal after a view of the page; Matomo only lists goals converted after the page
+     *
+     * @param array<int, string> $goals
+     * @param array<string, mixed> $pageRow
+     * @return list<array{name: string, viewedBefore: string, attributed: string, entrances: string}>
+     */
+    private function pageGoals(array $goals, array $pageRow): array
+    {
+        $formatter = new MetricFormatter();
+        $rows = [];
+        foreach ($goals as $id => $name) {
+            $conversions = $pageRow['goals']['idgoal=' . $id] ?? [];
+            $rows[] = [
+                'name' => $name,
+                'viewedBefore' => $formatter->format($conversions['nb_conversions_page_uniq'] ?? 0, 'number'),
+                'attributed' => $formatter->format($conversions['nb_conversions_attrib'] ?? 0, 'number'),
+                'entrances' => $formatter->format($conversions['nb_conversions_entry'] ?? 0, 'number'),
+            ];
+        }
+        return $rows;
     }
 
     /**

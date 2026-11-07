@@ -89,6 +89,11 @@ final readonly class DemoData
     private const PAGE_HITS = [[25, 60], [5, 20], [3, 12]];
     private const DEEP_PAGE_HITS = [2, 6];
     /** Where visitors of a page come from: label, share of the entries in percent and details with their share */
+    /** Goals: name, conversions per 1000 visits from and to, revenue per conversion */
+    private const GOALS = [
+        1 => ['Booking request', 8, 22, 40],
+        2 => ['Newsletter signup', 3, 12, 0],
+    ];
     private const TRANSITION_REFERRERS = [
         'search' => ['From search engines', 45, ['Google' => 78, 'Bing' => 12, 'DuckDuckGo' => 7]],
         'direct' => ['Direct entries', 30, []],
@@ -108,7 +113,7 @@ final readonly class DemoData
     public function results(array $requests, MatomoConfiguration $configuration): array
     {
         $pageUrls = [];
-        if (array_intersect(['Actions.getPageUrls', 'Transitions.getTransitionsForAction'], array_column($requests, 'method')) !== [] || array_intersect(['getPageUrls', 'getEntryPageUrls', 'getExitPageUrls', 'getPageTitles'], array_column($requests, 'apiAction')) !== []) {
+        if (array_intersect(['Actions.getPageUrls', 'Actions.getEntryPageUrls', 'Transitions.getTransitionsForAction'], array_column($requests, 'method')) !== [] || array_intersect(['getPageUrls', 'getEntryPageUrls', 'getExitPageUrls', 'getPageTitles'], array_column($requests, 'apiAction')) !== []) {
             $pageUrls = $this->pageUrls?->get($configuration->idSite) ?? [];
             if ($pageUrls === []) {
                 $pageUrls = array_map(static fn (string $path): string => rtrim($configuration->url, '/') . '/' . $path, self::FALLBACK_PATHS);
@@ -168,8 +173,12 @@ final readonly class DemoData
             'VisitFrequency.get' => ['nb_visits_returning' => intdiv($visits * 3, 10)],
             'Actions.get' => ['nb_pageviews' => $this->pageViews($site, $dates)],
             'Actions.getPageUrl' => [$this->pageRow($site, (string)($request['pageUrl'] ?? ''), $dates)],
-            'Actions.getPageUrls' => $this->filter($request, array_map($this->withTimings(...), $this->pageUrls($site, $pageUrls, $dates, (int)($request['filter_limit'] ?? -1)))),
+            'Actions.getPageUrls' => array_map(fn (array $row): array => $row + ['goals' => $this->pageGoals($site, (string)$row['url'], $dates)], $this->filter($request, array_map($this->withTimings(...), $this->pageUrls($site, $pageUrls, $dates, (int)($request['filter_limit'] ?? -1))))),
             'Transitions.getTransitionsForAction' => $this->transitions($site, (string)($request['actionName'] ?? ''), $pageUrls, $dates),
+            'Goals.getGoals' => array_map(static fn (int $id, array $goal): array => ['idgoal' => $id, 'name' => $goal[0], 'revenue' => $goal[3]], array_keys(self::GOALS), self::GOALS),
+            'Goals.get' => $this->goal($site, $dates, $visits, isset($request['idGoal']) ? [(int)$request['idGoal']] : array_keys(self::GOALS)),
+            'Referrers.getReferrerType' => $this->goalRows($site, $dates, (int)($request['idGoal'] ?? 0), self::REPORTS[$method][3], 'nb_visits', 'nb_conversions', fn (string $label, int $share): int => $this->labelVisits($site, $label, $share, $dates)),
+            'Actions.getEntryPageUrls' => $this->goalRows($site, $dates, (int)($request['idGoal'] ?? 0), array_fill_keys($pageUrls, 0), 'entry_nb_visits', 'nb_conversions_entry', fn (string $url): int => intdiv((int)$this->pageRow($site, $url, $dates)['nb_hits'] * $this->between('entries' . $url, 30, 60), 100)),
             default => throw new MatomoApiException('The demo data have no answer for ' . $method, 1793960301),
         };
     }
@@ -433,6 +442,82 @@ final readonly class DemoData
             'referrers' => $referrers,
             'pageMetrics' => ['loops' => intdiv($views, 20), 'pageviews' => $views, 'entries' => $entries, 'exits' => intdiv($views * $this->between('exit' . $url, 15, 60), 100)],
         ];
+    }
+
+    /**
+     * @param list<string> $dates
+     * @param list<int> $goalIds
+     * @return array<string, int|float>
+     */
+    private function goal(string $site, array $dates, int $visits, array $goalIds): array
+    {
+        $conversions = 0;
+        $revenue = 0;
+        foreach ($goalIds as $id) {
+            $goalConversions = $this->conversions($site, $dates, $id);
+            $conversions += $goalConversions;
+            $revenue += $goalConversions * self::GOALS[$id][3];
+        }
+        return [
+            'nb_conversions' => $conversions, 'nb_visits_converted' => $conversions, 'revenue' => $revenue,
+            'conversion_rate' => $visits > 0 ? round($conversions / $visits, 4) : 0,
+        ];
+    }
+
+    /**
+     * Rows of a report by goal: the conversions of the goal are spread over the rows by their visits
+     *
+     * @param list<string> $dates
+     * @param array<string, int> $labels label => share of the visits in percent
+     * @param \Closure(string, int): int $rowVisits
+     * @return list<array<string, mixed>>
+     */
+    private function goalRows(string $site, array $dates, int $goalId, array $labels, string $visitsColumn, string $conversionsColumn, \Closure $rowVisits): array
+    {
+        $visits = [];
+        foreach ($labels as $label => $share) {
+            $visits[$label] = $rowVisits((string)$label, $share);
+        }
+        $total = $this->conversions($site, $dates, $goalId);
+        $sum = max(1, array_sum($visits));
+        $conversions = array_map(static fn (int $rowVisits): int => intdiv($total * $rowVisits, $sum), $visits);
+        $conversions[array_key_first($conversions)] += $total - array_sum($conversions);
+        $rows = [];
+        foreach ($visits as $label => $rowVisits) {
+            $goal = [$conversionsColumn => $conversions[$label], 'nb_conversions' => $conversions[$label], 'revenue' => $conversions[$label] * self::GOALS[$goalId][3]];
+            $row = str_contains((string)$label, '://') ? ['label' => (string)parse_url((string)$label, PHP_URL_PATH) ?: '/', 'url' => $label] : ['label' => $label];
+            $rows[] = $row + [$visitsColumn => $rowVisits, 'goals' => ['idgoal=' . $goalId => $goal]];
+        }
+        return $rows;
+    }
+
+    /**
+     * Conversions after a view of the page: a share of each goal's conversions
+     *
+     * @param list<string> $dates
+     * @return array<string, array<string, int|float>>
+     */
+    private function pageGoals(string $site, string $url, array $dates): array
+    {
+        $goals = [];
+        foreach (array_keys(self::GOALS) as $id) {
+            $viewedBefore = intdiv($this->conversions($site, $dates, $id) * $this->between('viewedBefore' . $id . $url, 20, 70), 100);
+            $goals['idgoal=' . $id] = [
+                'nb_conversions_page_uniq' => $viewedBefore,
+                'nb_conversions_attrib' => round($viewedBefore * $this->between('attributed' . $id . $url, 30, 90) / 100, 2),
+                'nb_conversions_entry' => intdiv($viewedBefore * $this->between('entry' . $id . $url, 10, 50), 100),
+            ];
+        }
+        return $goals;
+    }
+
+    /**
+     * @param list<string> $dates
+     */
+    private function conversions(string $site, array $dates, int $goalId): int
+    {
+        [, $min, $max] = self::GOALS[$goalId];
+        return $this->sum($dates, fn (string $date): int => intdiv($this->visits($site, $date) * $this->between('goal' . $goalId . $site . $date, $min, $max), 1000));
     }
 
     /**

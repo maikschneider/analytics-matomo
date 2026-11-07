@@ -32,24 +32,26 @@
                     <f:then>
                         <f:render partial="Module/PageDetails" arguments="{_all}" />
                     </f:then>
-                    <f:else if="{tiles}">
-                        <div class="tx-analytics-matomo tx-analytics-matomo--grid mb-3">
-                            <f:for each="{tiles}" as="tile">
-                                <f:render partial="Tile" arguments="{tile: tile, ll: sharedLabels, days: selection.period.days, descriptionPrefix: 'siteMetric'}" />
-                            </f:for>
-                        </div>
-                        <f:render partial="Module/EvolutionChart" arguments="{chart: chart, ll: ll, sharedLabels: sharedLabels}" />
-                        <h2><f:translate key="{ll}overview.live" /></h2>
-                        <dl class="row">
-                            <f:for each="{counters}" as="value" key="key">
-                                <div class="col-sm-4">
-                                    <dt><f:translate key="{sharedLabels}:metric.{key}" /></dt>
-                                    <dd data-counter="{key}">{value}</dd>
-                                </div>
-                            </f:for>
-                        </dl>
-                    </f:else>
                     <f:else>
+                        <f:if condition="{tiles}">
+                            <div class="tx-analytics-matomo tx-analytics-matomo--grid mb-3">
+                                <f:for each="{tiles}" as="tile">
+                                    <f:render partial="Tile" arguments="{tile: tile, ll: sharedLabels, days: selection.period.days, descriptionPrefix: 'siteMetric'}" />
+                                </f:for>
+                            </div>
+                            <f:render partial="Module/EvolutionChart" arguments="{chart: chart, ll: ll, sharedLabels: sharedLabels}" />
+                        </f:if>
+                        <f:if condition="{counters}">
+                            <h2><f:translate key="{ll}overview.live" /></h2>
+                            <dl class="row">
+                                <f:for each="{counters}" as="value" key="key">
+                                    <div class="col-sm-4">
+                                        <dt><f:translate key="{sharedLabels}:metric.{key}" /></dt>
+                                        <dd data-counter="{key}">{value}</dd>
+                                    </div>
+                                </f:for>
+                            </dl>
+                        </f:if>
                         <f:for each="{tables}" as="table">
                             <f:render partial="Module/ReportTable" arguments="{table: table, ll: ll}" />
                         </f:for>

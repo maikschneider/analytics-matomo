@@ -54,6 +54,12 @@ Every other report page shows one or more Matomo reports as tables:
     Campaigns use the core report; when the MarketingCampaignsReporting plugin
     replaces it, the page is not offered.
 
+:guilabel:`Goals`
+    Conversions, conversion rate and revenue of all goals with their
+    evolution, and one page per goal with conversions by channel and by entry
+    page. Revenue is hidden while it is zero. Goals are created in Matomo; a
+    Matomo site without goals shows where to create them.
+
 Column headings and metric documentation come from Matomo in the backend user's
 language. Click a column heading to sort, search labels, or browse 25 rows per
 page. These controls work on cached data without another Matomo request.
@@ -90,6 +96,11 @@ permission.
 page in every language it is translated to and the user may access, from the
 same request. A click on a language switches the page details to it. The
 audiences of the languages differ, so read the numbers side by side with care.
+
+:guilabel:`Goals` lists, per goal, the conversions in visits that viewed the
+page before, the conversions attributed to the page (shared equally across the
+pages of the visit) and the conversions of visits that entered on the page. It
+is hidden when the Matomo site has no goals.
 
 :guilabel:`Transitions` shows where visitors of the page come from (search
 engines, websites, direct entries and other channels), the previous and next

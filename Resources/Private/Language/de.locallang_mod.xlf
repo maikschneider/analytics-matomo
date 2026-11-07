@@ -250,6 +250,30 @@
 			<trans-unit id="page.transitions.outlinks" resname="page.transitions.outlinks"><source>Outlinks</source><target>Ausgehende Links</target></trans-unit>
 			<trans-unit id="page.transitions.downloads" resname="page.transitions.downloads"><source>Downloads</source><target>Downloads</target></trans-unit>
 			<trans-unit id="page.transitions.noPages" resname="page.transitions.noPages"><source>No pages.</source><target>Keine Seiten.</target></trans-unit>
+			<trans-unit id="empty.goals" resname="empty.goals"><source>This Matomo site has no goals. Goals are defined in Matomo under Goals › Manage goals.</source><target>Diese Matomo-Website hat keine Ziele. Ziele legen Sie in Matomo unter Ziele › Ziele verwalten an.</target></trans-unit>
+			<trans-unit id="report.goals.title" resname="report.goals.title"><source>Goals</source><target>Ziele</target></trans-unit>
+			<trans-unit id="report.goalChannels" resname="report.goalChannels"><source>Conversions by channel</source><target>Konversionen nach Kanal</target></trans-unit>
+			<trans-unit id="report.goalEntryPages" resname="report.goalEntryPages"><source>Conversions by entry page</source><target>Konversionen nach Einstiegsseite</target></trans-unit>
+			<trans-unit id="column.goal" resname="column.goal"><source>Goal</source><target>Ziel</target></trans-unit>
+			<trans-unit id="column.channelType" resname="column.channelType"><source>Channel type</source><target>Kanaltyp</target></trans-unit>
+			<trans-unit id="column.nb_visits" resname="column.nb_visits"><source>Visits</source><target>Besuche</target></trans-unit>
+			<trans-unit id="column.nb_conversions" resname="column.nb_conversions"><source>Conversions</source><target>Konversionen</target></trans-unit>
+			<trans-unit id="column.conversion_rate" resname="column.conversion_rate"><source>Conversion rate</source><target>Konversionsrate</target></trans-unit>
+			<trans-unit id="column.revenue" resname="column.revenue"><source>Revenue</source><target>Umsatz</target></trans-unit>
+			<trans-unit id="column.entryPage" resname="column.entryPage"><source>Entry page</source><target>Einstiegsseite</target></trans-unit>
+			<trans-unit id="column.entry_nb_visits" resname="column.entry_nb_visits"><source>Entrances</source><target>Einstiege</target></trans-unit>
+			<trans-unit id="column.nb_conversions_entry" resname="column.nb_conversions_entry"><source>Entrance conversions</source><target>Einstiegskonversionen</target></trans-unit>
+			<trans-unit id="column.nb_conversions_entry.description" resname="column.nb_conversions_entry.description"><source>The total number of goal conversions where this page was the entry page.</source><target>Die Zahl der Zielkonversionen, bei denen diese Seite die Einstiegsseite war.</target></trans-unit>
+			<trans-unit id="column.nb_conversions_entry_rate" resname="column.nb_conversions_entry_rate"><source>Entrance conversion rate</source><target>Einstiegskonversionsrate</target></trans-unit>
+			<trans-unit id="column.nb_conversions_entry_rate.description" resname="column.nb_conversions_entry_rate.description"><source>The share of visits that entered on this page and converted the goal.</source><target>Der Anteil der Besuche, die auf dieser Seite eingestiegen sind und das Ziel erreicht haben.</target></trans-unit>
+			<trans-unit id="column.revenue_entry" resname="column.revenue_entry"><source>Entrance revenue</source><target>Einstiegsumsatz</target></trans-unit>
+			<trans-unit id="page.goals" resname="page.goals"><source>Goals</source><target>Ziele</target></trans-unit>
+			<trans-unit id="page.goals.viewedBefore" resname="page.goals.viewedBefore"><source>Viewed before conversion</source><target>Vor der Konversion angesehen</target></trans-unit>
+			<trans-unit id="page.goals.viewedBefore.description" resname="page.goals.viewedBefore.description"><source>The number of conversions where this page was viewed before the goal was converted.</source><target>Die Zahl der Konversionen, bei denen diese Seite vor dem Erreichen des Ziels angesehen wurde.</target></trans-unit>
+			<trans-unit id="page.goals.attributed" resname="page.goals.attributed"><source>Attributed conversions</source><target>Zugeordnete Konversionen</target></trans-unit>
+			<trans-unit id="page.goals.attributed.description" resname="page.goals.attributed.description"><source>The number of conversions attributed to this page, where each conversion is shared equally across all pages viewed in the visit before the goal was converted.</source><target>Die Zahl der dieser Seite zugeordneten Konversionen; jede Konversion wird gleichmäßig auf alle Seiten verteilt, die im Besuch vor dem Erreichen des Ziels angesehen wurden.</target></trans-unit>
+			<trans-unit id="page.goals.entrances" resname="page.goals.entrances"><source>Entrance conversions</source><target>Einstiegskonversionen</target></trans-unit>
+			<trans-unit id="page.goals.entrances.description" resname="page.goals.entrances.description"><source>The total number of goal conversions where this page was the entry page.</source><target>Die Zahl der Zielkonversionen, bei denen diese Seite die Einstiegsseite war.</target></trans-unit>
 		</body>
 	</file>
 </xliff>

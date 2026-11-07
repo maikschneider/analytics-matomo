@@ -13,7 +13,7 @@ use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
  * Optional pages are only offered when the site's Matomo has their first report; pages with a permission
  * only to users with that custom option.
  *
- * @phpstan-type Definition array{module: string, action: string, params?: array<string, int|string>, rows?: string, title?: string, columns?: array<string, array{string, string}>, minimum?: array{string, int}, sort?: string, empty?: string}
+ * @phpstan-type Definition array{module: string, action: string, params?: array<string, int|string>, rows?: string, title?: string, columns?: array<string, array{0: string, 1: string, 2?: string}>, minimum?: array{string, int}, sort?: string, empty?: string}
  */
 final readonly class ReportCatalog
 {

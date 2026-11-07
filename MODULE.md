@@ -52,7 +52,7 @@ Not in the module: Visits log and Real-time visitor list (see [Privacy](#privacy
 
 ### Goals
 
-Shown only when `Goals.getGoals` returns goals (cached). Overview: conversions, conversion rate, revenue per goal (`Goals.get`, `API.get` per day). One report page per goal: conversions by channel and by entry page (`Goals.get(idGoal)`, `Referrers.getReferrerType(idGoal)`, `Actions.getEntryPageUrls(idGoal)`). Goals are created in Matomo; the extension never writes them. These goal views are not processed reports (`getProcessedReport` with `idGoal` answers "not found", checked live), so they go through the Goals adapter (direct calls with `idGoal`).
+The section is always in the module menu (third-level modules are static); a Matomo site without goals shows where goals are created instead. Overview: conversions, conversion rate, revenue per goal (`Goals.get`, per day for the chart), revenue hidden while it is zero. One report page per goal: conversions by channel and by entry page (`Goals.get(idGoal)`, `Referrers.getReferrerType(idGoal)`, `Actions.getEntryPageUrls(idGoal)`). Goals are created in Matomo; the extension never writes them. These goal views are not processed reports (`getProcessedReport` with `idGoal` answers "not found", checked live), so they go through the Goals adapter (direct calls with `idGoal`). Rates per row are computed from the counts: on range periods Matomo sums the daily rates of the `goals` columns (checked live).
 
 **Ecommerce: skip.** Matomo core has it, but TYPO3 sites rarely run the shop on the same Matomo site, revenue numbers are business-sensitive (a new permission story), and the reports (products, carts) are a module of their own. Revisit if someone asks.
 
