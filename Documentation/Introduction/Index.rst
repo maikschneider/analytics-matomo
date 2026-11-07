@@ -68,8 +68,10 @@ Every other report page shows one or more Matomo reports as tables:
     page. Channels show their share of the goal's conversions rather than a
     rate per visit: Matomo credits a conversion to the channel saved with it,
     which can be the channel of an earlier visit. Revenue is hidden while it is
-    zero. Goals are created in Matomo; a Matomo site without goals shows where
-    to create them.
+    zero. Entry pages show conversion events per entrance as a number, not a
+    percentage: a repeatable goal can convert more than once per visit. Goals
+    are created in Matomo; a Matomo site without goals shows where to create
+    them.
 
 Column headings and metric documentation come from Matomo in the backend user's
 language. Click a column heading to sort, search labels, or browse 25 rows per

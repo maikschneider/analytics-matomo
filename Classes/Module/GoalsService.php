@@ -127,7 +127,7 @@ final readonly class GoalsService
                 'label' => ['column.entryPage', 'string'],
                 'entry_nb_visits' => ['column.entry_nb_visits', 'number'],
                 'nb_conversions_entry' => ['column.nb_conversions_entry', 'number', 'column.nb_conversions_entry.description'],
-                'nb_conversions_entry_rate' => ['column.nb_conversions_entry_rate', 'percent', 'column.nb_conversions_entry_rate.description'],
+                'conversions_per_entry' => ['column.conversions_per_entry', 'number', 'column.conversions_per_entry.description'],
                 'revenue_entry' => ['column.revenue_entry', 'money'],
             ]],
         };
@@ -165,10 +165,10 @@ final readonly class GoalsService
             $goal = $row['goals']['idgoal=' . $goalId] ?? [];
             $row = (is_array($goal) ? $goal : []) + $row;
             $row['nb_conversions'] = (int)($goal['nb_conversions'] ?? 0);
-            // Matomo sums the daily rates of a range, so they are computed here
+            // Recompute the ratio from counts: Matomo sums daily entry rates on ranges
             $entries = (int)($row['entry_nb_visits'] ?? 0);
             $row['nb_conversions_entry'] = (int)($goal['nb_conversions_entry'] ?? 0);
-            $row['nb_conversions_entry_rate'] = $entries > 0 ? $row['nb_conversions_entry'] / $entries : 0;
+            $row['conversions_per_entry'] = $entries > 0 ? $row['nb_conversions_entry'] / $entries : 0;
             unset($row['goals']);
             $rows[] = $row;
         }

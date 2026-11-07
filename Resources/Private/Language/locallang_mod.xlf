@@ -220,8 +220,8 @@
 			<trans-unit id="column.entry_nb_visits" resname="column.entry_nb_visits"><source>Entrances</source></trans-unit>
 			<trans-unit id="column.nb_conversions_entry" resname="column.nb_conversions_entry"><source>Entrance conversions</source></trans-unit>
 			<trans-unit id="column.nb_conversions_entry.description" resname="column.nb_conversions_entry.description"><source>The total number of goal conversions where this page was the entry page.</source></trans-unit>
-			<trans-unit id="column.nb_conversions_entry_rate" resname="column.nb_conversions_entry_rate"><source>Entrance conversion rate</source></trans-unit>
-			<trans-unit id="column.nb_conversions_entry_rate.description" resname="column.nb_conversions_entry_rate.description"><source>The share of visits that entered on this page and converted the goal.</source></trans-unit>
+			<trans-unit id="column.conversions_per_entry" resname="column.conversions_per_entry"><source>Conversions per entrance</source></trans-unit>
+			<trans-unit id="column.conversions_per_entry.description" resname="column.conversions_per_entry.description"><source>Goal conversion events divided by visits that entered on this page. A visit can convert a repeatable goal more than once.</source></trans-unit>
 			<trans-unit id="column.revenue_entry" resname="column.revenue_entry"><source>Entrance revenue</source></trans-unit>
 			<trans-unit id="page.goals" resname="page.goals"><source>Goals</source></trans-unit>
 			<trans-unit id="page.goals.viewedBefore" resname="page.goals.viewedBefore"><source>Viewed before conversion</source></trans-unit>

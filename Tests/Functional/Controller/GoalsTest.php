@@ -109,7 +109,7 @@ final class GoalsTest extends FunctionalTestCase
         self::assertStringContainsString('Conversions by entry page', $html);
         self::assertMatchesRegularExpression('#<th scope="col"[^>]*><a[^>]*sort=label[^>]*>\s*Entry page#', $html);
         self::assertStringContainsString('The total number of goal conversions where this page was the entry page.', $html);
-        self::assertMatchesRegularExpression('#<td[^>]*>/about</td>\s*<td[^>]*>25</td>\s*<td[^>]*>2</td>\s*<td[^>]*>8.0 %</td>#', $html);
+        self::assertMatchesRegularExpression('#<td[^>]*>/about</td>\s*<td[^>]*>25</td>\s*<td[^>]*>2</td>\s*<td[^>]*>0.08</td>#', $html);
         self::assertMatchesRegularExpression('#href="[^"]*/module/analytics-matomo/page\?[^"]*id=2[&"]#', $html);
         self::assertStringContainsString('>/de/ueber-uns</td>', $html);
         self::assertStringContainsString('>/storage</td>', $html);
@@ -135,6 +135,35 @@ final class GoalsTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function goalChartsUseCalendarWeekAndMonthResponses(): void
+    {
+        foreach ([
+            ['week', '2026-08-01', '2026-07-27,2026-08-02'],
+            ['month', '2025-08-01', '2025-08-01,2025-08-31'],
+        ] as [$granularity, $from, $bucket]) {
+            $this->fixtures['overviewDays'] = [$bucket => ['nb_conversions' => 7, 'conversion_rate' => 0.5]];
+            $html = (string)$this->render(1, ['site' => 'main', 'report' => 'overview', 'period' => 'custom', 'from' => $from, 'to' => '2026-11-02'], 'goals')->getBody();
+            $chart = $this->chartData($html);
+            self::assertSame($granularity, $chart['granularity']);
+            self::assertSame(7, $chart['metrics']['conversions']['current'][0]);
+        }
+    }
+
+    #[Test]
+    public function repeatedConversionsAreCountsPerEntranceNotAShareOfVisits(): void
+    {
+        $this->fixtures['goal1EntryPages'] = [[
+            'label' => '/about', 'url' => 'https://example.com/about', 'entry_nb_visits' => 1,
+            'goals' => ['idgoal=1' => ['nb_conversions_entry' => 3]],
+        ]];
+        $html = (string)$this->render(1, ['site' => 'main', 'report' => 'goal1'], 'goals')->getBody();
+        [, $entrances] = explode('<h2>Conversions by entry page</h2>', $html);
+        self::assertStringContainsString('Conversions per entrance', $entrances);
+        self::assertMatchesRegularExpression('#<td>/about</td>\s*<td>1</td>\s*<td>3</td>\s*<td>3</td>#', $entrances);
+        self::assertStringNotContainsString('300.0 %', $entrances);
+    }
+
+    #[Test]
     public function goalEntryPagesShowEditorsOnlyPagesTheyMaySee(): void
     {
         $html = (string)$this->render(3, ['id' => '1', 'report' => 'goal1'], 'goals')->getBody();
@@ -152,7 +181,7 @@ final class GoalsTest extends FunctionalTestCase
         $goal = isset($parameters['idGoal']) ? 'goal' . $parameters['idGoal'] : 'overview';
         return match ($parameters['method']) {
             'Goals.getGoals' => $this->fixtures['goals'],
-            'Goals.get' => $this->fixtures[$goal . ($parameters['period'] === 'day' ? 'Days' : '')] ?? self::fail('No fixture for ' . $goal),
+            'Goals.get' => $this->fixtures[$goal . ($parameters['period'] !== 'range' ? 'Days' : '')] ?? self::fail('No fixture for ' . $goal),
             'Referrers.getReferrerType' => $this->fixtures[$goal . 'Channels'],
             'Actions.getEntryPageUrls' => $this->fixtures[$goal . 'EntryPages'],
             default => self::fail('Unexpected Matomo call ' . $parameters['method']),
