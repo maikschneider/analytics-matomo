@@ -74,6 +74,32 @@ final class MatomoClientTest extends UnitTestCase
     }
 
     #[Test]
+    public function bulkRequestSendsTheSegmentWithEveryCall(): void
+    {
+        $this->requestFactory->expects(self::once())
+            ->method('request')
+            ->with(self::anything(), self::anything(), self::callback(
+                static fn (array $options): bool => $options['form_params']['urls'] === [
+                    'method=API.get&idSite=1&segment=deviceType%3D%3DSmartphone%2CdeviceType%3D%3DTablet',
+                    'method=Live.getCounters&idSite=1&segment=deviceType%3D%3DSmartphone%2CdeviceType%3D%3DTablet',
+                ]
+            ))
+            ->willReturn($this->response(200, '[[],[]]'));
+
+        $configuration = (new MatomoConfiguration('https://matomo.example.com', 1, ''))->withSegment('deviceType==Smartphone,deviceType==Tablet');
+        $this->subject->bulkRequest($configuration, [['method' => 'API.get'], ['method' => 'Live.getCounters']]);
+    }
+
+    #[Test]
+    public function segmentSeparatesCachedData(): void
+    {
+        $configuration = new MatomoConfiguration('https://matomo.example.com', 1, 'secret');
+
+        self::assertNotSame($configuration->getCacheIdentifier(), $configuration->withSegment('visitorType==new')->getCacheIdentifier());
+        self::assertSame($configuration->getCacheIdentifier(), $configuration->withSegment('')->getCacheIdentifier());
+    }
+
+    #[Test]
     public function bulkRequestSendsTheLanguageWithTheOuterRequest(): void
     {
         // Matomo ignores `language` inside the single URLs of a bulk request

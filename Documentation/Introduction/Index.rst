@@ -85,6 +85,12 @@ from the cached report; Matomo and its token are never exposed. Text cells that
 a spreadsheet would read as a formula get a leading apostrophe.
 :guilabel:`Compare` adds percentage changes against the previous period; a dash
 means no comparable previous value is available.
+:guilabel:`Segment` filters every report, page detail and the visitors overview
+by a segment stored in Matomo. Only segments Matomo pre-processes with its
+archiving (segment editor: reports are pre-processed) and
+that the token user may see are offered; the module never builds ad-hoc
+segments. The choice is kept per site. A newly created segment has data from
+the next archiving run on; older periods need an invalidation in Matomo.
 
 For page URLs, the page tree selects the site and filters to the selected page
 and its descendants. The site root shows the whole site. The language control

@@ -54,6 +54,9 @@
 			<trans-unit id="compare.on" resname="compare.on">
 				<source>Compare to previous period</source>
 			</trans-unit>
+			<trans-unit id="control.segment" resname="control.segment"><source>Segment</source></trans-unit>
+			<trans-unit id="segment.all" resname="segment.all"><source>All visits</source></trans-unit>
+			<trans-unit id="empty.segment" resname="empty.segment"><source>No archived data for the segment “%s” in this period. Matomo pre-processes a segment with its next archiving run, older periods only after invalidating them.</source></trans-unit>
 			<trans-unit id="empty.site" resname="empty.site">
 				<source>No accessible site with a Matomo connection is configured.</source>
 			</trans-unit>

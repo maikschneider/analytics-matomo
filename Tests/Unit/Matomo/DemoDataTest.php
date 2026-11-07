@@ -46,6 +46,23 @@ final class DemoDataTest extends UnitTestCase
     }
 
     #[Test]
+    public function segmentsAreSmallerSharesOfTheSameSite(): void
+    {
+        [$segments] = (new DemoData())->results([['method' => 'SegmentEditor.getAll']], $this->configuration);
+        self::assertIsArray($segments);
+        $definitions = array_column($segments, 'definition', 'name');
+        self::assertArrayHasKey('Mobile users', $definitions);
+
+        $request = ['method' => 'API.get', 'period' => 'range', 'date' => '2026-10-01,2026-10-31'];
+        [$all] = (new DemoData())->results([$request], $this->configuration);
+        [$mobile] = (new DemoData())->results([$request], $this->configuration->withSegment($definitions['Mobile users']));
+        self::assertIsArray($all);
+        self::assertIsArray($mobile);
+        self::assertGreaterThan(0, $mobile['nb_visits']);
+        self::assertLessThan($all['nb_visits'], $mobile['nb_visits']);
+    }
+
+    #[Test]
     public function rangesAddUpTheDaysAndAreStable(): void
     {
         $request = ['method' => 'VisitsSummary.get', 'format_metrics' => 0];

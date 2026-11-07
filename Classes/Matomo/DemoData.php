@@ -100,6 +100,12 @@ final readonly class DemoData
         'website' => ['From websites', 15, ['typo3.org' => 60, 'github.com' => 40]],
         'social' => ['From social networks', 10, ['LinkedIn' => 70, 'Mastodon' => 30]],
     ];
+    /** Stored segments: name, definition, pre-processed by archiving, share of the visits in percent */
+    private const SEGMENTS = [
+        1 => ['Mobile users', 'deviceType==Smartphone,deviceType==Tablet', true, 41],
+        2 => ['Returning visitors', 'visitorType==returning', true, 30],
+        3 => ['New visitors', 'visitorType==new', false, 70],
+    ];
 
     public function __construct(
         private ?DemoPageUrls $pageUrls = null,
@@ -119,7 +125,9 @@ final readonly class DemoData
                 $pageUrls = array_map(static fn (string $path): string => rtrim($configuration->url, '/') . '/' . $path, self::FALLBACK_PATHS);
             }
         }
-        return array_map(fn (array $request): mixed => $this->result($request, $configuration->url, $pageUrls), $requests);
+        // A segment is the same site with its own seed and a smaller share of the traffic
+        $site = $configuration->url . ($configuration->segment === '' ? '' : '#' . $configuration->segment);
+        return array_map(fn (array $request): mixed => $this->result($request, $site, $pageUrls), $requests);
     }
 
     /**
@@ -128,6 +136,12 @@ final readonly class DemoData
      */
     private function result(array $request, string $site, array $pageUrls): mixed
     {
+        if (($request['method'] ?? '') === 'SegmentEditor.getAll') {
+            return array_map(static fn (int $id, array $segment): array => [
+                'idsegment' => $id, 'name' => $segment[0], 'definition' => $segment[1],
+                'enable_only_idsite' => 0, 'auto_archive' => (int)$segment[2], 'deleted' => 0,
+            ], array_keys(self::SEGMENTS), self::SEGMENTS);
+        }
         $dates = $this->dates((string)($request['date'] ?? ''));
         $granularity = (string)($request['period'] ?? '');
         if (in_array($granularity, ['day', 'week', 'month'], true)) {
@@ -581,7 +595,12 @@ final readonly class DemoData
      */
     private function scale(string $site): int
     {
-        return $this->between('scale' . $site, 60, 250);
+        [$base, $segment] = explode('#', $site, 2) + [1 => ''];
+        $share = 100;
+        foreach (self::SEGMENTS as [, $definition, , $segmentShare]) {
+            $share = $definition === $segment ? $segmentShare : $share;
+        }
+        return intdiv($this->between('scale' . $base, 60, 250) * $share, 100);
     }
 
     /**

@@ -31,3 +31,5 @@ Each response is wrapped in a list, matching the bulk client's decoded result. M
 `SyntheticProcessedLinks.json` keeps the recorded outlinks metadata with made-up links: external, into the other test site (page and file), a file of the site, an unreadable page and a German page.
 
 `Trending.json` holds the flat `Actions.getPageUrls` of site 3 for 2026-10-27,2026-11-02 (`current`) and the week before (`previous`), reduced to `nb_hits` (`showColumns=nb_hits`). `SyntheticTrending.json` maps such rows to the test site, with a rising, a new, a falling, a vanished page and pages below the thresholds.
+
+`Segments.json` is the recorded `SegmentEditor.getAll` of site 3 (anonymous request): one pre-processed "Mobile users" segment. `SyntheticSegments.json` adds a segment for all sites, one processed in real time (`auto_archive=0`) and one of another site. `ProcessedVisitorsDevicesSegment.json` is the device type report of site 3 for October 2026 recorded with `segment=deviceType==Smartphone,deviceType==Tablet`.

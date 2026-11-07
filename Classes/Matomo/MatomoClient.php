@@ -38,7 +38,7 @@ final readonly class MatomoClient
             'method' => 'API.getBulkRequest',
             'format' => 'json',
             'urls' => array_map(
-                static fn (array $request): string => http_build_query($request + ['idSite' => $configuration->idSite]),
+                static fn (array $request): string => http_build_query($request + ['idSite' => $configuration->idSite] + ($configuration->segment === '' ? [] : ['segment' => $configuration->segment])),
                 $requests
             ),
         ];

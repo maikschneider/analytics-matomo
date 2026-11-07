@@ -46,6 +46,10 @@ final class ReportModuleControllerTest extends FunctionalTestCase
         ], ['uid' => 1]);
         $this->get(Context::class)->setAspect('date', new DateTimeAspect(new \DateTimeImmutable('2026-11-02 14:30:00')));
         $GLOBALS['TYPO3_CONF_VARS']['HTTP']['handler']['matomo'] = fn (callable $handler): \Closure => function (RequestInterface $request): FulfilledPromise {
+            $segments = $this->answerWithoutSegments($request);
+            if ($segments !== null) {
+                return $segments;
+            }
             $this->sentRequests[] = $request;
             $content = (string)file_get_contents(__DIR__ . '/../../Fixtures/Matomo/' . $this->fixture . '.json');
             if ($this->fixture === 'SyntheticOverview') {

@@ -78,6 +78,7 @@ The backend module (milestone 0.3.0 on) is designed in [MODULE.md](MODULE.md#tec
 | `Module\ReportTableFactory` | Matomo metadata to table view model, page/language/subtree access filtering, search, sort and 25-row paging in PHP |
 | `Module\MetricFormatter` | raw metric values formatted by Matomo metric type; unknown values remain unknown |
 | `Module\CsvExport` | CSV of a table's visible rows with raw values; formula-like text cells neutralised |
+| `Module\SegmentService` | cached `SegmentEditor.getAll`, only `auto_archive` segments of the site; selected segment per site in the user's uc |
 | `Module\VisitorsOverviewService` | cached `API.get` range totals and evolution in one bulk, optional previous period; separate `Live.getCounters` cache (60 s) |
 | `Module\EvolutionChartFactory` | calendar day/week/month buckets, unknown values as null and previous buckets aligned by position; shared chart payload for the metric picker |
 | `Controller\ReportModuleController` | module docheader, page-tree site, shared selection, report/language module data and empty states |
@@ -87,7 +88,7 @@ No Extbase, no TCA, no database tables of our own (only the cache tables TYPO3 c
 
 ## Matomo API calls per view
 
-Every view is one HTTP request (`API.getBulkRequest`, `format_metrics=0`). No ad-hoc segments: they are slow or disabled on many Matomo instances (they returned nothing on demo.matomo.org); the module may later offer stored, pre-processed segments (#47). Module calls: [MODULE.md](MODULE.md).
+Every view is one HTTP request (`API.getBulkRequest`, `format_metrics=0`). No ad-hoc segments: they are slow or disabled on many Matomo instances (they returned nothing on demo.matomo.org). The module offers stored segments that Matomo pre-processes (`auto_archive=1`); the segment definition goes into every sub-request and the cache key. The segment list (`SegmentEditor.getAll`) is its own request, cached for an hour like the reports. Module calls: [MODULE.md](MODULE.md).
 
 | View | Calls |
 |---|---|

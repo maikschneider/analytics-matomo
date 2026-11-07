@@ -42,6 +42,10 @@ final class TrendingTest extends FunctionalTestCase
         $this->get(Context::class)->setAspect('date', new DateTimeAspect(new \DateTimeImmutable('2026-11-02 14:30:00')));
         $this->fixtures = $this->fixture('SyntheticTrending');
         $GLOBALS['TYPO3_CONF_VARS']['HTTP']['handler']['matomo'] = fn (callable $handler): \Closure => function (RequestInterface $request): FulfilledPromise {
+            $segments = $this->answerWithoutSegments($request);
+            if ($segments !== null) {
+                return $segments;
+            }
             parse_str((string)$request->getBody(), $body);
             self::assertIsArray($body['urls']);
             $results = [];

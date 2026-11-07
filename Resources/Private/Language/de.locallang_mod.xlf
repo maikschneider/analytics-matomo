@@ -71,6 +71,9 @@
 				<source>Compare to previous period</source>
 				<target>Mit vorherigem Zeitraum vergleichen</target>
 			</trans-unit>
+			<trans-unit id="control.segment" resname="control.segment"><source>Segment</source><target>Segment</target></trans-unit>
+			<trans-unit id="segment.all" resname="segment.all"><source>All visits</source><target>Alle Besuche</target></trans-unit>
+			<trans-unit id="empty.segment" resname="empty.segment"><source>No archived data for the segment “%s” in this period. Matomo pre-processes a segment with its next archiving run, older periods only after invalidating them.</source><target>Keine archivierten Daten für das Segment „%s“ in diesem Zeitraum. Matomo verarbeitet ein Segment mit dem nächsten Archivierungslauf, ältere Zeiträume erst nach ihrer Invalidierung.</target></trans-unit>
 			<trans-unit id="empty.site" resname="empty.site">
 				<source>No accessible site with a Matomo connection is configured.</source>
 				<target>Keine zugängliche Website mit Matomo-Verbindung eingerichtet.</target>

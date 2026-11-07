@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace MaikSchneider\AnalyticsMatomo\Tests\Functional\Controller;
 
+use GuzzleHttp\Promise\FulfilledPromise;
+use GuzzleHttp\Psr7\Response;
 use MaikSchneider\AnalyticsMatomo\Controller\ReportModuleController;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -24,6 +27,20 @@ use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
  */
 trait ModuleRequestTrait
 {
+    /**
+     * The module loads the stored segments with a request of its own; tests that are
+     * not about segments answer it with none
+     */
+    private function answerWithoutSegments(RequestInterface $request): ?FulfilledPromise
+    {
+        parse_str((string)$request->getBody(), $body);
+        $urls = $body['urls'] ?? null;
+        if (!is_array($urls) || count($urls) !== 1 || !str_starts_with((string)reset($urls), 'method=SegmentEditor.getAll&')) {
+            return null;
+        }
+        return new FulfilledPromise(new Response(200, [], '[[]]'));
+    }
+
     /**
      * @param array<string, string> $query
      * @param array<string, string> $body

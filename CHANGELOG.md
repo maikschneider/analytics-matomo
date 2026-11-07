@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Stored Matomo segments as a module filter: pre-processed segments visible to the token, kept per site, part of the cache key; empty state without archived segment data. Demo sites offer two segments.
 - CSV export of every module table: the rows the user may see (page access, page tree, language and search), translated headers and raw numbers, built from the cached report. Formula-like text cells are neutralised.
 - Page details in the module: tiles and evolution chart for the frontend URL of the selected page and language, in one bulk request. The statistics bar links there with page, language and period preselected.
 - Page load and server time in page details, with the number of measured page views; no average below five measurements.

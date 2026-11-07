@@ -48,6 +48,10 @@ final class PageDetailsTest extends FunctionalTestCase
             'goals' => $this->fixture('Goals')['goals'],
         ];
         $GLOBALS['TYPO3_CONF_VARS']['HTTP']['handler']['matomo'] = fn (callable $handler): \Closure => function (RequestInterface $request): FulfilledPromise {
+            $segments = $this->answerWithoutSegments($request);
+            if ($segments !== null) {
+                return $segments;
+            }
             $this->requests++;
             parse_str((string)$request->getBody(), $body);
             self::assertIsArray($body['urls']);

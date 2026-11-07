@@ -1,0 +1,19 @@
+[
+	[
+		{
+			"idsegment": 100,
+			"name": "Mobile users",
+			"definition": "deviceType==Smartphone,deviceType==Tablet",
+			"hash": "4e41c68c9e9501f59e505702b1784a53",
+			"login": "root",
+			"enable_all_users": 1,
+			"enable_only_idsite": 3,
+			"auto_archive": 1,
+			"ts_created": "2016-11-07 23:43:35",
+			"ts_last_edit": "2016-11-07 23:43:48",
+			"deleted": 0,
+			"starred": 0,
+			"starred_by": null
+		}
+	]
+]

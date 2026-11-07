@@ -8,11 +8,15 @@ use MaikSchneider\AnalyticsMatomo\Statistics\Period;
 
 final readonly class MatomoConfiguration
 {
+    /**
+     * @param string $segment definition of a stored Matomo segment sent with every call, empty for all visits
+     */
     public function __construct(
         public string $url,
         public int $idSite,
         public string $tokenAuth,
         public bool $demo = false,
+        public string $segment = '',
     ) {
     }
 
@@ -25,6 +29,11 @@ final readonly class MatomoConfiguration
         return new self($siteUrl, $rootPageId, '', true);
     }
 
+    public function withSegment(string $segment): self
+    {
+        return new self($this->url, $this->idSite, $this->tokenAuth, $this->demo, $segment);
+    }
+
     public function getApiUrl(): string
     {
         return rtrim($this->url, '/') . '/index.php';
@@ -35,7 +44,7 @@ final readonly class MatomoConfiguration
      */
     public function getCacheIdentifier(): string
     {
-        return hash('sha256', implode("\n", [$this->url, $this->idSite, $this->tokenAuth, $this->demo ? 'demo' : '']));
+        return hash('sha256', implode("\n", [$this->url, $this->idSite, $this->tokenAuth, $this->demo ? 'demo' : '', ...($this->segment === '' ? [] : [$this->segment])]));
     }
 
     public function getReportUrl(Period $period): string

@@ -16,6 +16,7 @@ use MaikSchneider\AnalyticsMatomo\Module\ReadingTimeEstimator;
 use MaikSchneider\AnalyticsMatomo\Module\ReportCatalog;
 use MaikSchneider\AnalyticsMatomo\Module\ReportService;
 use MaikSchneider\AnalyticsMatomo\Module\ReportTableFactory;
+use MaikSchneider\AnalyticsMatomo\Module\SegmentService;
 use MaikSchneider\AnalyticsMatomo\Module\TransitionsPanelFactory;
 use MaikSchneider\AnalyticsMatomo\Module\TransitionsService;
 use MaikSchneider\AnalyticsMatomo\Module\TrendingService;
@@ -76,6 +77,7 @@ final readonly class ReportModuleController
         private TrendingService $trendingService,
         private LinkAccess $linkAccess,
         private CsvExport $csvExport,
+        private SegmentService $segmentService,
     ) {
     }
 
@@ -182,6 +184,11 @@ final readonly class ReportModuleController
         $periods[Period::CUSTOM] = self::SHARED_LABELS . 'period.custom';
         $this->addMenu($template, $route, $pageId, 'period', $periods, $selection->period->preset);
         $this->addMenu($template, $route, $pageId, 'compare', ['0' => self::LABELS . 'compare.off', '1' => self::LABELS . 'compare.on'], $selection->compare ? '1' : '0');
+        $segment = $this->segment($template, $route, $pageId, $selection, $parameters, $user);
+        if ($segment !== null) {
+            $selection = new DashboardSelection($selection->site, $selection->configuration->withSegment($segment['definition']), $selection->period, $selection->sites, $selection->compare);
+            $variables['segment'] = $segment['name'];
+        }
         try {
             if ($section === 'page') {
                 $variables += $this->pageDetails($pageId, (int)$moduleData->get('language'), $selection, (bool)($parameters['transitions'] ?? false), $user);
@@ -223,6 +230,15 @@ final readonly class ReportModuleController
             $variables['errorMessage'] = $user->isAdmin() ? $exception->getMessage() : '';
         }
         $this->pageRenderer->loadJavaScriptModule('@maikschneider/analytics-matomo/module-filters.js');
+        if (isset($variables['segment'])) {
+            // Matomo answers empty reports for a segment it has not archived for the period yet
+            $segmentEmpty = sprintf($this->label('empty.segment'), $variables['segment']);
+            foreach ($variables['tables'] ?? [] as $index => $table) {
+                if (($table['rows'] ?? []) === [] && ($table['query'] ?? '') === '') {
+                    $variables['tables'][$index]['emptyMessage'] = $segmentEmpty;
+                }
+            }
+        }
         foreach ($variables['tables'] ?? [] as $index => $table) {
             if (isset($table['csv'])) {
                 return $this->csvResponse($table['csv'], $selection, $section, $report, $index);
@@ -321,7 +337,7 @@ final readonly class ReportModuleController
         $translations = $this->pageTargetResolver->resolveTranslations($pageId);
         unset($translations[$languageId]);
         $languageUrls = array_map(static fn (PageTarget $translation): string => $translation->pageUrl, $translations);
-        $details = $this->pageDetailsService->getDetails($target->configuration, $target->pageUrl, $selection->period, $selection->compare, $languageUrls);
+        $details = $this->pageDetailsService->getDetails($target->configuration->withSegment($selection->configuration->segment), $target->pageUrl, $selection->period, $selection->compare, $languageUrls);
         $this->pageRenderer->addCssFile('EXT:analytics_matomo/Resources/Public/Css/statistics-bar.css');
         $this->pageRenderer->addCssFile('EXT:analytics_matomo/Resources/Public/Css/dashboard.css');
         $this->pageRenderer->loadJavaScriptModule('@maikschneider/analytics-matomo/evolution-chart.js');
@@ -348,7 +364,7 @@ final readonly class ReportModuleController
      */
     private function transitions(DashboardSelection $selection, PageTarget $target, BackendUserAuthentication $user): array
     {
-        $transitions = $this->transitionsService->getTransitions($target->configuration, $target->pageUrl, $selection->period);
+        $transitions = $this->transitionsService->getTransitions($target->configuration->withSegment($selection->configuration->segment), $target->pageUrl, $selection->period);
         return $transitions === null ? ['empty' => true] : $this->transitionsPanelFactory->create($selection->site, $transitions, $user);
     }
 
@@ -441,6 +457,29 @@ final readonly class ReportModuleController
             ];
         }
         return $speed;
+    }
+
+    /**
+     * Segment dropdown with the stored segments of the site; no dropdown without any
+     *
+     * @param array<string, mixed> $parameters
+     * @return array{name: string, definition: string}|null the selected segment
+     */
+    private function segment(ModuleTemplate $template, string $route, int $pageId, DashboardSelection $selection, array $parameters, BackendUserAuthentication $user): ?array
+    {
+        try {
+            $segments = $this->segmentService->getSegments($selection->configuration);
+        } catch (MatomoApiException $exception) {
+            // Reports still work for all visits; their own request shows a broken connection
+            $this->logger->warning('Loading the Matomo segments failed: {message}', ['message' => $exception->getMessage(), 'site' => $selection->site->getIdentifier()]);
+            return null;
+        }
+        if ($segments === []) {
+            return null;
+        }
+        $selected = $this->segmentService->select($user, $selection->site->getIdentifier(), $segments, isset($parameters['segment']) ? (string)$parameters['segment'] : null);
+        $this->addMenu($template, $route, $pageId, 'segment', ['' => self::LABELS . 'segment.all'] + array_map(static fn (array $segment): string => $segment['name'], $segments), $selected);
+        return $segments[$selected] ?? null;
     }
 
     /**
