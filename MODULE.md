@@ -74,12 +74,12 @@ The target of the bar's "details" link and of every "page details" row action. O
 | Report page | dropdown with the report pages of the section |
 | Site | from the selected page (page tree). Without a page: dropdown of the sites the user may see (same rule as the widgets) |
 | Language | "all languages" + the site languages the user may access. Filters **URL reports only** (rows whose URL the mapper resolves to that `SiteLanguage`; a URL prefix check can't tell a default base `/` from `/de/`). No segments, so device/country/channel reports are always all languages; the dropdown says so |
-| Period | 7, 14, 30, 90 days, this month, last month, this year, custom range (core flatpickr). Granularity of the chart is automatic: day up to 62 days, week up to a year, month above |
+| Period | 7, 14, 30, 90 days, this month, last month, this year, custom range (native date inputs). Granularity of the chart is automatic: day up to 62 days, week up to a year, month above |
 | Compare | toggle "compare to previous period": change columns in tables, dashed previous series in the chart. Done with a second sub-request for the previous range; Matomo's `compareDates[]` is UI-only and returned no comparison in the API (checked live) |
 | Segment | **later** ([Roadmap](PLAN.md#roadmap)): only stored segments that Matomo pre-processes (`SegmentEditor.getAll`, `auto_archive=1`) and that the token user can see. **No segment builder**: ad-hoc segments are slow or disabled on many instances |
 | Export | CSV of the current table, served by the module from the cached report (never a Matomo URL with the token) |
 
-Site, period and compare are stored per user in `uc` (`analytics_matomo.selection`) and shared with the dashboard widgets: switching the site in a widget or the module changes both. Language and report page are module data (`moduleData`).
+Site, period and compare are stored per user in `uc` (`analytics_matomo.dashboard`) and shared with the dashboard widgets: switching the site in a widget or the module changes both. Language and report page are module data (`moduleData`).
 
 ## TYPO3 integration
 

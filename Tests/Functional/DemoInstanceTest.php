@@ -149,6 +149,17 @@ final class DemoInstanceTest extends FunctionalTestCase
         self::assertSame(['cycles', 'live', 'rental'], array_keys($this->get(DashboardSelectionResolver::class)->getSites($this->setUpBackendUser(self::EDITOR))));
     }
 
+    #[Test]
+    public function editorsCanAccessTheParentModuleAndEverySection(): void
+    {
+        $user = $this->setUpBackendUser(self::EDITOR);
+        $modules = $this->get(\TYPO3\CMS\Backend\Module\ModuleProvider::class);
+
+        foreach (['analytics_matomo', 'analytics_matomo_visitors', 'analytics_matomo_behaviour', 'analytics_matomo_acquisition', 'analytics_matomo_goals', 'analytics_matomo_page'] as $identifier) {
+            self::assertNotNull($modules->getModule($identifier, $user), $identifier);
+        }
+    }
+
     private function statisticsBar(int $pageId, int $languageId): string
     {
         $GLOBALS['BE_USER'] = $this->setUpBackendUser(self::EDITOR);

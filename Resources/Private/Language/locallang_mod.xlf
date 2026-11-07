@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+	<file source-language="en" datatype="plaintext" original="EXT:analytics_matomo/Resources/Private/Language/locallang_mod.xlf" product-name="analytics_matomo">
+		<header/>
+		<body>
+			<trans-unit id="mlang_tabs_tab" resname="mlang_tabs_tab">
+				<source>Matomo Analytics</source>
+			</trans-unit>
+			<trans-unit id="mlang_labels_tablabel" resname="mlang_labels_tablabel">
+				<source>Matomo Analytics</source>
+			</trans-unit>
+			<trans-unit id="mlang_labels_tabdescr" resname="mlang_labels_tabdescr">
+				<source>Explore Matomo statistics.</source>
+			</trans-unit>
+			<trans-unit id="section.visitors" resname="section.visitors">
+				<source>Visitors</source>
+			</trans-unit>
+			<trans-unit id="section.behaviour" resname="section.behaviour">
+				<source>Behaviour</source>
+			</trans-unit>
+			<trans-unit id="section.acquisition" resname="section.acquisition">
+				<source>Acquisition</source>
+			</trans-unit>
+			<trans-unit id="section.goals" resname="section.goals">
+				<source>Goals</source>
+			</trans-unit>
+			<trans-unit id="section.page" resname="section.page">
+				<source>Page details</source>
+			</trans-unit>
+			<trans-unit id="control.report" resname="control.report">
+				<source>Report page</source>
+			</trans-unit>
+			<trans-unit id="control.site" resname="control.site">
+				<source>Site</source>
+			</trans-unit>
+			<trans-unit id="control.language" resname="control.language">
+				<source>Language</source>
+			</trans-unit>
+			<trans-unit id="control.period" resname="control.period">
+				<source>Period</source>
+			</trans-unit>
+			<trans-unit id="control.compare" resname="control.compare">
+				<source>Compare</source>
+			</trans-unit>
+			<trans-unit id="language.all" resname="language.all">
+				<source>All languages</source>
+			</trans-unit>
+			<trans-unit id="language.hint" resname="language.hint">
+				<source>The language filters URL reports only. Other reports always cover all languages.</source>
+			</trans-unit>
+			<trans-unit id="compare.off" resname="compare.off">
+				<source>No comparison</source>
+			</trans-unit>
+			<trans-unit id="compare.on" resname="compare.on">
+				<source>Compare to previous period</source>
+			</trans-unit>
+			<trans-unit id="empty.site" resname="empty.site">
+				<source>No accessible site with a Matomo connection is configured.</source>
+			</trans-unit>
+			<trans-unit id="range.title" resname="range.title">
+				<source>Custom range</source>
+			</trans-unit>
+			<trans-unit id="range.from" resname="range.from">
+				<source>From</source>
+			</trans-unit>
+			<trans-unit id="range.to" resname="range.to">
+				<source>To</source>
+			</trans-unit>
+			<trans-unit id="range.apply" resname="range.apply">
+				<source>Apply</source>
+			</trans-unit>
+			<trans-unit id="report.placeholder" resname="report.placeholder">
+				<source>Reports will be available here in a future version.</source>
+			</trans-unit>
+			<trans-unit id="report.overview" resname="report.overview">
+				<source>Overview</source>
+			</trans-unit>
+			<trans-unit id="report.locations" resname="report.locations">
+				<source>Locations</source>
+			</trans-unit>
+			<trans-unit id="report.devices" resname="report.devices">
+				<source>Devices</source>
+			</trans-unit>
+			<trans-unit id="report.software" resname="report.software">
+				<source>Software</source>
+			</trans-unit>
+			<trans-unit id="report.times" resname="report.times">
+				<source>Times</source>
+			</trans-unit>
+			<trans-unit id="report.engagement" resname="report.engagement">
+				<source>Engagement</source>
+			</trans-unit>
+			<trans-unit id="report.pages" resname="report.pages">
+				<source>Pages</source>
+			</trans-unit>
+			<trans-unit id="report.entryPages" resname="report.entryPages">
+				<source>Entry pages</source>
+			</trans-unit>
+			<trans-unit id="report.exitPages" resname="report.exitPages">
+				<source>Exit pages</source>
+			</trans-unit>
+			<trans-unit id="report.pageTitles" resname="report.pageTitles">
+				<source>Page titles</source>
+			</trans-unit>
+			<trans-unit id="report.siteSearch" resname="report.siteSearch">
+				<source>Site search</source>
+			</trans-unit>
+			<trans-unit id="report.outlinks" resname="report.outlinks">
+				<source>Outlinks</source>
+			</trans-unit>
+			<trans-unit id="report.downloads" resname="report.downloads">
+				<source>Downloads</source>
+			</trans-unit>
+			<trans-unit id="report.events" resname="report.events">
+				<source>Events</source>
+			</trans-unit>
+			<trans-unit id="report.contents" resname="report.contents">
+				<source>Contents</source>
+			</trans-unit>
+			<trans-unit id="report.performance" resname="report.performance">
+				<source>Performance</source>
+			</trans-unit>
+			<trans-unit id="report.trendingPages" resname="report.trendingPages">
+				<source>Trending pages</source>
+			</trans-unit>
+			<trans-unit id="report.channels" resname="report.channels">
+				<source>All channels</source>
+			</trans-unit>
+			<trans-unit id="report.websites" resname="report.websites">
+				<source>Websites</source>
+			</trans-unit>
+			<trans-unit id="report.searchEngines" resname="report.searchEngines">
+				<source>Search engines &amp; keywords</source>
+			</trans-unit>
+			<trans-unit id="report.socialNetworks" resname="report.socialNetworks">
+				<source>Social networks</source>
+			</trans-unit>
+			<trans-unit id="report.aiAssistants" resname="report.aiAssistants">
+				<source>AI assistants</source>
+			</trans-unit>
+			<trans-unit id="report.campaigns" resname="report.campaigns">
+				<source>Campaigns</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

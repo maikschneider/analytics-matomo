@@ -73,6 +73,8 @@ The backend module (milestone 0.3.0 on) is designed in [MODULE.md](MODULE.md#tec
 | `Dashboard\SiteStatisticsService` | API calls of the widgets |
 | `Dashboard\DashboardSelectionResolver` | sites a user may choose, stored selection |
 | `Statistics\PageUrlMapper` | Matomo URL → site language and page (incl. hidden pages, scheme-less labels, double slashes, encoded slugs); report rows by page, "unknown" when Matomo cut the report at its row limit |
+| `Module\ReportCatalog` | report pages and labels per backend module section |
+| `Controller\ReportModuleController` | module docheader, page-tree site, shared selection, report/language module data and empty states |
 | `Dashboard\Widget\MatomoWidget` | all widgets |
 
 No Extbase, no TCA, no database tables of our own (only the cache tables TYPO3 creates for the cache). Therefore no tca_api.

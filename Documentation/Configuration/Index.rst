@@ -94,6 +94,23 @@ selected site. Use one Matomo site per TYPO3 site if editors of one site must
 not see the numbers of another. Top pages lists only pages and languages the
 user may access; URLs without a page are shown to administrators only.
 
+Backend module
+==============
+
+:guilabel:`Matomo Analytics` under Web/Content has the sections Visitors,
+Behaviour, Acquisition, Goals and Page details. Grant the parent module
+(`analytics_matomo`) and the wanted sections (`analytics_matomo_visitors`,
+`analytics_matomo_behaviour`, `analytics_matomo_acquisition`,
+`analytics_matomo_goals`, `analytics_matomo_page`) in the backend group's module
+access, plus `analytics_matomo:siteStatistics`.
+
+The selected page determines the site; without a page, use the site dropdown.
+Site, period (presets or a custom date range) and comparison are shared with the
+dashboard widgets. Report page and language are stored per section. The language
+filters URL reports only; other reports cover all languages. This version
+provides the controls and site performance summary; report tables and charts
+follow separately.
+
 Caching
 =======
 
