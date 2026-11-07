@@ -169,7 +169,7 @@ final class MatomoWidgetTest extends FunctionalTestCase
     public function demoSitesShowGeneratedDataWithoutAskingMatomo(): void
     {
         $user = $this->setUpBackendUser(1);
-        $this->get(DashboardSelectionResolver::class)->save($user, 'trial', 7);
+        $this->get(DashboardSelectionResolver::class)->save($user, 'trial', '7');
 
         $performance = $this->render(1, 'analyticsMatomoPerformance', 'ErrorNoViewAccess');
         $widget = $this->widget(1, 'analyticsMatomoTopPages');
@@ -189,9 +189,13 @@ final class MatomoWidgetTest extends FunctionalTestCase
         $GLOBALS['BE_USER'] = $this->setUpBackendUser(5);
         $controller = $this->get(DashboardSelectionController::class);
 
-        self::assertSame(403, $controller($this->request()->withParsedBody(['site' => 'shop', 'days' => '30']))->getStatusCode());
-        self::assertSame(200, $controller($this->request()->withParsedBody(['site' => 'main', 'days' => '30']))->getStatusCode());
-        self::assertSame(['site' => 'main', 'days' => 30], $GLOBALS['BE_USER']->uc['analytics_matomo']['dashboard']);
+        self::assertSame(403, $controller($this->request()->withParsedBody(['site' => 'shop', 'period' => '30']))->getStatusCode());
+        self::assertSame(200, $controller($this->request()->withParsedBody(['site' => 'main', 'period' => 'lastMonth']))->getStatusCode());
+        self::assertSame(200, $controller($this->request()->withParsedBody(['compare' => '1']))->getStatusCode());
+        self::assertSame(
+            ['site' => 'main', 'period' => 'lastMonth', 'from' => '', 'to' => '', 'compare' => true],
+            $GLOBALS['BE_USER']->uc['analytics_matomo']['dashboard'],
+        );
     }
 
     private function render(int $backendUserId, string $identifier, string $fixture): string

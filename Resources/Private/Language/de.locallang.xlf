@@ -271,6 +271,38 @@
 				<source>Shows generated statistics instead of asking Matomo, e.g. to try out the extension or to take screenshots. Never enable on a production site.</source>
 				<target>Zeigt erzeugte Statistiken statt Matomo abzufragen, z. B. zum Ausprobieren oder für Screenshots. Nie auf einer Produktivseite aktivieren.</target>
 			</trans-unit>
+			<trans-unit id="period.7" resname="period.7">
+				<source>Last 7 days</source>
+				<target>Letzte 7 Tage</target>
+			</trans-unit>
+			<trans-unit id="period.14" resname="period.14">
+				<source>Last 14 days</source>
+				<target>Letzte 14 Tage</target>
+			</trans-unit>
+			<trans-unit id="period.30" resname="period.30">
+				<source>Last 30 days</source>
+				<target>Letzte 30 Tage</target>
+			</trans-unit>
+			<trans-unit id="period.90" resname="period.90">
+				<source>Last 90 days</source>
+				<target>Letzte 90 Tage</target>
+			</trans-unit>
+			<trans-unit id="period.thisMonth" resname="period.thisMonth">
+				<source>This month</source>
+				<target>Dieser Monat</target>
+			</trans-unit>
+			<trans-unit id="period.lastMonth" resname="period.lastMonth">
+				<source>Last month</source>
+				<target>Letzter Monat</target>
+			</trans-unit>
+			<trans-unit id="period.thisYear" resname="period.thisYear">
+				<source>This year</source>
+				<target>Dieses Jahr</target>
+			</trans-unit>
+			<trans-unit id="period.custom" resname="period.custom">
+				<source>Custom range</source>
+				<target>Eigener Zeitraum</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

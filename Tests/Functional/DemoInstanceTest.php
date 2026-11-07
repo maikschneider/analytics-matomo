@@ -166,7 +166,7 @@ final class DemoInstanceTest extends FunctionalTestCase
     {
         $GLOBALS['BE_USER'] = $this->setUpBackendUser(self::EDITOR);
         $GLOBALS['LANG'] = $this->get(LanguageServiceFactory::class)->createFromUserPreferences($GLOBALS['BE_USER']);
-        $this->get(DashboardSelectionResolver::class)->save($GLOBALS['BE_USER'], $siteIdentifier, 30);
+        $this->get(DashboardSelectionResolver::class)->save($GLOBALS['BE_USER'], $siteIdentifier, '30');
         $request = (new ServerRequest('https://analytics-matomo.ddev.site/typo3/', 'POST'))
             ->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_BE);
         $widget = $this->get(WidgetRegistry::class)->getAvailableWidget($request, 'analyticsMatomoTopPages');

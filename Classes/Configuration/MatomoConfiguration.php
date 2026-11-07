@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MaikSchneider\AnalyticsMatomo\Configuration;
 
+use MaikSchneider\AnalyticsMatomo\Statistics\Period;
+
 final readonly class MatomoConfiguration
 {
     public function __construct(
@@ -36,7 +38,7 @@ final readonly class MatomoConfiguration
         return hash('sha256', implode("\n", [$this->url, $this->idSite, $this->tokenAuth, $this->demo ? 'demo' : '']));
     }
 
-    public function getReportUrl(int $days): string
+    public function getReportUrl(Period $period): string
     {
         if ($this->demo) {
             return '';
@@ -46,7 +48,7 @@ final readonly class MatomoConfiguration
             'action' => 'index',
             'idSite' => $this->idSite,
             'period' => 'range',
-            'date' => 'last' . $days,
+            'date' => $period->toMatomoDate(),
         ]);
     }
 }

@@ -89,11 +89,11 @@ final class MatomoWidget implements WidgetInterface, RequestAwareWidgetInterface
             'configuration' => $this->configuration,
             'report' => $report,
             'selection' => $selection,
-            'periods' => Period::DAYS,
+            'periods' => Period::PRESETS,
             'hasPermission' => StatisticsPermission::isGranted($backendUser, StatisticsPermission::SITE),
         ];
         if ($selection !== null) {
-            $variables['reportUrl'] = $selection->configuration->getReportUrl($selection->period->days);
+            $variables['reportUrl'] = $selection->configuration->getReportUrl($selection->period);
             try {
                 $variables += $this->loadReport($report, $selection);
             } catch (MatomoApiException $e) {

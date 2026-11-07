@@ -15,6 +15,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use TYPO3\CMS\Backend\Attribute\AsController;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Http\JsonResponse;
 
 /**
@@ -29,6 +30,7 @@ final readonly class StatisticsBarController
         private TileFactory $tileFactory,
         private StatisticsBarRenderer $renderer,
         private LoggerInterface $logger,
+        private Context $context,
     ) {
     }
 
@@ -62,7 +64,7 @@ final readonly class StatisticsBarController
             'errorMessage' => $this->getBackendUser()->isAdmin() ? $error : '',
             'days' => $days,
             'periods' => Period::DAYS,
-            'reportUrl' => $target->configuration->getReportUrl($days),
+            'reportUrl' => $target->configuration->getReportUrl(Period::lastDays($days, $this->context->getPropertyFromAspect('date', 'full'))),
         ])]);
     }
 

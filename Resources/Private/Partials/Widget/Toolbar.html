@@ -21,10 +21,13 @@
     </f:if>
     <label>
         <span class="visually-hidden"><f:translate key="{ll}:bar.period" /></span>
-        <select class="form-select form-select-sm" name="days">
+        <select class="form-select form-select-sm" name="period">
             <f:for each="{periods}" as="period">
-                <option value="{period}" {f:if(condition: '{period} == {selection.period.days}', then: 'selected')}><f:translate key="{ll}:bar.days" arguments="{0: period}" /></option>
+                <option value="{period}" {f:if(condition: '{period} == {selection.period.preset}', then: 'selected')}><f:translate key="{ll}:period.{period}" /></option>
             </f:for>
+            <f:if condition="{selection.period.preset} == 'custom'">
+                <option value="custom" selected><f:format.date format="d.m.Y">{selection.period.from}</f:format.date> – <f:format.date format="d.m.Y">{selection.period.to}</f:format.date></option>
+            </f:if>
         </select>
     </label>
 </form>

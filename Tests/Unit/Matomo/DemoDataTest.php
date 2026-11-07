@@ -126,6 +126,6 @@ final class DemoDataTest extends UnitTestCase
     #[Test]
     public function demoConfigurationHasNoReportUrl(): void
     {
-        self::assertSame('', $this->configuration->getReportUrl(7));
+        self::assertSame('', $this->configuration->getReportUrl($this->period));
     }
 }

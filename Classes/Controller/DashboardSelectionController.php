@@ -12,7 +12,7 @@ use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Http\JsonResponse;
 
 /**
- * Stores the site and period chosen in a Matomo dashboard widget (AJAX).
+ * Stores the site and period chosen in a Matomo dashboard widget or the backend module (AJAX).
  */
 #[AsController]
 final readonly class DashboardSelectionController
@@ -27,8 +27,11 @@ final readonly class DashboardSelectionController
         $body = $request->getParsedBody();
         $saved = is_array($body) && $this->selectionResolver->save(
             $this->getBackendUser(),
-            (string)($body['site'] ?? ''),
-            (int)($body['days'] ?? 0),
+            isset($body['site']) ? (string)$body['site'] : null,
+            isset($body['period']) ? (string)$body['period'] : null,
+            (string)($body['from'] ?? ''),
+            (string)($body['to'] ?? ''),
+            isset($body['compare']) ? (bool)$body['compare'] : null,
         );
         return new JsonResponse(['success' => $saved], $saved ? 200 : 403);
     }
