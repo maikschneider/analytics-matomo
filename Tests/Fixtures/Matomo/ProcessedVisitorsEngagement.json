@@ -1,0 +1,578 @@
+[
+	{
+		"website": "virtual-drums.com",
+		"prettyDate": "October 1 – 31, 2026",
+		"metadata": {
+			"category": "Behaviour",
+			"subcategory": "Engagement",
+			"name": "Returning Visits",
+			"module": "VisitFrequency",
+			"action": "get",
+			"documentation": "This report shows general metrics like visits for returning visitors side by side with the same metrics for new visitors. Learn how returning visitors perform overall compared to new visitors.",
+			"metrics": {
+				"nb_visits_returning": "Returning Visits",
+				"nb_actions_returning": "Actions by Returning Visits",
+				"nb_uniq_visitors_returning": "Unique returning visitors",
+				"nb_users_returning": "Returning Users",
+				"max_actions_returning": "Maximum actions in one returning visit",
+				"nb_visits_new": "New Visits",
+				"nb_actions_new": "Actions by New Visits",
+				"nb_uniq_visitors_new": "Unique new visitors",
+				"nb_users_new": "New Users",
+				"max_actions_new": "max_actions_new"
+			},
+			"processedMetrics": {
+				"avg_time_on_site_returning": "Avg. Duration of a Returning Visit (in sec)",
+				"nb_actions_per_visit_returning": "Avg. Actions per Returning Visit",
+				"bounce_rate_returning": "Bounce Rate for Returning Visits",
+				"avg_time_on_site_new": "Avg. Duration of a New Visit (in sec)",
+				"nb_actions_per_visit_new": "Avg. Actions per New Visit",
+				"bounce_rate_new": "Bounce Rate for New Visits"
+			},
+			"metricTypes": {
+				"nb_visits_returning": "number",
+				"nb_actions_returning": "number",
+				"nb_uniq_visitors_returning": "number",
+				"nb_users_returning": "number",
+				"max_actions_returning": "number",
+				"nb_visits_new": "number",
+				"nb_actions_new": "number",
+				"nb_uniq_visitors_new": "number",
+				"nb_users_new": "number",
+				"max_actions_new": "number",
+				"avg_time_on_site_returning": "duration_s",
+				"nb_actions_per_visit_returning": "number",
+				"bounce_rate_returning": "percent",
+				"avg_time_on_site_new": "duration_s",
+				"nb_actions_per_visit_new": "number",
+				"bounce_rate_new": "percent"
+			},
+			"imageGraphUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=VisitFrequency&apiAction=get&period=day&date=2026-10-01,2026-10-31",
+			"imageGraphEvolutionUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=VisitFrequency&apiAction=get&period=day&date=2026-10-01,2026-10-31",
+			"uniqueId": "VisitFrequency_get"
+		},
+		"columns": {
+			"nb_visits_returning": "Returning Visits",
+			"nb_actions_returning": "Actions by Returning Visits",
+			"nb_uniq_visitors_returning": "Unique returning visitors",
+			"nb_users_returning": "Returning Users",
+			"max_actions_returning": "Maximum actions in one returning visit",
+			"nb_visits_new": "New Visits",
+			"nb_actions_new": "Actions by New Visits",
+			"nb_uniq_visitors_new": "Unique new visitors",
+			"nb_users_new": "New Users",
+			"max_actions_new": "Max_actions_new",
+			"avg_time_on_site_returning": "Avg. Duration of a Returning Visit (in sec)",
+			"nb_actions_per_visit_returning": "Avg. Actions per Returning Visit",
+			"bounce_rate_returning": "Bounce Rate for Returning Visits",
+			"avg_time_on_site_new": "Avg. Duration of a New Visit (in sec)",
+			"nb_actions_per_visit_new": "Avg. Actions per New Visit",
+			"bounce_rate_new": "Bounce Rate for New Visits"
+		},
+		"reportData": {
+			"nb_visits_new": 99,
+			"nb_actions_new": 131,
+			"max_actions_new": 7,
+			"bounce_rate_new": 0.82,
+			"nb_actions_per_visit_new": 1.3,
+			"avg_time_on_site_new": 16,
+			"nb_visits_returning": 11,
+			"nb_actions_returning": 16,
+			"max_actions_returning": 3,
+			"bounce_rate_returning": 0.64,
+			"nb_actions_per_visit_returning": 1.5,
+			"avg_time_on_site_returning": 4,
+			"nb_uniq_visitors_returning": 0,
+			"nb_users_returning": 0,
+			"nb_uniq_visitors_new": 0,
+			"nb_users_new": 0
+		},
+		"reportMetadata": [],
+		"reportTotal": [],
+		"timerMillis": "139"
+	},
+	{
+		"website": "virtual-drums.com",
+		"prettyDate": "October 1 – 31, 2026",
+		"metadata": {
+			"category": "Behaviour",
+			"subcategory": "Engagement",
+			"name": "Length of visits",
+			"module": "VisitorInterest",
+			"action": "getNumberOfVisitsPerVisitDuration",
+			"dimension": "Visit duration",
+			"documentation": "How many visits had a certain total duration. Initially, the report is shown as a tag cloud, wherein more common durations have a larger font.<br />Please note, that you can view the report in other ways than as a tag cloud. Use the controls at the bottom of the report to do so.",
+			"metrics": {
+				"nb_visits": "Visits"
+			},
+			"metricsDocumentation": {
+				"nb_visits": "If a visitor comes to your website for the first time or if they visit a page more than 30 minutes after their last page view, this will be recorded as a new visit.",
+				"nb_visits_percent_of_total": "The percentage of the report's total Visits that this row represents."
+			},
+			"metricTypes": {
+				"nb_visits": "number",
+				"nb_visits_percent_of_total": "percent"
+			},
+			"constantRowsCount": true,
+			"imageGraphUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=VisitorInterest&apiAction=getNumberOfVisitsPerVisitDuration&period=range&date=2026-10-01,2026-10-31",
+			"uniqueId": "VisitorInterest_getNumberOfVisitsPerVisitDuration"
+		},
+		"columns": {
+			"label": "Visit duration",
+			"nb_visits": "Visits",
+			"nb_visits_percent_of_total": "Visits (%)"
+		},
+		"reportData": [
+			{
+				"label": "0–10s",
+				"nb_visits": 93,
+				"nb_visits_percent_of_total": 0.845
+			},
+			{
+				"label": "11–30s",
+				"nb_visits": 11,
+				"nb_visits_percent_of_total": 0.1
+			},
+			{
+				"label": "31–60s",
+				"nb_visits": 1,
+				"nb_visits_percent_of_total": 0.009
+			},
+			{
+				"label": "1-2 min",
+				"nb_visits": 3,
+				"nb_visits_percent_of_total": 0.027
+			},
+			{
+				"label": "2-4 min",
+				"nb_visits": 0,
+				"nb_visits_percent_of_total": 0
+			},
+			{
+				"label": "4-7 min",
+				"nb_visits": 0,
+				"nb_visits_percent_of_total": 0
+			},
+			{
+				"label": "7-10 min",
+				"nb_visits": 1,
+				"nb_visits_percent_of_total": 0.009
+			},
+			{
+				"label": "10-15 min",
+				"nb_visits": 1,
+				"nb_visits_percent_of_total": 0.009
+			},
+			{
+				"label": "15-30 min",
+				"nb_visits": 0,
+				"nb_visits_percent_of_total": 0
+			},
+			{
+				"label": "30+ min",
+				"nb_visits": 0,
+				"nb_visits_percent_of_total": 0
+			}
+		],
+		"reportMetadata": [
+			{
+				"segment": "visitDuration>=0;visitDuration<=10"
+			},
+			{
+				"segment": "visitDuration>=11;visitDuration<=30"
+			},
+			{
+				"segment": "visitDuration>=31;visitDuration<=60"
+			},
+			{
+				"segment": "visitDuration>=60;visitDuration<=120"
+			},
+			{
+				"segment": "visitDuration>=120;visitDuration<=240"
+			},
+			{
+				"segment": "visitDuration>=240;visitDuration<=420"
+			},
+			{
+				"segment": "visitDuration>=420;visitDuration<=600"
+			},
+			{
+				"segment": "visitDuration>=600;visitDuration<=900"
+			},
+			{
+				"segment": "visitDuration>=900;visitDuration<=1800"
+			},
+			{
+				"segment": "visitDuration>=1801"
+			}
+		],
+		"reportTotal": {
+			"nb_visits": 110
+		},
+		"timerMillis": "82"
+	},
+	{
+		"website": "virtual-drums.com",
+		"prettyDate": "October 1 – 31, 2026",
+		"metadata": {
+			"category": "Behaviour",
+			"subcategory": "Engagement",
+			"name": "Pages per visit",
+			"module": "VisitorInterest",
+			"action": "getNumberOfVisitsPerPage",
+			"dimension": "Pages per visit",
+			"documentation": "How many visits involved a certain number of pageviews. Initially, the report is shown as a tag cloud, wherein more common numbers of pages have a larger font.<br />Please note, that you can view the report in other ways than as a tag cloud. Use the controls at the bottom of the report to do so.",
+			"metrics": {
+				"nb_visits": "Visits"
+			},
+			"metricsDocumentation": {
+				"nb_visits": "If a visitor comes to your website for the first time or if they visit a page more than 30 minutes after their last page view, this will be recorded as a new visit.",
+				"nb_visits_percent_of_total": "The percentage of the report's total Visits that this row represents."
+			},
+			"metricTypes": {
+				"nb_visits": "number",
+				"nb_visits_percent_of_total": "percent"
+			},
+			"constantRowsCount": true,
+			"imageGraphUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=VisitorInterest&apiAction=getNumberOfVisitsPerPage&period=range&date=2026-10-01,2026-10-31",
+			"uniqueId": "VisitorInterest_getNumberOfVisitsPerPage"
+		},
+		"columns": {
+			"label": "Pages per visit",
+			"nb_visits": "Visits",
+			"nb_visits_percent_of_total": "Visits (%)"
+		},
+		"reportData": [
+			{
+				"label": "1 page",
+				"nb_visits": 86,
+				"nb_visits_percent_of_total": 0.796
+			},
+			{
+				"label": "2 pages",
+				"nb_visits": 14,
+				"nb_visits_percent_of_total": 0.13
+			},
+			{
+				"label": "3 pages",
+				"nb_visits": 4,
+				"nb_visits_percent_of_total": 0.037
+			},
+			{
+				"label": "4 pages",
+				"nb_visits": 1,
+				"nb_visits_percent_of_total": 0.009
+			},
+			{
+				"label": "5 pages",
+				"nb_visits": 2,
+				"nb_visits_percent_of_total": 0.019
+			},
+			{
+				"label": "6-7 pages",
+				"nb_visits": 1,
+				"nb_visits_percent_of_total": 0.009
+			},
+			{
+				"label": "8-10 pages",
+				"nb_visits": 0,
+				"nb_visits_percent_of_total": 0
+			},
+			{
+				"label": "11-14 pages",
+				"nb_visits": 0,
+				"nb_visits_percent_of_total": 0
+			},
+			{
+				"label": "15-20 pages",
+				"nb_visits": 0,
+				"nb_visits_percent_of_total": 0
+			},
+			{
+				"label": "21+ pages",
+				"nb_visits": 0,
+				"nb_visits_percent_of_total": 0
+			}
+		],
+		"reportMetadata": [
+			{
+				"segment": "actions==1"
+			},
+			{
+				"segment": "actions==2"
+			},
+			{
+				"segment": "actions==3"
+			},
+			{
+				"segment": "actions==4"
+			},
+			{
+				"segment": "actions==5"
+			},
+			{
+				"segment": "actions>=6;actions<=7"
+			},
+			{
+				"segment": "actions>=8;actions<=10"
+			},
+			{
+				"segment": "actions>=11;actions<=14"
+			},
+			{
+				"segment": "actions>=15;actions<=20"
+			},
+			{
+				"segment": "actions>=21"
+			}
+		],
+		"reportTotal": {
+			"nb_visits": 108
+		},
+		"timerMillis": "79"
+	},
+	{
+		"website": "virtual-drums.com",
+		"prettyDate": "October 1 – 31, 2026",
+		"metadata": {
+			"category": "Behaviour",
+			"subcategory": "Engagement",
+			"name": "Visits by visit number",
+			"module": "VisitorInterest",
+			"action": "getNumberOfVisitsByVisitCount",
+			"dimension": "Visits by visit number",
+			"documentation": "The number of visitors reaching their Nth visit. I.e. the total amount of visitors visiting your website a given amount of times or more.<br />Please note, that you can view the report in other ways than as a tag cloud. Use the controls at the bottom of the report to do so.",
+			"metrics": {
+				"nb_visits": "Visits"
+			},
+			"metricsDocumentation": {
+				"nb_visits": "If a visitor comes to your website for the first time or if they visit a page more than 30 minutes after their last page view, this will be recorded as a new visit.",
+				"nb_visits_percentage": "The percentage of totals visits, where visitors had this amount of visits in total yet."
+			},
+			"processedMetrics": {
+				"nb_visits_percentage": "% Visits"
+			},
+			"metricTypes": {
+				"nb_visits": "number",
+				"nb_visits_percentage": "percent"
+			},
+			"constantRowsCount": true,
+			"imageGraphUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=VisitorInterest&apiAction=getNumberOfVisitsByVisitCount&period=range&date=2026-10-01,2026-10-31",
+			"uniqueId": "VisitorInterest_getNumberOfVisitsByVisitCount"
+		},
+		"columns": {
+			"label": "Visits by visit number",
+			"nb_visits": "Visits",
+			"nb_visits_percentage": "% Visits"
+		},
+		"reportData": [
+			{
+				"label": "1 visit",
+				"nb_visits": 99,
+				"nb_visits_percentage": 0.9
+			},
+			{
+				"label": "2 visits",
+				"nb_visits": 7,
+				"nb_visits_percentage": 0.06
+			},
+			{
+				"label": "3 visits",
+				"nb_visits": 2,
+				"nb_visits_percentage": 0.02
+			},
+			{
+				"label": "4 visits",
+				"nb_visits": 1,
+				"nb_visits_percentage": 0.01
+			},
+			{
+				"label": "5 visits",
+				"nb_visits": 1,
+				"nb_visits_percentage": 0.01
+			},
+			{
+				"label": "6 visits",
+				"nb_visits": 0,
+				"nb_visits_percentage": 0
+			},
+			{
+				"label": "7 visits",
+				"nb_visits": 0,
+				"nb_visits_percentage": 0
+			},
+			{
+				"label": "8 visits",
+				"nb_visits": 0,
+				"nb_visits_percentage": 0
+			},
+			{
+				"label": "9-14 visits",
+				"nb_visits": 0,
+				"nb_visits_percentage": 0
+			},
+			{
+				"label": "15-25 visits",
+				"nb_visits": 0,
+				"nb_visits_percentage": 0
+			}
+		],
+		"reportMetadata": [
+			{
+				"segment": "visitCount==1"
+			},
+			{
+				"segment": "visitCount==2"
+			},
+			{
+				"segment": "visitCount==3"
+			},
+			{
+				"segment": "visitCount==4"
+			},
+			{
+				"segment": "visitCount==5"
+			},
+			{
+				"segment": "visitCount==6"
+			},
+			{
+				"segment": "visitCount==7"
+			},
+			{
+				"segment": "visitCount==8"
+			},
+			{
+				"segment": "visitCount>=9;visitCount<=14"
+			},
+			{
+				"segment": "visitCount>=15;visitCount<=25"
+			}
+		],
+		"reportTotal": {
+			"nb_visits": 110,
+			"nb_visits_percentage": 1
+		},
+		"timerMillis": "104"
+	},
+	{
+		"website": "virtual-drums.com",
+		"prettyDate": "October 1 – 31, 2026",
+		"metadata": {
+			"category": "Behaviour",
+			"subcategory": "Engagement",
+			"name": "Visits by days since last visit",
+			"module": "VisitorInterest",
+			"action": "getNumberOfVisitsByDaysSinceLast",
+			"dimension": "Days since last visit",
+			"documentation": "How many visits were from returning visitors whose last visit was a certain number of days ago.",
+			"metrics": {
+				"nb_visits": "Visits"
+			},
+			"metricsDocumentation": {
+				"nb_visits": "If a visitor comes to your website for the first time or if they visit a page more than 30 minutes after their last page view, this will be recorded as a new visit.",
+				"nb_visits_percent_of_total": "The percentage of the report's total Visits that this row represents."
+			},
+			"metricTypes": {
+				"nb_visits": "number",
+				"nb_visits_percent_of_total": "percent"
+			},
+			"constantRowsCount": true,
+			"imageGraphUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=VisitorInterest&apiAction=getNumberOfVisitsByDaysSinceLast&period=range&date=2026-10-01,2026-10-31",
+			"uniqueId": "VisitorInterest_getNumberOfVisitsByDaysSinceLast"
+		},
+		"columns": {
+			"label": "Days since last visit",
+			"nb_visits": "Visits",
+			"nb_visits_percent_of_total": "Visits (%)"
+		},
+		"reportData": [
+			{
+				"label": "New visits",
+				"nb_visits": 99,
+				"nb_visits_percent_of_total": 0.9
+			},
+			{
+				"label": "0 days",
+				"nb_visits": 3,
+				"nb_visits_percent_of_total": 0.027
+			},
+			{
+				"label": "1 day",
+				"nb_visits": 0,
+				"nb_visits_percent_of_total": 0
+			},
+			{
+				"label": "2 days",
+				"nb_visits": 1,
+				"nb_visits_percent_of_total": 0.009
+			},
+			{
+				"label": "3 days",
+				"nb_visits": 0,
+				"nb_visits_percent_of_total": 0
+			},
+			{
+				"label": "4 days",
+				"nb_visits": 1,
+				"nb_visits_percent_of_total": 0.009
+			},
+			{
+				"label": "5 days",
+				"nb_visits": 0,
+				"nb_visits_percent_of_total": 0
+			},
+			{
+				"label": "6 days",
+				"nb_visits": 1,
+				"nb_visits_percent_of_total": 0.009
+			},
+			{
+				"label": "7 days",
+				"nb_visits": 0,
+				"nb_visits_percent_of_total": 0
+			},
+			{
+				"label": "8-14 days",
+				"nb_visits": 3,
+				"nb_visits_percent_of_total": 0.027
+			}
+		],
+		"reportMetadata": [
+			{
+				"segment": "visitorType==new"
+			},
+			{
+				"segment": "daysSinceLastVisit==0"
+			},
+			{
+				"segment": "daysSinceLastVisit==1"
+			},
+			{
+				"segment": "daysSinceLastVisit==2"
+			},
+			{
+				"segment": "daysSinceLastVisit==3"
+			},
+			{
+				"segment": "daysSinceLastVisit==4"
+			},
+			{
+				"segment": "daysSinceLastVisit==5"
+			},
+			{
+				"segment": "daysSinceLastVisit==6"
+			},
+			{
+				"segment": "daysSinceLastVisit==7"
+			},
+			{
+				"segment": "daysSinceLastVisit>=8;daysSinceLastVisit<=14"
+			}
+		],
+		"reportTotal": {
+			"nb_visits": 110
+		},
+		"timerMillis": "81"
+	}
+]

@@ -26,11 +26,26 @@ They are independent of the selected historical period and cached for only
 60 seconds; reload the module to refresh them. The overview also works in demo
 mode without contacting Matomo.
 
-The module offers tables for :guilabel:`Behaviour > Pages`,
-:guilabel:`Acquisition > All channels` and :guilabel:`Visitors > Devices`.
+Every other report page shows one or more Matomo reports as tables:
+
+:guilabel:`Visitors`
+    Locations (countries, regions, cities, browser languages), Devices (device
+    type, brand, model, screen resolution), Software (operating system
+    families, browsers, browser engines), Times (local hour, site hour,
+    weekday) and Engagement (new and returning visits, visit duration, pages
+    per visit, visit number, days since the last visit)
+
+:guilabel:`Behaviour`
+    Pages
+
+:guilabel:`Acquisition`
+    All channels
+
 Column headings and metric documentation come from Matomo in the backend user's
 language. Click a column heading to sort, search labels, or browse 25 rows per
 page. These controls work on cached data without another Matomo request.
+Reports without a dimension, such as returning visits, are shown as a list of
+metrics.
 :guilabel:`Compare` adds percentage changes against the previous period; a dash
 means no comparable previous value is available.
 

@@ -46,4 +46,18 @@ final class ReportTableFactoryTest extends UnitTestCase
         self::assertSame('+50.0 %', $table['rows'][0]['cells'][1]['change']);
         self::assertSame('–', $table['rows'][1]['cells'][1]['change']);
     }
+
+    #[Test]
+    public function reportsWithoutDimensionListOneRowPerMetricWithChange(): void
+    {
+        $factory = new ReportTableFactory(new MetricFormatter(), new PageUrlMapper(new Context()), $this->createMock(UriBuilder::class), new PageRecordResolver(new Context()));
+        $report = ['metadata' => ['name' => 'Returning Visits', 'metricTypes' => ['nb_visits_new' => 'number', 'bounce_rate_new' => 'percent']], 'columns' => ['nb_visits_new' => 'New Visits', 'bounce_rate_new' => 'Bounce Rate'], 'reportData' => [['nb_visits_new' => 30, 'bounce_rate_new' => 0.5]], 'reportMetadata' => [], 'reportTotal' => []];
+        $previous = array_replace($report, ['reportData' => [['nb_visits_new' => 20]]]);
+        $table = $factory->create($report, $previous, [], '/module?report=engagement');
+
+        self::assertTrue($table['metricList']);
+        self::assertSame('Returning Visits', $table['title']);
+        self::assertSame([['New Visits', '30', '+50.0 %'], ['Bounce Rate', '50.0 %', '–']], array_map(static fn (array $row): array => [$row['cells'][0]['value'], $row['cells'][1]['value'], $row['cells'][1]['change']], $table['rows']));
+        self::assertSame([], $factory->create(array_replace($report, ['reportData' => []]), null, [], '/module')['rows']);
+    }
 }

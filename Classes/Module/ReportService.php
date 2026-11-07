@@ -48,6 +48,10 @@ final readonly class ReportService
     /** @return Report */
     private function validate(mixed $result): array
     {
+        // Reports without a dimension (e.g. VisitFrequency.get) answer with one row instead of a list
+        if (is_array($result) && is_array($result['reportData'] ?? null) && !array_is_list($result['reportData'])) {
+            $result['reportData'] = [$result['reportData']];
+        }
         if (!is_array($result) || !is_array($result['metadata'] ?? null) || !is_array($result['columns'] ?? null)
             || !is_array($result['reportData'] ?? null) || !array_is_list($result['reportData'])
             || !is_array($result['reportMetadata'] ?? null) || !is_array($result['reportTotal'] ?? null)) {

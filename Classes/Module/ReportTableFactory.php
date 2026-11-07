@@ -35,6 +35,9 @@ final readonly class ReportTableFactory
      */
     public function create(array $report, ?array $previous, array $query, string $baseUrl, ?Site $site = null, int $languageId = -1, int $selectedPageId = 0): array
     {
+        if (!isset($report['columns']['label'])) {
+            return $this->createMetricList($report, $previous);
+        }
         $rows = $this->rows($report);
         $truncated = false;
         if ($site !== null) {
@@ -105,13 +108,7 @@ final readonly class ReportTableFactory
             $old = $previousRows[$this->identity($row)] ?? [];
             foreach ($report['columns'] as $key => $label) {
                 $value = $row[$key] ?? null;
-                $type = (string)($report['metadata']['metricTypes'][$key] ?? $report['metadata']['metricTypesGoal'][$key] ?? 'number');
-                $change = '–';
-                if (is_numeric($value) && isset($old[$key]) && is_numeric($old[$key]) && (float)$old[$key] > 0) {
-                    $ratio = ((float)$value - (float)$old[$key]) / (float)$old[$key];
-                    $change = ($ratio > 0 ? '+' : '') . $this->formatter->format($ratio, 'percent');
-                }
-                $cells[] = ['value' => $key === 'label' ? (string)$value : $this->formatter->format($value, $type), 'metric' => $key !== 'label', 'change' => $change];
+                $cells[] = ['value' => $key === 'label' ? (string)$value : $this->formatter->format($value, $this->type($report, $key)), 'metric' => $key !== 'label', 'change' => $this->change($value, $old[$key] ?? null)];
             }
             $renderedRows[] = ['cells' => $cells, 'actions' => $row['_actions'] ?? []];
         }
@@ -123,6 +120,46 @@ final readonly class ReportTableFactory
             'searchUrl' => $baseUrl, 'sort' => $sort, 'direction' => $direction,
             'previousUrl' => $page > 1 ? $link(['page' => $page - 1]) : '', 'nextUrl' => $page < $pages ? $link(['page' => $page + 1]) : '',
         ];
+    }
+
+    /**
+     * One row per metric for reports without a dimension
+     *
+     * @param Report $report
+     * @param Report|null $previous
+     * @return array<string, mixed>
+     */
+    private function createMetricList(array $report, ?array $previous): array
+    {
+        $row = $report['reportData'][0] ?? [];
+        $old = $previous['reportData'][0] ?? [];
+        $rows = [];
+        foreach ($report['columns'] as $key => $label) {
+            $value = $row[$key] ?? null;
+            $rows[] = ['cells' => [
+                ['value' => $label, 'metric' => false, 'change' => ''],
+                ['value' => $this->formatter->format($value, $this->type($report, $key)), 'metric' => true, 'change' => $this->change($value, $old[$key] ?? null)],
+            ], 'actions' => []];
+        }
+        return [
+            'metricList' => true, 'title' => (string)($report['metadata']['name'] ?? ''), 'rows' => $row === [] ? [] : $rows,
+            'compare' => $previous !== null, 'urlRows' => false, 'truncated' => false,
+        ];
+    }
+
+    /** @param Report $report */
+    private function type(array $report, string $key): string
+    {
+        return (string)($report['metadata']['metricTypes'][$key] ?? $report['metadata']['metricTypesGoal'][$key] ?? 'number');
+    }
+
+    private function change(mixed $value, mixed $old): string
+    {
+        if (!is_numeric($value) || !is_numeric($old) || (float)$old <= 0) {
+            return '–';
+        }
+        $ratio = ((float)$value - (float)$old) / (float)$old;
+        return ($ratio > 0 ? '+' : '') . $this->formatter->format($ratio, 'percent');
     }
 
     /**

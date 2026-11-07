@@ -16,11 +16,42 @@ use MaikSchneider\AnalyticsMatomo\Dashboard\Breakdown;
 final readonly class DemoData
 {
     private const FALLBACK_PATHS = ['', 'about', 'products', 'news', 'contact', 'jobs', 'blog', 'imprint'];
-    private const LABELS = [
-        Breakdown::CHANNEL => ['Search Engines' => 52, 'Direct Entry' => 24, 'Websites' => 13, 'Social Networks' => 8, 'Campaigns' => 3],
-        Breakdown::DEVICES => ['Desktop' => 58, 'Smartphone' => 36, 'Tablet' => 5, 'Phablet' => 1],
-        Breakdown::BROWSERS => ['Chrome' => 46, 'Safari' => 24, 'Firefox' => 12, 'Microsoft Edge' => 10, 'Samsung Internet' => 5, 'Opera' => 3],
-        Breakdown::COUNTRIES => ['Germany' => 61, 'Austria' => 12, 'Switzerland' => 10, 'United States' => 7, 'Netherlands' => 6, 'France' => 4],
+    /**
+     * Processed reports: name, dimension (empty for reports without one), metric set and the labels
+     * with their share of the visits in percent, in Matomo's order
+     */
+    private const REPORTS = [
+        'Referrers.getReferrerType' => ['Channel Type', 'Channel Type', 'visits', ['Search Engines' => 52, 'Direct Entry' => 24, 'Websites' => 13, 'Social Networks' => 8, 'Campaigns' => 3]],
+        'UserCountry.getCountry' => ['Country', 'Country', 'visits', ['Germany' => 61, 'Austria' => 12, 'Switzerland' => 10, 'United States' => 7, 'Netherlands' => 6, 'France' => 4]],
+        'UserCountry.getRegion' => ['Region', 'Region', 'visits', ['Saxony, Germany' => 24, 'Bavaria, Germany' => 18, 'North Rhine-Westphalia, Germany' => 15, 'Berlin, Germany' => 12, 'Vienna, Austria' => 9, 'Zurich, Switzerland' => 7, 'Unknown' => 15]],
+        'UserCountry.getCity' => ['City', 'City', 'visits', ['Dresden, Saxony, Germany' => 17, 'Munich, Bavaria, Germany' => 12, 'Berlin, Berlin, Germany' => 12, 'Leipzig, Saxony, Germany' => 7, 'Vienna, Vienna, Austria' => 9, 'Cologne, North Rhine-Westphalia, Germany' => 8, 'Unknown' => 35]],
+        'UserLanguage.getLanguage' => ['Web-browser language', 'Language', 'visits', ['German' => 68, 'English' => 21, 'French' => 4, 'Dutch' => 4, 'Italian' => 3]],
+        'DevicesDetection.getType' => ['Device type', 'Device type', 'visits', ['Desktop' => 58, 'Smartphone' => 36, 'Tablet' => 5, 'Phablet' => 1]],
+        'DevicesDetection.getBrand' => ['Device brand', 'Device brand', 'visits', ['Unknown' => 52, 'Apple' => 26, 'Samsung' => 11, 'Google' => 5, 'Xiaomi' => 4, 'Huawei' => 2]],
+        'DevicesDetection.getModel' => ['Device model', 'Device model', 'visits', ['Generic Desktop' => 52, 'iPhone' => 21, 'Galaxy S24' => 7, 'iPad' => 5, 'Pixel 8' => 5, 'Generic Smartphone' => 10]],
+        'Resolution.getResolution' => ['Screen Resolution', 'Resolution', 'visits', ['1920x1080' => 31, '390x844' => 18, '412x915' => 14, '1536x864' => 12, '2560x1440' => 10, '1366x768' => 8, '768x1024' => 7]],
+        'DevicesDetection.getOsFamilies' => ['Operating System families', 'Operating system family', 'visits', ['Windows' => 41, 'iOS' => 24, 'Android' => 18, 'Mac' => 11, 'GNU/Linux' => 6]],
+        'DevicesDetection.getBrowsers' => ['Browsers', 'Browser', 'visits', ['Chrome' => 46, 'Safari' => 24, 'Firefox' => 12, 'Microsoft Edge' => 10, 'Samsung Internet' => 5, 'Opera' => 3]],
+        'DevicesDetection.getBrowserEngines' => ['Browser engines', 'Browser engine', 'visits', ['Blink (Chrome, Opera)' => 64, 'WebKit (Safari)' => 24, 'Gecko (Firefox)' => 12]],
+        'VisitTime.getVisitInformationPerLocalTime' => ['Visits per local time', 'Local time — hour (start of visit)', 'visits', 'hours'],
+        'VisitTime.getVisitInformationPerServerTime' => ['Visits per hour in the site\'s timezone', 'Site time — hour (start of visit)', 'visits', 'hours'],
+        'VisitTime.getByDayOfWeek' => ['Visits by day of the week', 'Day of the week', 'visits', ['Monday' => 17, 'Tuesday' => 17, 'Wednesday' => 16, 'Thursday' => 16, 'Friday' => 14, 'Saturday' => 10, 'Sunday' => 10]],
+        'VisitFrequency.get' => ['Returning Visits', '', 'frequency', []],
+        'VisitorInterest.getNumberOfVisitsPerVisitDuration' => ['Length of visits', 'Visit duration', 'share', ['0–10s' => 38, '11–30s' => 12, '31–60s' => 10, '1–2 min' => 12, '2–4 min' => 11, '4–7 min' => 8, '7–10 min' => 4, '10–15 min' => 3, '15–30 min' => 2]],
+        'VisitorInterest.getNumberOfVisitsPerPage' => ['Pages per visit', 'Pages per visit', 'share', ['1 page' => 44, '2 pages' => 18, '3 pages' => 12, '4 pages' => 8, '5 pages' => 6, '6–7 pages' => 5, '8–10 pages' => 4, '11–14 pages' => 2, '15–20 pages' => 1]],
+        'VisitorInterest.getNumberOfVisitsByVisitCount' => ['Visits by visit number', 'Visits by visit number', 'share', ['1 visit' => 72, '2 visits' => 12, '3 visits' => 6, '4 visits' => 3, '5 visits' => 2, '6–7 visits' => 2, '8–10 visits' => 1, '11–14 visits' => 1, '15–25 visits' => 1]],
+        'VisitorInterest.getNumberOfVisitsByDaysSinceLast' => ['Visits by days since last visit', 'Days since last visit', 'share', ['New visits' => 72, '0 days' => 9, '1 day' => 5, '2 days' => 3, '3 days' => 2, '4 days' => 2, '5–7 days' => 2, '8–14 days' => 2, '15–30 days' => 2, '31–60 days' => 1]],
+    ];
+    /** Metric sets of the processed reports: column => [name, Matomo metric type] */
+    private const METRICS = [
+        'visits' => ['nb_visits' => ['Visits', 'number'], 'nb_actions' => ['Actions', 'number'], 'nb_actions_per_visit' => ['Actions per Visit', 'number'], 'avg_time_on_site' => ['Avg. Time on Website', 'duration_s'], 'bounce_rate' => ['Bounce Rate', 'percent']],
+        'share' => ['nb_visits' => ['Visits', 'number'], 'nb_visits_percent_of_total' => ['Visits (%)', 'percent']],
+        'frequency' => [
+            'nb_visits_new' => ['New Visits', 'number'], 'nb_visits_returning' => ['Returning Visits', 'number'],
+            'nb_actions_per_visit_new' => ['Avg. Actions per New Visit', 'number'], 'nb_actions_per_visit_returning' => ['Avg. Actions per Returning Visit', 'number'],
+            'avg_time_on_site_new' => ['Avg. Visit Duration for New Visits (in sec)', 'duration_s'], 'avg_time_on_site_returning' => ['Avg. Duration of a Returning Visit (in sec)', 'duration_s'],
+            'bounce_rate_new' => ['Bounce Rate for New Visits', 'percent'], 'bounce_rate_returning' => ['Bounce Rate for Returning Visits', 'percent'],
+        ],
     ];
     /** Daily views of a page by the number of segments of its path */
     private const PAGE_HITS = [[25, 60], [5, 20], [3, 12]];
@@ -111,24 +142,97 @@ final readonly class DemoData
     private function processedReport(array $request, string $site, array $dates, array $pageUrls): array
     {
         $method = (string)($request['apiModule'] ?? '') . '.' . (string)($request['apiAction'] ?? '');
-        $isUrl = $method === 'Actions.getPageUrls';
-        $rows = $isUrl ? $this->pageUrls($site, $pageUrls, $dates, -1) : $this->breakdown($site, $method, $dates);
-        $columns = $isUrl ? ['label' => 'Page URL', 'nb_hits' => 'Page views', 'bounce_rate' => 'Bounce rate', 'avg_time_on_page' => 'Average time on page'] : ['label' => 'Type', 'nb_visits' => 'Visits'];
+        if ($method === 'Actions.getPageUrls') {
+            return $this->urlReport($site, $dates, $pageUrls);
+        }
+        [$name, $dimension, $set] = self::REPORTS[$method] ?? throw new MatomoApiException('The demo data have no answer for ' . $method, 1793960302);
+        $total = $this->sum($dates, fn (string $date): int => $this->visits($site, $date));
+        $metadata = [
+            'name' => $name,
+            'metricTypes' => array_map(static fn (array $metric): string => $metric[1], self::METRICS[$set]),
+            'metricsDocumentation' => ['nb_visits' => 'Number of visits.'],
+        ];
+        $columns = array_map(static fn (array $metric): string => $metric[0], self::METRICS[$set]);
+        if ($dimension === '') {
+            return ['metadata' => $metadata, 'columns' => $columns, 'reportData' => $this->metrics($set, $method . $site, $total, $total), 'reportMetadata' => [], 'reportTotal' => []];
+        }
+        $rows = [];
+        foreach ($this->labels($method) as $label => $percent) {
+            $label = (string)$label;
+            $visits = $this->labelVisits($site, $label, $percent, $dates);
+            $rows[] = ['label' => $label] + $this->metrics($set, $label . $site, $visits, $total);
+        }
+        return [
+            'metadata' => $metadata, 'columns' => ['label' => $dimension] + $columns,
+            'reportData' => $rows, 'reportMetadata' => array_fill(0, count($rows), []),
+            'reportTotal' => ['nb_visits' => array_sum(array_column($rows, 'nb_visits'))],
+        ];
+    }
+
+    /**
+     * @param list<string> $dates
+     * @param list<string> $pageUrls
+     * @return array<string, mixed>
+     */
+    private function urlReport(string $site, array $dates, array $pageUrls): array
+    {
+        $rows = $this->pageUrls($site, $pageUrls, $dates, -1);
         $metadata = [];
         foreach ($rows as &$row) {
-            $metadata[] = isset($row['url']) ? ['url' => $row['url']] : [];
+            $metadata[] = ['url' => $row['url']];
             unset($row['url']);
         }
         unset($row);
         return [
             'metadata' => [
-                'name' => $isUrl ? 'Page URLs' : (string)($request['apiModule'] ?? 'Report'),
-                'metricTypes' => ['nb_hits' => 'number', 'nb_visits' => 'number', 'bounce_rate' => 'percent', 'avg_time_on_page' => 'duration_s'],
-                'metricsDocumentation' => ['nb_hits' => 'Number of page views.', 'nb_visits' => 'Number of visits.'],
+                'name' => 'Page URLs',
+                'metricTypes' => ['nb_hits' => 'number', 'bounce_rate' => 'percent', 'avg_time_on_page' => 'duration_s'],
+                'metricsDocumentation' => ['nb_hits' => 'Number of page views.'],
             ],
-            'columns' => $columns, 'reportData' => $rows, 'reportMetadata' => $metadata,
-            'reportTotal' => [$isUrl ? 'nb_hits' : 'nb_visits' => array_sum(array_column($rows, $isUrl ? 'nb_hits' : 'nb_visits'))],
+            'columns' => ['label' => 'Page URL', 'nb_hits' => 'Page views', 'bounce_rate' => 'Bounce rate', 'avg_time_on_page' => 'Average time on page'],
+            'reportData' => $rows, 'reportMetadata' => $metadata,
+            'reportTotal' => ['nb_hits' => array_sum(array_column($rows, 'nb_hits'))],
         ];
+    }
+
+    /**
+     * @return array<int|string, int> label => share of the visits in percent
+     */
+    private function labels(string $method): array
+    {
+        $labels = self::REPORTS[$method][3] ?? [];
+        if (is_array($labels)) {
+            return $labels;
+        }
+        $hours = [];
+        for ($hour = 0; $hour < 24; $hour++) {
+            // Most visits during the day
+            $hours[sprintf('%02d', $hour)] = $hour >= 8 && $hour <= 20 ? 6 : 2;
+        }
+        return $hours;
+    }
+
+    /**
+     * @return array<string, int|float>
+     */
+    private function metrics(string $set, string $seed, int $visits, int $total): array
+    {
+        $actions = intdiv($visits * $this->between('actions' . $seed, 110, 450), 100);
+        $returning = intdiv($visits * 3, 10);
+        return match ($set) {
+            'visits' => [
+                'nb_visits' => $visits, 'nb_actions' => $actions, 'nb_actions_per_visit' => $visits > 0 ? round($actions / $visits, 1) : 0,
+                'avg_time_on_site' => $this->between('time' . $seed, 20, 320), 'bounce_rate' => $this->between('bounce' . $seed, 25, 75) / 100,
+            ],
+            'share' => ['nb_visits' => $visits, 'nb_visits_percent_of_total' => $total > 0 ? round($visits / $total, 3) : 0],
+            'frequency' => [
+                'nb_visits_new' => $visits - $returning, 'nb_visits_returning' => $returning,
+                'nb_actions_per_visit_new' => $this->between('actionsNew' . $seed, 15, 35) / 10, 'nb_actions_per_visit_returning' => $this->between('actionsReturning' . $seed, 25, 60) / 10,
+                'avg_time_on_site_new' => $this->between('timeNew' . $seed, 40, 200), 'avg_time_on_site_returning' => $this->between('timeReturning' . $seed, 120, 400),
+                'bounce_rate_new' => $this->between('bounceNew' . $seed, 40, 70) / 100, 'bounce_rate_returning' => $this->between('bounceReturning' . $seed, 20, 45) / 100,
+            ],
+            default => throw new MatomoApiException('The demo data have no metrics ' . $set, 1793960303),
+        };
     }
 
     /**
@@ -192,12 +296,20 @@ final readonly class DemoData
     private function breakdown(string $site, string $method, array $dates): array
     {
         $rows = [];
-        foreach (self::LABELS[$method] ?? ['First' => 55, 'Second' => 30, 'Other' => 15] as $label => $percent) {
-            $visits = $this->sum($dates, fn (string $date): int => intdiv($this->visits($site, $date) * $percent * $this->between($label . $site . $date, 70, 130), 10000));
-            $rows[] = ['label' => $label, 'nb_visits' => $visits];
+        foreach ($this->labels($method) as $label => $percent) {
+            $label = (string)$label;
+            $rows[] = ['label' => $label, 'nb_visits' => $this->labelVisits($site, $label, $percent, $dates)];
         }
         usort($rows, static fn (array $a, array $b): int => $b['nb_visits'] <=> $a['nb_visits']);
         return $rows;
+    }
+
+    /**
+     * @param list<string> $dates
+     */
+    private function labelVisits(string $site, string $label, int $percent, array $dates): int
+    {
+        return $this->sum($dates, fn (string $date): int => intdiv($this->visits($site, $date) * $percent * $this->between($label . $site . $date, 70, 130), 10000));
     }
 
     /**

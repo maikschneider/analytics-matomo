@@ -8,6 +8,7 @@ use GuzzleHttp\Promise\FulfilledPromise;
 use GuzzleHttp\Psr7\Response;
 use MaikSchneider\AnalyticsMatomo\Controller\ReportModuleController;
 use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelectionResolver;
+use MaikSchneider\AnalyticsMatomo\Module\ReportCatalog;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -68,10 +69,12 @@ final class ReportModuleControllerTest extends FunctionalTestCase
                 }
                 $content = (string)json_encode($results);
             }
-            if ($this->fixture === 'SyntheticProcessedPages') {
+            if (str_starts_with($this->fixture, 'SyntheticProcessed') || str_starts_with($this->fixture, 'Processed')) {
+                // One result per sub-request; single-report fixtures repeat for every report of a page
                 parse_str((string)$request->getBody(), $body);
                 self::assertIsArray($body['urls']);
-                $content = (string)json_encode(array_slice(json_decode($content, true), 0, count($body['urls'])));
+                $results = json_decode($content, true);
+                $content = (string)json_encode(array_map(static fn (int $index): mixed => $results[$index % count($results)], array_keys($body['urls'])));
             }
             return new FulfilledPromise(new Response($this->status, [], $content));
         };
@@ -312,7 +315,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     #[Test]
     public function reportAndLanguageAreModuleDataAndRestrictedToTheCurrentSite(): void
     {
-        $this->fixture = 'ProcessedDevices';
+        $this->fixture = 'ProcessedVisitorsDevices';
         $html = (string)$this->render(1, ['site' => 'main', 'report' => 'devices', 'language' => '1'])->getBody();
 
         self::assertStringContainsString('data-language="1"', $html);
@@ -371,12 +374,80 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function visitorsReportPagesRenderEveryRecordedReport(): void
+    {
+        $pages = [
+            'locations' => ['Country' => 'United States', 'Region' => 'Shanghai Shi, China', 'City' => 'Shanghai, Shanghai Shi, China', 'Web-browser language' => 'English'],
+            'devices' => ['Device type' => 'Desktop', 'Device brand' => 'Unknown', 'Device model' => 'Generic Desktop', 'Screen Resolution' => '800x600'],
+            'software' => ['Operating System families' => 'Windows', 'Browsers' => 'Chrome', 'Browser engines' => 'Blink (Chrome, Opera)'],
+            'times' => ['Visits per local time' => '00', 'Visits per hour in the site&#039;s timezone' => '00', 'Visits by day of the week' => 'Monday'],
+            'engagement' => ['Returning Visits' => 'New Visits', 'Length of visits' => '0–10s', 'Pages per visit' => '1 page', 'Visits by visit number' => '1 visit', 'Visits by days since last visit' => 'New visits'],
+        ];
+        foreach ($pages as $report => $tables) {
+            $this->fixture = 'ProcessedVisitors' . ucfirst($report);
+            $html = (string)$this->render(1, ['site' => 'main', 'report' => $report])->getBody();
+            foreach ($tables as $title => $firstLabel) {
+                self::assertStringContainsString('<h2>' . $title . '</h2>', $html, $report);
+                self::assertStringContainsString('<td>' . $firstLabel . '</td>', $html, $report);
+            }
+            self::assertSame(count($tables), substr_count($html, '<h2>'), $report);
+        }
+        self::assertCount(5, $this->sentRequests);
+    }
+
+    #[Test]
+    public function dimensionReportsArePerMatomoSiteAndCoverAllLanguages(): void
+    {
+        $this->fixture = 'ProcessedVisitorsLocations';
+        $german = (string)$this->render(1, ['id' => '1', 'report' => 'locations', 'language' => '1'])->getBody();
+        $default = (string)$this->render(1, ['id' => '1', 'language' => '0'])->getBody();
+        $this->render(1, ['id' => '10', 'language' => '1']);
+
+        self::assertStringContainsString('<td>United States</td>', $german);
+        self::assertSame(substr($german, (int)strpos($german, '<h2>')), substr($default, (int)strpos($default, '<h2>')));
+        self::assertCount(2, $this->sentRequests);
+        $sites = [];
+        foreach ($this->sentRequests as $request) {
+            parse_str((string)$request->getBody(), $body);
+            self::assertIsArray($body['urls']);
+            parse_str($body['urls'][0], $subRequest);
+            $sites[] = $subRequest['idSite'];
+        }
+        self::assertSame(['3', '7'], $sites);
+    }
+
+    #[Test]
+    public function reportsWithoutDimensionRenderAsMetricList(): void
+    {
+        $this->fixture = 'ProcessedVisitorsEngagement';
+        $html = (string)$this->render(1, ['site' => 'main', 'report' => 'engagement', 'compare' => '1'])->getBody();
+        $start = (int)strpos($html, '<h2>Returning Visits</h2>');
+        $table = substr($html, $start, (int)strpos($html, '<h2>', $start + 1) - $start);
+
+        self::assertStringContainsString('<td>New Visits</td>', $table);
+        self::assertStringContainsString('<td>99</td>', $table);
+        self::assertStringContainsString('<td>Bounce Rate for New Visits</td>', $table);
+        self::assertStringContainsString('<td>82.0 %</td>', $table);
+        self::assertStringContainsString('Change', $table);
+        self::assertStringNotContainsString('type="search"', $table);
+        self::assertStringNotContainsString('<nav', $table);
+    }
+
+    #[Test]
     public function demoReportPagesRenderTablesWithoutHttp(): void
     {
-        foreach (['visitors' => 'devices', 'behaviour' => 'pages', 'acquisition' => 'channels'] as $section => $report) {
-            $html = (string)$this->render(1, ['site' => 'trial', 'report' => $report], $section)->getBody();
-            self::assertStringContainsString('class="table', $html);
-            self::assertStringContainsString('<td>', $html);
+        $catalog = $this->get(ReportCatalog::class);
+        foreach (['visitors', 'behaviour', 'acquisition'] as $section) {
+            foreach (array_keys($catalog->getPages($section)) as $report) {
+                $expected = count($catalog->getReports($section, $report));
+                if ($expected === 0) {
+                    continue;
+                }
+                $html = (string)$this->render(1, ['site' => 'trial', 'report' => $report], $section)->getBody();
+                self::assertSame($expected, substr_count($html, 'class="table table-striped'), $report);
+                self::assertSame($expected, preg_match_all('#<tbody>\s*<tr>#', $html), $report);
+                self::assertStringNotContainsString('First', $html, $report);
+            }
         }
         self::assertSame([], $this->sentRequests);
     }
@@ -384,7 +455,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     #[Test]
     public function processedReportsAreFetchedInOneBulkAndReusedForTableControls(): void
     {
-        $this->fixture = 'ProcessedDevices';
+        $this->fixture = 'ProcessedVisitorsDevices';
         $html = (string)$this->render(1, ['site' => 'main', 'report' => 'devices'])->getBody();
         self::assertStringContainsString('Device type', $html);
         self::assertStringContainsString('Desktop', $html);
@@ -396,7 +467,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
         self::assertSame('API.getBulkRequest', $body['method']);
         self::assertSame('en', $body['language']);
         self::assertIsArray($body['urls']);
-        self::assertCount(1, $body['urls']);
+        self::assertCount(4, $body['urls']);
         parse_str($body['urls'][0], $subRequest);
         self::assertSame('API.getProcessedReport', $subRequest['method']);
         self::assertSame('DevicesDetection', $subRequest['apiModule']);
@@ -482,7 +553,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
         self::assertTrue(str_contains($admin, 'access for the website id = 1'));
         self::assertFalse(str_contains($editor, 'access for the website id = 1'));
         self::assertTrue(str_contains($editor, 'The statistics could not be loaded from Matomo.'));
-        $this->fixture = 'ProcessedDevices';
+        $this->fixture = 'ProcessedVisitorsDevices';
         $this->status = 200;
         $recovered = (string)$this->render(1, ['site' => 'main', 'report' => 'devices'])->getBody();
         self::assertTrue(str_contains($recovered, 'Desktop'));
@@ -505,7 +576,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     #[Test]
     public function backendLanguageIsSentToMatomoAndSeparatesCachedReports(): void
     {
-        $this->fixture = 'ProcessedDevices';
+        $this->fixture = 'ProcessedVisitorsDevices';
         $this->render(1, ['site' => 'main', 'report' => 'devices']);
         $this->get(ConnectionPool::class)->getConnectionForTable('be_users')->update('be_users', ['lang' => 'de'], ['uid' => 1]);
         $this->render(1, ['site' => 'main', 'report' => 'devices']);
@@ -533,7 +604,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
         $this->fixture = 'SyntheticProcessedInvalid';
         $html = (string)$this->render(1, ['site' => 'main', 'report' => 'devices'])->getBody();
         self::assertTrue(str_contains($html, 'unexpected processed report'));
-        $this->fixture = 'ProcessedDevices';
+        $this->fixture = 'ProcessedVisitorsDevices';
         $html = (string)$this->render(1, ['site' => 'main', 'report' => 'devices'])->getBody();
         self::assertTrue(str_contains($html, 'Desktop'));
         self::assertCount(2, $this->sentRequests);

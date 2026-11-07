@@ -194,6 +194,8 @@
 			<trans-unit id="table.empty"><source>No matching rows.</source><target>Keine passenden Zeilen.</target></trans-unit>
 			<trans-unit id="table.previous"><source>Previous</source><target>Zurück</target></trans-unit>
 			<trans-unit id="table.next"><source>Next</source><target>Weiter</target></trans-unit>
+			<trans-unit id="table.metric"><source>Metric</source><target>Kennzahl</target></trans-unit>
+			<trans-unit id="table.value"><source>Value</source><target>Wert</target></trans-unit>
 			<trans-unit id="action.details"><source>Page details</source><target>Seitendetails</target></trans-unit>
 			<trans-unit id="action.layout"><source>Page module</source><target>Seitenmodul</target></trans-unit>
 			<trans-unit id="action.edit"><source>Edit page properties</source><target>Seiteneigenschaften bearbeiten</target></trans-unit>

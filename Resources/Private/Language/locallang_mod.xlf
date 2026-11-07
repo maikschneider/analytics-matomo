@@ -148,6 +148,8 @@
 			<trans-unit id="table.empty"><source>No matching rows.</source></trans-unit>
 			<trans-unit id="table.previous"><source>Previous</source></trans-unit>
 			<trans-unit id="table.next"><source>Next</source></trans-unit>
+			<trans-unit id="table.metric"><source>Metric</source></trans-unit>
+			<trans-unit id="table.value"><source>Value</source></trans-unit>
 			<trans-unit id="action.details"><source>Page details</source></trans-unit>
 			<trans-unit id="action.layout"><source>Page module</source></trans-unit>
 			<trans-unit id="action.edit"><source>Edit page properties</source></trans-unit>
