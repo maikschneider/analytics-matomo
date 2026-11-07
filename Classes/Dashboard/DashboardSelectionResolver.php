@@ -18,8 +18,9 @@ use TYPO3\CMS\Core\Type\Bitmask\Permission;
 /**
  * The site, period and compare setting a backend user looks at, shared by the
  * dashboard widgets and the backend module. Offered are the sites with a
- * Matomo connection whose root page the user may see, if the user has the site
- * statistics permission. The choice is stored in the user settings.
+ * Matomo connection whose root page the user may see. Widgets require the site
+ * statistics option; a module caller passes its section identifier, whose
+ * module access is checked instead. The choice is stored in the user settings.
  */
 #[Autoconfigure(public: true)]
 final readonly class DashboardSelectionResolver
@@ -34,9 +35,14 @@ final readonly class DashboardSelectionResolver
     /**
      * @return array<string, Site>
      */
-    public function getSites(BackendUserAuthentication $backendUser): array
+    public function getSites(BackendUserAuthentication $backendUser, string $moduleIdentifier = ''): array
     {
-        if (!StatisticsPermission::isGranted($backendUser, StatisticsPermission::SITE)) {
+        $granted = $moduleIdentifier === ''
+            ? StatisticsPermission::isGranted($backendUser, StatisticsPermission::SITE)
+            : str_starts_with($moduleIdentifier, 'analytics_matomo_')
+                && $backendUser->check('modules', 'analytics_matomo')
+                && $backendUser->check('modules', $moduleIdentifier);
+        if (!$granted) {
             return [];
         }
         $sites = [];
@@ -53,9 +59,9 @@ final readonly class DashboardSelectionResolver
     /**
      * @param Site|null $site a site chosen elsewhere, e.g. in the page tree, instead of the stored one
      */
-    public function resolve(BackendUserAuthentication $backendUser, ?Site $site = null): ?DashboardSelection
+    public function resolve(BackendUserAuthentication $backendUser, ?Site $site = null, string $moduleIdentifier = ''): ?DashboardSelection
     {
-        $sites = $this->getSites($backendUser);
+        $sites = $this->getSites($backendUser, $moduleIdentifier);
         $stored = $this->getStored($backendUser);
         $site = $site === null ? ($sites[$stored['site']] ?? reset($sites)) : ($sites[$site->getIdentifier()] ?? null);
         if (!$site instanceof Site) {
@@ -85,8 +91,9 @@ final readonly class DashboardSelectionResolver
         string $from = '',
         string $to = '',
         ?bool $compare = null,
+        string $moduleIdentifier = '',
     ): bool {
-        if ($siteIdentifier !== null && !isset($this->getSites($backendUser)[$siteIdentifier])) {
+        if ($siteIdentifier !== null && !isset($this->getSites($backendUser, $moduleIdentifier)[$siteIdentifier])) {
             return false;
         }
         $stored = $this->getStored($backendUser);

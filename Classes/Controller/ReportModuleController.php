@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace MaikSchneider\AnalyticsMatomo\Controller;
 
-use MaikSchneider\AnalyticsMatomo\Authorization\StatisticsPermission;
 use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelectionResolver;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
 use MaikSchneider\AnalyticsMatomo\Module\ReportCatalog;
@@ -26,6 +25,7 @@ use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
+use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Site\SiteFinder;
@@ -58,6 +58,9 @@ final readonly class ReportModuleController
         $user = $GLOBALS['BE_USER'];
         /** @var ModuleInterface $module */
         $module = $request->getAttribute('module');
+        if (!$user->check('modules', 'analytics_matomo') || !$user->check('modules', $module->getIdentifier())) {
+            return new HtmlResponse('', 403);
+        }
         /** @var ModuleData $moduleData */
         $moduleData = $request->getAttribute('moduleData');
         $parameters = array_replace($request->getQueryParams(), (array)$request->getParsedBody());
@@ -77,10 +80,6 @@ final readonly class ReportModuleController
             'll' => self::LABELS,
             'pageId' => $pageId,
         ];
-        if (!StatisticsPermission::isGranted($user, StatisticsPermission::SITE)) {
-            $template->assignMultiple($variables + ['emptyMessage' => $this->translate(self::SHARED_LABELS . 'widget.noAccess')]);
-            return $template->renderResponse('Module/Report');
-        }
 
         $site = null;
         if ($pageId > 0) {
@@ -99,13 +98,14 @@ final readonly class ReportModuleController
                 (string)($parameters['from'] ?? ''),
                 (string)($parameters['to'] ?? ''),
                 isset($parameters['compare']) ? (bool)$parameters['compare'] : null,
+                $route,
             );
             if (!$saved) {
                 $template->assignMultiple($variables + ['emptyMessage' => $this->label('empty.site')]);
                 return $template->renderResponse('Module/Report');
             }
         }
-        $selection = $this->selectionResolver->resolve($user, $site);
+        $selection = $this->selectionResolver->resolve($user, $site, $route);
         if ($selection === null) {
             $template->assignMultiple($variables + ['emptyMessage' => $this->label('empty.site')]);
             return $template->renderResponse('Module/Report');

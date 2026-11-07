@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MaikSchneider\AnalyticsMatomo\Controller;
 
+use MaikSchneider\AnalyticsMatomo\Authorization\StatisticsPermission;
 use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelectionResolver;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -24,6 +25,9 @@ final readonly class DashboardSelectionController
 
     public function __invoke(ServerRequestInterface $request): ResponseInterface
     {
+        if (!StatisticsPermission::isGranted($this->getBackendUser(), StatisticsPermission::SITE)) {
+            return new JsonResponse(['success' => false], 403);
+        }
         $body = $request->getParsedBody();
         $saved = is_array($body) && $this->selectionResolver->save(
             $this->getBackendUser(),

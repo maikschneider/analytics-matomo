@@ -14,6 +14,7 @@ use Psr\Http\Message\RequestInterface;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\DateTimeAspect;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Dashboard\WidgetRegistry;
@@ -159,10 +160,16 @@ final class MatomoWidgetTest extends FunctionalTestCase
     #[Test]
     public function showsNothingWithoutSiteStatisticsPermission(): void
     {
-        $html = $this->render(3, 'analyticsMatomoPerformance', 'SitePerformance');
-
-        self::assertStringContainsString('You are not allowed to view site statistics.', $html);
-        self::assertSame([], $this->sentRequests);
+        $identifiers = ['analyticsMatomoPerformance', 'analyticsMatomoTraffic', 'analyticsMatomoTopPages', 'analyticsMatomoChannel', 'analyticsMatomoDevices', 'analyticsMatomoBrowsers', 'analyticsMatomoCountries'];
+        $this->get(ConnectionPool::class)->getConnectionForTable('be_groups')->update('be_groups', [
+            'groupMods' => 'analytics_matomo,analytics_matomo_visitors',
+            'availableWidgets' => implode(',', $identifiers),
+        ], ['uid' => 1]);
+        foreach ($identifiers as $identifier) {
+            $html = $this->render(4, $identifier, 'SitePerformance');
+            self::assertStringContainsString('You are not allowed to view site statistics.', $html);
+            self::assertSame([], $this->sentRequests);
+        }
     }
 
     #[Test]
@@ -196,6 +203,24 @@ final class MatomoWidgetTest extends FunctionalTestCase
             ['site' => 'main', 'period' => 'lastMonth', 'from' => '', 'to' => '', 'compare' => true],
             $GLOBALS['BE_USER']->uc['analytics_matomo']['dashboard'],
         );
+    }
+
+    #[Test]
+    public function selectionAjaxRejectsEveryPayloadWithoutSiteStatisticsPermission(): void
+    {
+        $this->get(ConnectionPool::class)->getConnectionForTable('be_groups')->update('be_groups', [
+            'groupMods' => 'analytics_matomo,analytics_matomo_visitors',
+        ], ['uid' => 1]);
+        $GLOBALS['BE_USER'] = $this->setUpBackendUser(4);
+        $controller = $this->get(DashboardSelectionController::class);
+        $stored = $GLOBALS['BE_USER']->uc;
+        foreach ([[], ['period' => '30'], ['compare' => '1'], ['site' => 'main']] as $body) {
+            $response = $controller($this->request()->withParsedBody($body));
+            self::assertSame(403, $response->getStatusCode());
+            self::assertSame(['success' => false], json_decode((string)$response->getBody(), true));
+            self::assertSame($stored, $GLOBALS['BE_USER']->uc);
+        }
+        self::assertSame([], $this->sentRequests);
     }
 
     private function render(int $backendUserId, string $identifier, string $fixture): string

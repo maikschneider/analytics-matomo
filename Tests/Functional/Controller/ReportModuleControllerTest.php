@@ -14,6 +14,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Backend\Middleware\BackendModuleValidator;
+use TYPO3\CMS\Backend\Module\ModuleData;
 use TYPO3\CMS\Backend\Module\ModuleProvider;
 use TYPO3\CMS\Backend\Routing\Router;
 use TYPO3\CMS\Core\Context\Context;
@@ -231,11 +232,61 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     }
 
     #[Test]
-    public function missingSitePermissionShowsAnEmptyStateWithoutContactingMatomo(): void
+    public function moduleAccessAloneAllowsReportsAndSharedSelection(): void
     {
-        $html = (string)$this->render(4)->getBody();
+        $response = $this->render(4, ['site' => 'main', 'period' => 'lastMonth', 'compare' => '1']);
+        $html = (string)$response->getBody();
 
-        self::assertStringContainsString('You are not allowed to view site statistics.', $html);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertStringContainsString('tx-analytics-matomo-metric--visitors', $html);
+        self::assertStringContainsString('data-site="main"', $html);
+        self::assertStringNotContainsString('site=shop', $html);
+        self::assertCount(2, $this->sentRequests);
+        $user = $this->setUpBackendUser(4);
+        self::assertSame('lastMonth', $user->uc['analytics_matomo']['dashboard']['period']);
+        self::assertTrue($user->uc['analytics_matomo']['dashboard']['compare']);
+        self::assertNull($this->get(DashboardSelectionResolver::class)->resolve($user));
+    }
+
+    #[Test]
+    public function controllerItselfDeniesEverySectionWithoutModuleAccess(): void
+    {
+        $this->get(ConnectionPool::class)->getConnectionForTable('be_groups')->update('be_groups', ['groupMods' => 'analytics_matomo'], ['uid' => 1]);
+        foreach (['visitors', 'behaviour', 'acquisition', 'goals', 'page'] as $section) {
+            $response = $this->render(5, ['site' => 'trial'], $section, validate: false);
+            self::assertSame(403, $response->getStatusCode());
+        }
+        self::assertSame([], $this->sentRequests);
+    }
+
+    #[Test]
+    public function controllerRequiresParentModuleEvenWhenSectionIsGranted(): void
+    {
+        $this->get(ConnectionPool::class)->getConnectionForTable('be_groups')->update('be_groups', [
+            'groupMods' => 'analytics_matomo_visitors',
+        ], ['uid' => 1]);
+
+        self::assertSame(403, $this->render(5, validate: false)->getStatusCode());
+        self::assertSame([], $this->sentRequests);
+    }
+
+    #[Test]
+    public function noModuleAccessAndNoSiteOptionExposeNoReports(): void
+    {
+        $this->get(ConnectionPool::class)->getConnectionForTable('be_groups')->update('be_groups', [
+            'groupMods' => '',
+        ], ['uid' => 1]);
+        self::assertSame(403, $this->render(4, validate: false)->getStatusCode());
+        self::assertNull($this->get(DashboardSelectionResolver::class)->resolve($this->setUpBackendUser(4)));
+        self::assertSame([], $this->sentRequests);
+    }
+
+    #[Test]
+    public function moduleOnlyUserCannotSelectAnInaccessibleSite(): void
+    {
+        $html = (string)$this->render(4, ['site' => 'shop'])->getBody();
+
+        self::assertStringContainsString('No accessible site with a Matomo connection is configured.', $html);
         self::assertSame([], $this->sentRequests);
     }
 
@@ -487,7 +538,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
      * @param array<string, string> $query
      * @param array<string, string> $body
      */
-    private function render(int $userId, array $query = [], string $section = 'visitors', array $body = []): ResponseInterface
+    private function render(int $userId, array $query = [], string $section = 'visitors', array $body = [], bool $validate = true): ResponseInterface
     {
         $GLOBALS['BE_USER'] = $this->setUpBackendUser($userId);
         $GLOBALS['LANG'] = $this->get(LanguageServiceFactory::class)->createFromUserPreferences($GLOBALS['BE_USER']);
@@ -502,6 +553,13 @@ final class ReportModuleControllerTest extends FunctionalTestCase
             ->withParsedBody($body);
         $GLOBALS['TYPO3_REQUEST'] = $request;
         $controller = $this->get(ReportModuleController::class);
+        if (!$validate) {
+            $module = $this->get(ModuleProvider::class)->getModule('analytics_matomo_' . $section);
+            self::assertNotNull($module);
+            return $controller->handleRequest($request
+                ->withAttribute('module', $module)
+                ->withAttribute('moduleData', new ModuleData($module->getIdentifier(), $module->getDefaultModuleData())));
+        }
         $handler = new class($controller) implements RequestHandlerInterface {
             public function __construct(private ReportModuleController $controller)
             {

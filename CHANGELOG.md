@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Per-section backend group access through TYPO3 module permissions, independently of the dashboard widgets' `siteStatistics` option. The widget selection AJAX route rejects all requests without that option; site and page access remain enforced.
 - Visitors overview with six KPI tiles, a Chart.js evolution chart and a client-side metric picker. Comparison adds tile changes and a dashed previous-period series; chart points use days, weeks or months automatically. Aggregated live counters cover the last 30 minutes and are cached separately for 60 seconds. Demo mode supplies the overview without HTTP.
 - Generic report tables for Behaviour / Pages, Acquisition / All channels and Visitors / Devices: translated Matomo columns and metric documentation, search, sorting, 25-row paging and comparison with the previous period. URL rows respect page access, site language and the selected page-tree subtree, with links to page details, the Page module, page properties and the frontend. Demo mode supplies all three reports.
 - Matomo Analytics backend module with page tree, five sections and global report, site, language, period and comparison controls. Site, period and comparison are shared with the dashboard widgets. Custom ranges use native date inputs.

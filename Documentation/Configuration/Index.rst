@@ -71,9 +71,10 @@ tracking token.
 Access
 ======
 
-Statistics are opt-in per backend group. Grant them in the backend group
-record, tab :guilabel:`Access Rights`, field :guilabel:`Custom module options`,
-section :guilabel:`Analytics for Matomo`:
+Statistics are opt-in per backend group. Module sections use TYPO3's normal
+module access (see below), not custom options. Features outside the module
+are granted in the backend group record, tab :guilabel:`Access Rights`, field
+:guilabel:`Custom module options`, section :guilabel:`Analytics for Matomo`:
 
 :guilabel:`View page statistics` (`analytics_matomo:pageStatistics`)
     The statistics bar in the Page module. Editors see it only for pages they
@@ -87,8 +88,9 @@ section :guilabel:`Analytics for Matomo`:
 Administrators always have both. Error details from Matomo are shown to
 administrators only.
 
-The widgets of a site show the numbers of its Matomo site. If several TYPO3
-sites track into the same Matomo site, their visits, channels, devices and so on
+The site-wide module reports and widgets show the numbers of the selected
+Matomo site. If several TYPO3 sites track into the same Matomo site, their
+visits, channels, devices and so on
 are shown together; only :guilabel:`Top pages` is limited to the URLs of the
 selected site. Use one Matomo site per TYPO3 site if editors of one site must
 not see the numbers of another. Top pages lists only pages and languages the
@@ -102,7 +104,17 @@ Behaviour, Acquisition, Goals and Page details. Grant the parent module
 (`analytics_matomo`) and the wanted sections (`analytics_matomo_visitors`,
 `analytics_matomo_behaviour`, `analytics_matomo_acquisition`,
 `analytics_matomo_goals`, `analytics_matomo_page`) in the backend group's module
-access, plus `analytics_matomo:siteStatistics`.
+access (`groupMods`). Both the parent and the requested section are required;
+without the parent the module does not appear in the menu. No custom option,
+including `analytics_matomo:siteStatistics`, is required for these sections.
+
+The module checks its own module access before loading reports. Its site
+selection uses that access instead of the widget option, while still requiring
+a readable site root page and a Matomo connection. The dashboard widgets and
+their shared selection AJAX route require `analytics_matomo:siteStatistics`;
+module access alone does not grant either. The Page module bar AJAX route
+requires `analytics_matomo:pageStatistics`. Inherited AJAX module access is an
+additional check, not a substitute for these feature options.
 
 The selected page determines the site; without a page, use the site dropdown.
 Site, period (presets or a custom date range) and comparison are shared with the
