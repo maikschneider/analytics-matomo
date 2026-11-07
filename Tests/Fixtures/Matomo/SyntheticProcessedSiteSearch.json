@@ -1,0 +1,167 @@
+[
+	{
+		"website": "virtual-drums.com",
+		"prettyDate": "January 1 – November 6, 2026",
+		"metadata": {
+			"category": "Behaviour",
+			"subcategory": "Site Search",
+			"name": "Site Search Keywords",
+			"module": "Actions",
+			"action": "getSiteSearchKeywords",
+			"dimension": "Keyword",
+			"documentation": "This report lists the Search Keywords that visitors searched for on your internal Search Engine.<br/><br/>Tracking searches that visitors make on your website is a very effective way to learn more about what your audience is looking for, it can help find ideas for new content, new Ecommerce products that potential customers might be searching for, and generally improve the visitors' experience on your website.",
+			"onlineGuideUrl": "https://matomo.org/docs/site-search/",
+			"metrics": {
+				"nb_visits": "Searches",
+				"nb_pages_per_search": "Search Results pages"
+			},
+			"metricsDocumentation": {
+				"nb_visits": "The number of visits that searched for this keyword on your website's search engine.",
+				"nb_pages_per_search": "Visitors will search on your website, and sometimes click \"next\" to view more results. This is the average number of search results pages viewed for this keyword.",
+				"exit_rate": "The percentage of visits that left the website after searching for this Keyword on your Site Search engine."
+			},
+			"processedMetrics": {
+				"exit_rate": "% Search Exits"
+			},
+			"metricTypes": {
+				"nb_visits": "number",
+				"nb_pages_per_search": "number",
+				"avg_time_on_page": "duration_s",
+				"bounce_rate": "percent",
+				"exit_rate": "percent",
+				"avg_time_generation": "duration_s"
+			},
+			"imageGraphUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=Actions&apiAction=getSiteSearchKeywords&period=range&date=2026-01-01,2026-11-06",
+			"imageGraphEvolutionUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=Actions&apiAction=getSiteSearchKeywords&period=day&date=2026-01-01,2026-11-06",
+			"uniqueId": "Actions_getSiteSearchKeywords"
+		},
+		"columns": {
+			"label": "Keyword",
+			"nb_visits": "Searches",
+			"nb_pages_per_search": "Search Results pages",
+			"exit_rate": "% Search Exits"
+		},
+		"reportData": [
+			{
+				"label": "opening hours",
+				"nb_visits": 42,
+				"nb_pages_per_search": 1.2,
+				"exit_rate": 0.21
+			},
+			{
+				"label": "jobs",
+				"nb_visits": 17,
+				"nb_pages_per_search": 1.5,
+				"exit_rate": 0.35
+			}
+		],
+		"reportMetadata": [
+			{},
+			{}
+		],
+		"reportTotal": [],
+		"timerMillis": "139"
+	},
+	{
+		"website": "virtual-drums.com",
+		"prettyDate": "January 1 – November 6, 2026",
+		"metadata": {
+			"category": "Behaviour",
+			"subcategory": "Site Search",
+			"name": "Search Keywords with No Results",
+			"module": "Actions",
+			"action": "getSiteSearchNoResultKeywords",
+			"dimension": "Keyword with No Search Result",
+			"documentation": "Tracking searches that visitors make on your website is a very effective way to learn more about what your audience is looking for, it can help find ideas for new content, new Ecommerce products that potential customers might be searching for, and generally improve the visitors' experience on your website.<br /><br />This report lists the Search Keywords that did not return any Search result: maybe the search engine algorithm can be improved, or maybe your visitors are looking for content that is not (yet) on your website?",
+			"onlineGuideUrl": "https://matomo.org/docs/site-search/",
+			"metrics": {
+				"nb_visits": "Searches"
+			},
+			"metricsDocumentation": {
+				"nb_visits": "The number of visits that searched for this keyword on your website's search engine.",
+				"exit_rate": "The percentage of visits that left the website after searching for this Keyword on your Site Search engine."
+			},
+			"processedMetrics": {
+				"exit_rate": "% Search Exits"
+			},
+			"metricTypes": {
+				"nb_visits": "number",
+				"avg_time_on_page": "duration_s",
+				"bounce_rate": "percent",
+				"exit_rate": "percent",
+				"avg_time_generation": "duration_s"
+			},
+			"imageGraphUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=Actions&apiAction=getSiteSearchNoResultKeywords&period=range&date=2026-01-01,2026-11-06",
+			"imageGraphEvolutionUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=Actions&apiAction=getSiteSearchNoResultKeywords&period=day&date=2026-01-01,2026-11-06",
+			"uniqueId": "Actions_getSiteSearchNoResultKeywords"
+		},
+		"columns": {
+			"label": "Keyword with No Search Result",
+			"nb_visits": "Searches",
+			"exit_rate": "% Search Exits"
+		},
+		"reportData": [
+			{
+				"label": "parking dresden",
+				"nb_visits": 6,
+				"exit_rate": 0.67
+			}
+		],
+		"reportMetadata": [
+			{}
+		],
+		"reportTotal": [],
+		"timerMillis": "80"
+	},
+	{
+		"website": "virtual-drums.com",
+		"prettyDate": "January 1 – November 6, 2026",
+		"metadata": {
+			"category": "Behaviour",
+			"subcategory": "Site Search",
+			"name": "Search Categories",
+			"module": "Actions",
+			"action": "getSiteSearchCategories",
+			"dimension": "Search Category",
+			"documentation": "This report lists the Categories that visitors selected when they made a Search on your website.<br/>For example, Ecommerce websites typically have a \"Category\" selector so that visitors can restrict their searches to all products in a specific Category.",
+			"onlineGuideUrl": "https://matomo.org/docs/site-search/",
+			"metrics": {
+				"nb_visits": "Searches",
+				"nb_pages_per_search": "Search Results pages",
+				"exit_rate": "% Search Exits"
+			},
+			"metricsDocumentation": {
+				"nb_visits": "The number of visits that searched for this keyword on your website's search engine.",
+				"nb_pages_per_search": "Visitors will search on your website, and sometimes click \"next\" to view more results. This is the average number of search results pages viewed for this keyword.",
+				"exit_rate": "The percentage of visits that left the website after searching for this Keyword on your Site Search engine."
+			},
+			"metricTypes": {
+				"nb_visits": "number",
+				"nb_pages_per_search": "number",
+				"exit_rate": "percent"
+			},
+			"imageGraphUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=Actions&apiAction=getSiteSearchCategories&period=range&date=2026-01-01,2026-11-06",
+			"imageGraphEvolutionUrl": "index.php?module=API&method=ImageGraph.get&idSite=3&apiModule=Actions&apiAction=getSiteSearchCategories&period=day&date=2026-01-01,2026-11-06",
+			"uniqueId": "Actions_getSiteSearchCategories"
+		},
+		"columns": {
+			"label": "Search Category",
+			"nb_visits": "Searches",
+			"nb_pages_per_search": "Search Results pages",
+			"exit_rate": "% Search Exits"
+		},
+		"reportData": [
+			{
+				"label": "News",
+				"nb_visits": 30,
+				"nb_pages_per_search": 1.1,
+				"exit_rate": 0.2
+			}
+		],
+		"reportMetadata": [
+			{}
+		],
+		"reportTotal": [],
+		"timerMillis": "100"
+	}
+]

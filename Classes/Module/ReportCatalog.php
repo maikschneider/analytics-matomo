@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace MaikSchneider\AnalyticsMatomo\Module;
 
+use MaikSchneider\AnalyticsMatomo\Authorization\StatisticsPermission;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+
 /**
  * Report pages per section. A report may have its own title and columns (label keys of locallang_mod.xlf),
  * hide rows below a minimum, set a default sort column and explain an empty result (label key).
- * Optional pages are only offered when the site's Matomo has their first report.
+ * Optional pages are only offered when the site's Matomo has their first report; pages with a permission
+ * only to users with that custom option.
  *
  * @phpstan-type Definition array{module: string, action: string, params?: array<string, int|string>, rows?: string, title?: string, columns?: array<string, array{string, string}>, minimum?: array{string, int}, sort?: string, empty?: string}
  */
@@ -51,6 +55,12 @@ final readonly class ReportCatalog
             'entryPages' => ['reports' => [['module' => 'Actions', 'action' => 'getEntryPageUrls', 'params' => ['flat' => 1], 'rows' => 'url']]],
             'exitPages' => ['reports' => [['module' => 'Actions', 'action' => 'getExitPageUrls', 'params' => ['flat' => 1], 'rows' => 'url']]],
             'pageTitles' => ['reports' => [['module' => 'Actions', 'action' => 'getPageTitles', 'params' => ['flat' => 1]]]],
+            // Search keywords can contain personal data
+            'siteSearch' => ['permission' => StatisticsPermission::SITE_SEARCH, 'reports' => [
+                ['module' => 'Actions', 'action' => 'getSiteSearchKeywords', 'empty' => 'empty.siteSearch'],
+                ['module' => 'Actions', 'action' => 'getSiteSearchNoResultKeywords', 'empty' => 'empty.siteSearchNoResults'],
+                ['module' => 'Actions', 'action' => 'getSiteSearchCategories', 'empty' => 'empty.siteSearch'],
+            ]],
             'performance' => ['reports' => [
                 ['module' => 'PagePerformance', 'action' => 'get'],
                 [
@@ -99,11 +109,14 @@ final readonly class ReportCatalog
         ],
     ];
 
-    /** @return array<string, string> */
-    public function getPages(string $section): array
+    /** @return array<string, string> the pages the user may see */
+    public function getPages(string $section, BackendUserAuthentication $user): array
     {
         $pages = [];
-        foreach (array_keys(self::PAGES[$section] ?? []) as $page) {
+        foreach (self::PAGES[$section] ?? [] as $page => $definition) {
+            if (isset($definition['permission']) && !StatisticsPermission::isGranted($user, $definition['permission'])) {
+                continue;
+            }
             $pages[$page] = 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang_mod.xlf:report.' . $page;
         }
         return $pages;

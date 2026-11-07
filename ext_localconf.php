@@ -19,5 +19,10 @@ $GLOBALS['TYPO3_CONF_VARS']['BE']['customPermOptions']['analytics_matomo'] = [
             'content-dashboard',
             'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:permission.siteStatistics.description',
         ],
+        StatisticsPermission::SITE_SEARCH => [
+            'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:permission.siteSearch',
+            'actions-search',
+            'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:permission.siteSearch.description',
+        ],
     ],
 ];

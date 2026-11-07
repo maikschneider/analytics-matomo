@@ -164,6 +164,8 @@
 			<trans-unit id="empty.linkTracking"><source>No clicks recorded. Outlinks and downloads need link tracking (enableLinkTracking) in the Matomo tracking code.</source></trans-unit>
 			<trans-unit id="empty.eventTracking"><source>No events recorded. Events need trackEvent calls in the Matomo tracking code.</source></trans-unit>
 			<trans-unit id="empty.contentTracking"><source>No content impressions recorded. Content tracking needs data-track-content markup and trackAllContentImpressions or trackVisibleContentImpressions in the Matomo tracking code.</source></trans-unit>
+			<trans-unit id="empty.siteSearch"><source>No searches recorded. Enable site search in the Matomo website settings and make sure the search result page URL carries the search parameter or calls trackSiteSearch.</source></trans-unit>
+			<trans-unit id="empty.siteSearchNoResults"><source>No searches without results recorded. Matomo only knows them when the search result page calls trackSiteSearch with the number of results.</source></trans-unit>
 			<trans-unit id="action.details"><source>Page details</source></trans-unit>
 			<trans-unit id="action.layout"><source>Page module</source></trans-unit>
 			<trans-unit id="action.edit"><source>Edit page properties</source></trans-unit>

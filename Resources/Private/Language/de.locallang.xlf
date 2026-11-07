@@ -123,6 +123,14 @@
 				<source>Allows the Matomo dashboard widgets with the numbers of whole sites.</source>
 				<target>Erlaubt die Matomo-Dashboard-Widgets mit den Zahlen ganzer Websites.</target>
 			</trans-unit>
+			<trans-unit id="permission.siteSearch" resname="permission.siteSearch">
+				<source>View site search keywords</source>
+				<target>Suchbegriffe der Website-Suche ansehen</target>
+			</trans-unit>
+			<trans-unit id="permission.siteSearch.description" resname="permission.siteSearch.description">
+				<source>Shows what visitors searched for in the Matomo module. Search keywords can contain personal data.</source>
+				<target>Zeigt im Matomo-Modul, wonach Besucher gesucht haben. Suchbegriffe können personenbezogene Daten enthalten.</target>
+			</trans-unit>
 			<trans-unit id="widget.group" resname="widget.group">
 				<source>Matomo</source>
 				<target>Matomo</target>

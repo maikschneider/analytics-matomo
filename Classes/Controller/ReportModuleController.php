@@ -67,7 +67,7 @@ final readonly class ReportModuleController
         $pageId = max(0, (int)($parameters['id'] ?? 0));
         $route = $module->getIdentifier();
         $section = substr($route, strlen('analytics_matomo_'));
-        $pages = $this->catalog->getPages($section);
+        $pages = $this->catalog->getPages($section, $user);
         if ($pages !== []) {
             $moduleData->clean('report', array_keys($pages));
         }
@@ -175,7 +175,7 @@ final readonly class ReportModuleController
                     $variables['tables'][] = $this->tableFactory->create($data['current'], $data['previous'], $parameters, $baseUrl, ($definition['rows'] ?? '') === 'url' ? $selection->site : null, (int)$moduleData->get('language'), $pageId, $options);
                 }
                 if ($reports === []) {
-                    $variables['emptyMessage'] = $this->label('report.placeholder');
+                    $variables['emptyMessage'] = $this->label($section === 'behaviour' && $report === 'siteSearch' ? 'empty.siteSearch' : 'report.placeholder');
                 }
             }
         } catch (MatomoApiException $exception) {

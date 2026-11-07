@@ -13,6 +13,7 @@ final class StatisticsPermission
 {
     public const PAGE = 'pageStatistics';
     public const SITE = 'siteStatistics';
+    public const SITE_SEARCH = 'siteSearch';
 
     public static function isGranted(BackendUserAuthentication $backendUser, string $option): bool
     {

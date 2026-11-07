@@ -23,6 +23,15 @@ final readonly class ReportService
     /** @return list<array{current: Report, previous: Report|null}> */
     public function getReports(MatomoConfiguration $configuration, string $section, string $page, Period $period, bool $compare, string $language): array
     {
+        if ($section === 'behaviour' && $page === 'siteSearch') {
+            $availability = $this->cache->remember(['siteSearchAvailability', $configuration->getCacheIdentifier()], function () use ($configuration): array {
+                [$metadata] = $this->client->bulkRequest($configuration, [['method' => 'API.getMetadata', 'apiModule' => 'Actions', 'apiAction' => 'getSiteSearchKeywords']]);
+                return ['available' => is_array($metadata) && $metadata !== [] && array_is_list($metadata)];
+            });
+            if (!$availability['available']) {
+                return [];
+            }
+        }
         return $this->cache->remember(['module', $configuration->getCacheIdentifier(), $section, $page, $period->toMatomoDate(), $compare, $language], function () use ($configuration, $section, $page, $period, $compare, $language): array {
             $requests = [];
             foreach ($this->catalog->getReports($section, $page) as $definition) {

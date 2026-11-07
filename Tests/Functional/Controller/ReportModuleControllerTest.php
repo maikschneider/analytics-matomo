@@ -505,6 +505,50 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function disabledSiteSearchShowsSetupWithoutRequestingReports(): void
+    {
+        $this->fixture = 'ProcessedBehaviourSiteSearch';
+        $this->missingReports = [['Actions', 'getSiteSearchKeywords']];
+        $html = (string)$this->render(1, ['site' => 'main', 'report' => 'siteSearch'], 'behaviour')->getBody();
+
+        self::assertStringContainsString('Enable site search in the Matomo website settings', $html);
+        self::assertStringNotContainsString('The statistics could not be loaded', $html);
+        self::assertStringContainsString('<h1>Site search</h1>', $html);
+        self::assertCount(1, $this->sentRequests);
+        parse_str((string)$this->sentRequests[0]->getBody(), $body);
+        self::assertIsArray($body['urls']);
+        foreach ($body['urls'] as $url) {
+            self::assertIsString($url);
+            self::assertStringContainsString('method=API.getMetadata', $url);
+        }
+    }
+
+    #[Test]
+    public function siteSearchNeedsItsOwnPermissionAndExplainsTheSetup(): void
+    {
+        $this->fixture = 'SyntheticProcessedSiteSearch';
+        $admin = (string)$this->render(1, ['site' => 'main', 'report' => 'siteSearch'], 'behaviour')->getBody();
+        foreach (['<h2>Site Search Keywords</h2>', '<td>opening hours</td>', '<h2>Search Keywords with No Results</h2>', '<td>parking dresden</td>', '<h2>Search Categories</h2>', 'report=siteSearch'] as $snippet) {
+            self::assertStringContainsString($snippet, $admin);
+        }
+
+        $connection = $this->get(ConnectionPool::class)->getConnectionForTable('be_groups');
+        $connection->update('be_groups', ['groupMods' => 'analytics_matomo,analytics_matomo_behaviour'], ['uid' => 1]);
+        $editor = (string)$this->render(5, ['site' => 'main', 'report' => 'siteSearch'], 'behaviour')->getBody();
+        self::assertStringNotContainsString('report=siteSearch', $editor);
+        self::assertStringNotContainsString('opening hours', $editor);
+        self::assertStringContainsString('<h1>Pages</h1>', $editor);
+
+        $connection->update('be_groups', ['custom_options' => 'analytics_matomo:siteStatistics,analytics_matomo:siteSearch'], ['uid' => 3]);
+        $granted = (string)$this->render(5, ['site' => 'main', 'report' => 'siteSearch'], 'behaviour')->getBody();
+        self::assertStringContainsString('<td>opening hours</td>', $granted);
+
+        $this->fixture = 'ProcessedBehaviourSiteSearch';
+        $empty = (string)$this->render(1, ['site' => 'shop', 'report' => 'siteSearch'], 'behaviour')->getBody();
+        self::assertStringContainsString('trackSiteSearch', $empty);
+    }
+
+    #[Test]
     public function behaviourReportPagesRenderRecordedReports(): void
     {
         $pages = [
@@ -595,7 +639,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
     {
         $catalog = $this->get(ReportCatalog::class);
         foreach (['visitors', 'behaviour', 'acquisition'] as $section) {
-            foreach (array_keys($catalog->getPages($section)) as $report) {
+            foreach (array_keys($catalog->getPages($section, $this->setUpBackendUser(1))) as $report) {
                 $expected = count($catalog->getReports($section, $report));
                 if ($expected === 0) {
                     continue;

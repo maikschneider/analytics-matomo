@@ -93,6 +93,12 @@
 			<trans-unit id="permission.siteStatistics.description" resname="permission.siteStatistics.description">
 				<source>Allows the Matomo dashboard widgets with the numbers of whole sites.</source>
 			</trans-unit>
+			<trans-unit id="permission.siteSearch" resname="permission.siteSearch">
+				<source>View site search keywords</source>
+			</trans-unit>
+			<trans-unit id="permission.siteSearch.description" resname="permission.siteSearch.description">
+				<source>Shows what visitors searched for in the Matomo module. Search keywords can contain personal data.</source>
+			</trans-unit>
 			<trans-unit id="widget.group" resname="widget.group">
 				<source>Matomo</source>
 			</trans-unit>

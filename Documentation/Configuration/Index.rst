@@ -85,7 +85,12 @@ are granted in the backend group record, tab :guilabel:`Access Rights`, field
     show. The widgets themselves are granted as usual via
     :guilabel:`Dashboard widgets`.
 
-Administrators always have both. Error details from Matomo are shown to
+:guilabel:`View site search keywords` (`analytics_matomo:siteSearch`)
+    The report page :guilabel:`Behaviour > Site search` in the module, in
+    addition to the Behaviour section. Search keywords can contain personal
+    data, such as names or e-mail addresses typed into the search field.
+
+Administrators always have all of them. Error details from Matomo are shown to
 administrators only.
 
 The site-wide module reports and widgets show the numbers of the selected
@@ -106,7 +111,8 @@ Behaviour, Acquisition, Goals and Page details. Grant the parent module
 `analytics_matomo_goals`, `analytics_matomo_page`) in the backend group's module
 access (`groupMods`). Both the parent and the requested section are required;
 without the parent the module does not appear in the menu. No custom option,
-including `analytics_matomo:siteStatistics`, is required for these sections.
+including `analytics_matomo:siteStatistics`, is required for these sections;
+only the site search report page needs `analytics_matomo:siteSearch`.
 
 The module checks its own module access before loading reports. Its site
 selection uses that access instead of the widget option, while still requiring
@@ -119,9 +125,51 @@ additional check, not a substitute for these feature options.
 The selected page determines the site; without a page, use the site dropdown.
 Site, period (presets or a custom date range) and comparison are shared with the
 dashboard widgets. Report page and language are stored per section. The language
-filters URL reports only; other reports cover all languages. This version
-provides the controls and site performance summary; report tables and charts
-follow separately.
+filters URL reports only; other reports cover all languages.
+
+..  _site-search:
+
+Site search
+===========
+
+:guilabel:`Behaviour > Site search` lists search keywords, keywords without
+results and search categories of the whole site. Matomo records them only when
+
+*   site search is enabled in the Matomo website settings, and
+*   the URL of the search result page carries one of the configured search
+    parameters (default `q`, `query`, `s`, `search`, `searchword`, `k`,
+    `keyword`), or the result page calls `trackSiteSearch`.
+
+Keywords without results need `trackSiteSearch` with the number of results.
+Matomo recommends calling it instead of `trackPageView` on the result page,
+so adapt the tracking code of that page accordingly. The data attributes keep
+Fluid's escaping of the keyword.
+
+indexed_search, in an override of :file:`Templates/Search/Search.html`:
+
+..  code-block:: html
+
+    <f:for each="{resultsets}" as="result" iteration="iteration">
+        <f:if condition="{iteration.isFirst} && {searchParams.sword}">
+            <div hidden data-matomo-search="{searchParams.sword}" data-matomo-search-count="{result.count}"></div>
+        </f:if>
+    </f:for>
+    <script>
+        const search = document.querySelector('[data-matomo-search]');
+        if (search) {
+            (window._paq = window._paq || []).push(['trackSiteSearch', search.dataset.matomoSearch, false, Number(search.dataset.matomoSearchCount)]);
+        }
+    </script>
+
+Apache Solr for TYPO3, in an override of :file:`Templates/Search/Results.html`:
+
+..  code-block:: html
+
+    <f:if condition="{resultSet.hasSearched}">
+        <div hidden data-matomo-search="{resultSet.usedQuery.rawSearchTerm}" data-matomo-search-count="{resultSet.allResultCount}"></div>
+    </f:if>
+
+Use the same script as above.
 
 Caching
 =======

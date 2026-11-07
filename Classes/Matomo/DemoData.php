@@ -48,6 +48,9 @@ final readonly class DemoData
         'Events.getName' => ['Event Names', 'Event Name', 'events', ['Image film' => 7, 'Footer sign-up' => 4, 'Contact page' => 3, 'FAQ' => 2]],
         'Contents.getContentNames' => ['Content Name', 'Content Name', 'contents', ['Hero banner' => 40, 'Newsletter teaser' => 22, 'Job offers' => 9]],
         'Contents.getContentPieces' => ['Content Piece', 'Content Piece', 'contents', ['fileadmin/hero/spring.jpg' => 32, 'Sign up now' => 22, 'fileadmin/hero/team.jpg' => 8, 'We are hiring' => 9]],
+        'Actions.getSiteSearchKeywords' => ['Site Search Keywords', 'Keyword', 'searches', ['opening hours' => 4, 'jobs' => 3, 'contact' => 2, 'price list' => 1, 'typo3' => 1]],
+        'Actions.getSiteSearchNoResultKeywords' => ['Search Keywords with No Results', 'Keyword with No Search Result', 'searches', ['parking' => 1, 'gift card' => 1]],
+        'Actions.getSiteSearchCategories' => ['Search Categories', 'Search Category', 'searches', ['News' => 5, 'Products' => 3, 'Jobs' => 2]],
         'Referrers.getAll' => ['All Channels', 'Referrer', 'visits', ['Keyword not defined' => 38, 'typo3.org' => 6, 'ChatGPT' => 4, 'LinkedIn' => 3, 'newsletter' => 3, 'xing.com' => 2]],
         'Referrers.getWebsites' => ['Websites', 'Website', 'visits', ['typo3.org' => 6, 'docs.typo3.org' => 3, 'xing.com' => 2, 'dresden.de' => 1, 'example-partner.de' => 1]],
         'Referrers.getSearchEngines' => ['Search Engines', 'Search Engine', 'visits', ['Google' => 44, 'Bing' => 4, 'DuckDuckGo' => 2, 'Ecosia' => 1, 'Qwant' => 1]],
@@ -75,6 +78,7 @@ final readonly class DemoData
         'clicks' => ['nb_visits' => ['Unique Clicks', 'number'], 'nb_hits' => ['Clicks', 'number']],
         'events' => ['nb_events' => ['Events', 'number'], 'nb_visits' => ['Visits', 'number'], 'sum_event_value' => ['Event value', 'number'], 'avg_event_value' => ['The average of all values for this event', 'number']],
         'contents' => ['nb_impressions' => ['Impressions', 'number'], 'nb_interactions' => ['Content Interactions', 'number'], 'interaction_rate' => ['Interaction Rate', 'percent']],
+        'searches' => ['nb_visits' => ['Searches', 'number'], 'exit_rate' => ['% Search Exits', 'percent']],
         'frequency' => [
             'nb_visits_new' => ['New Visits', 'number'], 'nb_visits_returning' => ['Returning Visits', 'number'],
             'nb_actions_per_visit_new' => ['Avg. Actions per New Visit', 'number'], 'nb_actions_per_visit_returning' => ['Avg. Actions per Returning Visit', 'number'],
@@ -322,6 +326,7 @@ final readonly class DemoData
                 'sum_event_value' => $visits * 2, 'avg_event_value' => 2,
             ],
             'contents' => ['nb_impressions' => $visits, 'nb_interactions' => $interactions, 'interaction_rate' => $visits > 0 ? round($interactions / $visits, 3) : 0],
+            'searches' => ['nb_visits' => $visits, 'exit_rate' => $this->between('searchExit' . $seed, 10, 60) / 100],
             'frequency' => [
                 'nb_visits_new' => $visits - $returning, 'nb_visits_returning' => $returning,
                 'nb_actions_per_visit_new' => $this->between('actionsNew' . $seed, 15, 35) / 10, 'nb_actions_per_visit_returning' => $this->between('actionsReturning' . $seed, 25, 60) / 10,

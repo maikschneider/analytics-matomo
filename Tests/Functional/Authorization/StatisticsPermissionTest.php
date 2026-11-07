@@ -37,6 +37,7 @@ final class StatisticsPermissionTest extends FunctionalTestCase
         $values = array_column($fieldDefinition['items'], 'value');
         self::assertContains('analytics_matomo:pageStatistics', $values);
         self::assertContains('analytics_matomo:siteStatistics', $values);
+        self::assertContains('analytics_matomo:siteSearch', $values);
     }
 
     #[Test]
@@ -46,6 +47,7 @@ final class StatisticsPermissionTest extends FunctionalTestCase
 
         self::assertTrue(StatisticsPermission::isGranted($editor, StatisticsPermission::PAGE));
         self::assertFalse(StatisticsPermission::isGranted($editor, StatisticsPermission::SITE));
+        self::assertFalse(StatisticsPermission::isGranted($editor, StatisticsPermission::SITE_SEARCH));
     }
 
     #[Test]
@@ -55,5 +57,6 @@ final class StatisticsPermissionTest extends FunctionalTestCase
 
         self::assertTrue(StatisticsPermission::isGranted($admin, StatisticsPermission::PAGE));
         self::assertTrue(StatisticsPermission::isGranted($admin, StatisticsPermission::SITE));
+        self::assertTrue(StatisticsPermission::isGranted($admin, StatisticsPermission::SITE_SEARCH));
     }
 }

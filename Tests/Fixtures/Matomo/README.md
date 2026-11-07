@@ -19,3 +19,5 @@ Each response is wrapped in a list, matching the bulk client's decoded result. M
 `ProcessedBehaviourOutlinks/Downloads/Events/Contents.json` use `date=2026-01-01,2026-11-06`, because the demo site tracks interactions only rarely. Downloads and contents have no rows on any demo site; their fixtures prove the empty state, and the demo data use the column names of the recorded metadata.
 
 `ProcessedAcquisition*.json` are recorded like the visitor reports (site 3, October 2026, not flat). The demo has no core `Referrers.getCampaigns` (the MarketingCampaignsReporting plugin replaces it), so `SyntheticProcessedCampaigns.json` reuses the recorded referrer metadata with made-up campaign rows. `MetadataAvailability.json` is a recorded `API.getBulkRequest` of `API.getMetadata` for `Referrers.getAIAssistants` (present) and `Referrers.getCampaigns` (missing).
+
+`ProcessedBehaviourSiteSearch.json` is recorded with `date=2026-01-01,2026-11-06`; the demo has no site search rows, so `SyntheticProcessedSiteSearch.json` adds made-up rows to the recorded metadata.
