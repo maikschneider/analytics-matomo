@@ -29,7 +29,7 @@ t3g/analytics is the backend of a SaaS: it registers the TYPO3 instance, injects
 | Tracking code injection | `TrackingCodeMiddleware` | – | **skip**: tracking is the job of matomo_integration / matomo_tracking, which this extension reuses the connection of |
 | Instance secret, HMAC, API keys, encryption wizard | `CipherService`, `HmacSigner`, `ApiKeyService`, upgrade wizard | `token_auth` | **skip**: one view-only token in the site settings (`%env()%`), sent in the POST body only |
 | Manager permission | `tx_analytics:manager` custom option | – | **skip**: nothing to manage; view permissions (#4), module access per section (#17) |
-| Transitions (where from / where to) | – | `Transitions.getTransitionsForAction` | **extra** ([#14](https://github.com/maikschneider/analytics-matomo/issues/14)) |
+| Transitions (where from / where to) | – | `Transitions.getTransitionsForAction` | **extra**, done in 0.5.0 ([#14](https://github.com/maikschneider/analytics-matomo/issues/14)): on request in page details, with outlinks and downloads |
 
 ## Architecture
 
@@ -142,7 +142,7 @@ All planned features must work with Matomo core (no premium plugins) and a view-
 | [0.2.0](https://github.com/maikschneider/analytics-matomo/milestone/1) | Parity with t3g/analytics: strict SCA, permissions, dashboard widgets, demo data, fixtures (#1–#11). *Done.* |
 | [0.3.0](https://github.com/maikschneider/analytics-matomo/milestone/2) | Module foundation: module + global controls (#37), report table (#38), evolution chart + Visitors overview (#39), URL-to-page mapper (#26), permissions (#17), hidden-page fix (#36) |
 | [0.4.0](https://github.com/maikschneider/analytics-matomo/milestone/4) | Module reports: Visitors (#41), Behaviour pages (#42) and interactions (#43), Acquisition (#44), site search (#24), widgets as entry points into these reports (#40). *Done.* |
-| [0.5.0](https://github.com/maikschneider/analytics-matomo/milestone/5) | Page details (#45) with Transitions (#14, #18), languages (#21), page speed (#20), reading time (#25); Goals (#22); trending pages (#23) |
+| [0.5.0](https://github.com/maikschneider/analytics-matomo/milestone/5) | Page details (#45) with Transitions (#14, #18), languages (#21), page speed (#20), reading time (#25); Goals (#22); trending pages (#23). *Done.* |
 | [0.6.0](https://github.com/maikschneider/analytics-matomo/milestone/6) | Admin: connection status (#13), token check (#19), multi-site overview (#30), CSV export (#46), stored segments (#47) |
 | [0.7.0](https://github.com/maikschneider/analytics-matomo/milestone/8) | Content workflow and monitoring: annotations (#27), page tree badges (#28), content review (#29), anomaly alerts (#31), weekly digest (#32) |
 | [1.0.0](https://github.com/maikschneider/analytics-matomo/milestone/3) | Real Matomo 5 + 6 with a view token (#15), site-side setup docs (#33), first TER + Packagist release (#16) |
