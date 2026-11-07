@@ -87,11 +87,13 @@ final class PageDetailsTest extends FunctionalTestCase
         self::assertSame(5, $chart['metrics']['views']['current'][0]);
         self::assertSame(1, $this->requests);
         $pageCalls = array_values(array_filter($this->calls, static fn (array $call): bool => $call['method'] === 'Actions.getPageUrl' && $call['pageUrl'] === 'https://example.com/about'));
-        self::assertCount(2, $pageCalls);
+        self::assertCount(3, $pageCalls);
         self::assertSame('https://example.com/about', $pageCalls[0]['pageUrl']);
         self::assertSame('range', $pageCalls[0]['period']);
         self::assertSame('2026-10-27,2026-11-02', $pageCalls[0]['date']);
         self::assertSame('day', $pageCalls[1]['period']);
+        // Previous total for the trend hint, also without comparison
+        self::assertSame(['range', '2026-10-20,2026-10-26'], [$pageCalls[2]['period'], $pageCalls[2]['date']]);
         self::assertSame('3', $pageCalls[0]['idSite']);
 
         $this->render(1, ['id' => '2', 'language' => '0'], 'page');
@@ -352,6 +354,7 @@ final class PageDetailsTest extends FunctionalTestCase
             'Actions.getPageUrl' => $this->fixtures[($parameters['period'] === 'range' ? 'range' : 'day') . ($previous ? 'Previous' : '')],
             'Actions.getPageUrls' => $this->fixtures['pageRow'],
             'Goals.getGoals' => $this->fixtures['goals'],
+            'API.getProcessedReport' => ['reportTotal' => ['nb_hits' => 10000]],
             'Transitions.getTransitionsForAction' => $this->fixtures['transitions'] ?? self::fail('Unexpected Transitions call'),
             default => self::fail('Unexpected Matomo call ' . $parameters['method']),
         };

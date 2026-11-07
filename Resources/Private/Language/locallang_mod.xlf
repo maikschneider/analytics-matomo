@@ -228,6 +228,17 @@
 			<trans-unit id="page.goals.attributed.description" resname="page.goals.attributed.description"><source>The number of conversions attributed to this page, where each conversion is shared equally across all pages viewed in the visit before the goal was converted.</source></trans-unit>
 			<trans-unit id="page.goals.entrances" resname="page.goals.entrances"><source>Entrance conversions</source></trans-unit>
 			<trans-unit id="page.goals.entrances.description" resname="page.goals.entrances.description"><source>The total number of goal conversions where this page was the entry page.</source></trans-unit>
+			<trans-unit id="report.trending" resname="report.trending"><source>Trending pages</source></trans-unit>
+			<trans-unit id="report.risingPages" resname="report.risingPages"><source>Rising pages</source></trans-unit>
+			<trans-unit id="report.fallingPages" resname="report.fallingPages"><source>Falling pages</source></trans-unit>
+			<trans-unit id="empty.trending" resname="empty.trending"><source>No page changed by at least 20 % and 3 views against the previous period.</source></trans-unit>
+			<trans-unit id="column.page" resname="column.page"><source>Page URL</source></trans-unit>
+			<trans-unit id="column.value_old" resname="column.value_old"><source>Views before</source></trans-unit>
+			<trans-unit id="column.value_new" resname="column.value_new"><source>Views</source></trans-unit>
+			<trans-unit id="column.difference" resname="column.difference"><source>Change</source></trans-unit>
+			<trans-unit id="column.growth" resname="column.growth"><source>Growth</source></trans-unit>
+			<trans-unit id="page.trend.up" resname="page.trend.up"><source>Rising: %s views compared with the previous period</source></trans-unit>
+			<trans-unit id="page.trend.down" resname="page.trend.down"><source>Falling: %s views compared with the previous period</source></trans-unit>
 		</body>
 	</file>
 </xliff>

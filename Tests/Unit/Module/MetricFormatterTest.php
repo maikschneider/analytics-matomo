@@ -33,4 +33,16 @@ final class MetricFormatterTest extends UnitTestCase
         self::assertSame('0:00:14', $formatter->format(14, 'duration_s'));
         self::assertSame('0:01:05', $formatter->format(65.4, 'duration_s'));
     }
+
+    #[Test]
+    public function changesCarryTheirSign(): void
+    {
+        $formatter = new MetricFormatter();
+        self::assertSame('+8', $formatter->format(8, 'difference'));
+        self::assertSame('−1,210', $formatter->format(-1210, 'difference'));
+        self::assertSame('0', $formatter->format(0, 'difference'));
+        self::assertSame('+34.8 %', $formatter->format(0.348, 'growth'));
+        self::assertSame('−50.0 %', $formatter->format(-0.5, 'growth'));
+        self::assertSame('–', $formatter->format(null, 'growth'));
+    }
 }

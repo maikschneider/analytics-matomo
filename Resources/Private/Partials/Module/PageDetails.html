@@ -4,6 +4,12 @@
     data-namespace-typo3-fluid="true"
 >
 <p><f:translate key="{ll}page.url" arguments="{0: pageDetails.url}" /></p>
+<f:if condition="{pageDetails.trend}">
+    <p class="badge text-bg-{f:if(condition: '{pageDetails.trend.direction} == up', then: 'success', else: 'warning')}" data-trend="{pageDetails.trend.direction}">
+        <core:icon identifier="actions-arrow-{f:if(condition: '{pageDetails.trend.direction} == up', then: 'up', else: 'down')}" size="small" />
+        <f:translate key="{ll}page.trend.{pageDetails.trend.direction}" arguments="{0: pageDetails.trend.change}" />
+    </p>
+</f:if>
 <div class="tx-analytics-matomo tx-analytics-matomo--grid mb-3">
     <f:for each="{tiles}" as="tile">
         <f:render partial="Tile" arguments="{tile: tile, ll: sharedLabels, days: selection.period.days}" />

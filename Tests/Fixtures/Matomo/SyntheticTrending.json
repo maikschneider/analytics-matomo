@@ -1,0 +1,56 @@
+{
+	"current": [
+		{
+			"label": "/",
+			"url": "https://example.com/",
+			"nb_hits": 31
+		},
+		{
+			"label": "/about",
+			"url": "https://example.com/about",
+			"nb_hits": 4
+		},
+		{
+			"label": "/de/ueber-uns",
+			"url": "https://example.com/de/ueber-uns",
+			"nb_hits": 6
+		},
+		{
+			"label": "/s%C3%A4chsische-schweiz",
+			"url": "https://example.com/s%C3%A4chsische-schweiz",
+			"nb_hits": 10
+		},
+		{
+			"label": "/summer-sale",
+			"url": "https://example.com/summer-sale",
+			"nb_hits": 40
+		}
+	],
+	"previous": [
+		{
+			"label": "/",
+			"url": "https://example.com/",
+			"nb_hits": 23
+		},
+		{
+			"label": "/about",
+			"url": "https://example.com/about",
+			"nb_hits": 3
+		},
+		{
+			"label": "/storage",
+			"url": "https://example.com/storage",
+			"nb_hits": 5
+		},
+		{
+			"label": "/s%C3%A4chsische-schweiz",
+			"url": "https://example.com/s%C3%A4chsische-schweiz",
+			"nb_hits": 20
+		},
+		{
+			"label": "/summer-sale",
+			"url": "https://example.com/summer-sale",
+			"nb_hits": 38
+		}
+	]
+}

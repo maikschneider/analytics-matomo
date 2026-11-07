@@ -38,7 +38,7 @@ Every other report page shows one or more Matomo reports as tables:
     per visit, visit number, days since the last visit)
 
 :guilabel:`Behaviour`
-    Pages, Entry pages, Exit pages, Page titles, Site search (keywords,
+    Pages, Trending pages, Entry pages, Exit pages, Page titles, Site search (keywords,
     keywords without results and categories; needs its own permission, see
     :ref:`configuration <site-search>`) and Performance (average
     timings of Matomo's page performance tracking and the slowest pages; pages
@@ -46,6 +46,12 @@ Every other report page shows one or more Matomo reports as tables:
     Downloads, Events (categories, actions, names) and Contents (names,
     pieces). Without data, these interaction reports name the tracking code
     they need: link tracking, ``trackEvent`` or content tracking.
+
+    :guilabel:`Trending pages` lists the pages that gained or lost views
+    against the previous period of the same length. A page is listed when its
+    views changed by at least 20 %, by at least 3 views and by at least 2 % of
+    all page views of the site, so small sites don't show noise. Page details
+    show the same rising or falling hint for their page.
 
 :guilabel:`Acquisition`
     All channels (channel types and all referrers), Websites, Search engines

@@ -88,8 +88,8 @@ final readonly class GoalsService
             $results = array_combine(array_keys($requests), $this->client->bulkRequest($configuration, array_values($requests)));
             $table = fn (string $name, \Closure $rows): array => [
                 'definition' => self::definition($name),
-                'current' => $this->report($rows('current')),
-                'previous' => $compare ? $this->report($rows('previous')) : null,
+                'current' => ReportTableFactory::fromRows($rows('current')),
+                'previous' => $compare ? ReportTableFactory::fromRows($rows('previous')) : null,
             ];
             $reports = $goalId === null
                 ? [$table('goals', fn (string $range): array => array_map(fn (int $id): array => ['label' => $goals[$id]] + $this->object($results[$range . 'Goal' . $id]), array_keys($goals)))]
@@ -158,21 +158,6 @@ final readonly class GoalsService
             $rows[] = $row;
         }
         return $rows;
-    }
-
-    /**
-     * @param list<array<string, mixed>> $rows
-     * @return Report
-     */
-    private function report(array $rows): array
-    {
-        $metadata = [];
-        foreach ($rows as $index => $row) {
-            if (isset($row['url'])) {
-                $metadata[$index] = ['url' => $row['url']];
-            }
-        }
-        return ['metadata' => [], 'columns' => ['label' => ''], 'reportData' => $rows, 'reportMetadata' => $metadata, 'reportTotal' => []];
     }
 
     /** @return array<string, mixed> */

@@ -28,6 +28,17 @@ final readonly class ReportTableFactory
     }
 
     /**
+     * A report of raw API rows, for views Matomo has no processed report for; columns come from the catalog options
+     *
+     * @param list<array<string, mixed>> $rows
+     * @return Report
+     */
+    public static function fromRows(array $rows): array
+    {
+        return ['metadata' => [], 'columns' => ['label' => ''], 'reportData' => $rows, 'reportMetadata' => [], 'reportTotal' => []];
+    }
+
+    /**
      * @param Report $report
      * @param Report|null $previous
      * @param array<string, mixed> $query

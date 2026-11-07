@@ -530,7 +530,8 @@ final readonly class DemoData
         [$min, $max] = self::PAGE_HITS[count(array_filter(explode('/', $path), static fn (string $segment): bool => $segment !== ''))] ?? self::DEEP_PAGE_HITS;
         // Some pages are more popular than others of the same depth
         $percent = $this->between('popularity' . $url, 30, 100) * $this->scale($site);
-        $hits = $this->sum($dates, fn (string $date): int => intdiv($this->between($url . $date, $min, $max) * $percent + 5000, 10000));
+        // A weekly momentum per page, so pages rise and fall between periods
+        $hits = $this->sum($dates, fn (string $date): int => intdiv($this->between($url . $date, $min, $max) * $percent * $this->between('momentum' . $url . (new \DateTimeImmutable($date))->format('oW'), 60, 150) + 500000, 1000000));
         return [
             'label' => $path,
             'url' => $url,

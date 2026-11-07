@@ -8,6 +8,7 @@ use MaikSchneider\AnalyticsMatomo\Configuration\MatomoConfiguration;
 use MaikSchneider\AnalyticsMatomo\Dashboard\SiteStatisticsService;
 use MaikSchneider\AnalyticsMatomo\Matomo\DemoData;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoClient;
+use MaikSchneider\AnalyticsMatomo\Module\TrendingService;
 use MaikSchneider\AnalyticsMatomo\Statistics\Period;
 use MaikSchneider\AnalyticsMatomo\Tests\Unit\InMemoryCacheTrait;
 use PHPUnit\Framework\Attributes\Test;
@@ -59,6 +60,24 @@ final class DemoDataTest extends UnitTestCase
         self::assertSame($range, $again);
         self::assertGreaterThan(0.0, $range['bounce_rate']);
         self::assertLessThan(1.0, $range['bounce_rate']);
+    }
+
+    #[Test]
+    public function pagesRiseAndFallBetweenWeeksAboveTheTrendingThresholds(): void
+    {
+        $request = ['method' => 'Actions.getPageUrls', 'flat' => 1, 'period' => 'range', 'filter_limit' => -1];
+        [$current, $previous, $report] = (new DemoData())->results([
+            $request + ['date' => $this->period->toMatomoDate()],
+            $request + ['date' => $this->period->previous()->toMatomoDate()],
+            ['method' => 'API.getProcessedReport', 'apiModule' => 'Actions', 'apiAction' => 'getPageUrls', 'flat' => 1, 'period' => 'range', 'date' => $this->period->toMatomoDate(), 'filter_limit' => 1],
+        ], $this->configuration);
+
+        self::assertSame(array_sum(array_column($current, 'nb_hits')), $report['reportTotal']['nb_hits']);
+        $before = array_column($previous, 'nb_hits', 'url');
+        $trends = array_map(static fn (array $row): ?string => TrendingService::trend($before[$row['url']] ?? 0, $row['nb_hits'], $report['reportTotal']['nb_hits']), $current);
+        self::assertContains('up', $trends);
+        self::assertContains('down', $trends);
+        self::assertContains(null, $trends);
     }
 
     #[Test]

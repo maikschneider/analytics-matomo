@@ -21,7 +21,7 @@ final readonly class PageDetailsService
 
     /**
      * @param array<int, string> $languageUrls URLs of the page in its other languages, by language ID
-     * @return array{current: array<string, mixed>, previous: array<string, mixed>|null, chart: array<string, mixed>, pageRow: array<string, mixed>, languages: array<int, array<string, mixed>>, goals: array<int, string>}
+     * @return array{current: array<string, mixed>, previous: array<string, mixed>|null, chart: array<string, mixed>, pageRow: array<string, mixed>, languages: array<int, array<string, mixed>>, goals: array<int, string>, trend: array{direction: 'up'|'down', difference: int}|null}
      * @throws MatomoApiException
      */
     public function getDetails(MatomoConfiguration $configuration, string $pageUrl, Period $period, bool $compare, array $languageUrls = []): array
@@ -32,8 +32,14 @@ final readonly class PageDetailsService
                 'current' => $request + ['pageUrl' => $pageUrl, 'period' => 'range', 'date' => $period->toMatomoDate()],
                 'currentSeries' => $request + ['pageUrl' => $pageUrl, 'period' => $period->granularity(), 'date' => $period->toMatomoDate()],
             ];
+            // The previous total is needed for the trend hint even without comparison
+            $requests['previous'] = $request + ['pageUrl' => $pageUrl, 'period' => 'range', 'date' => $period->previous()->toMatomoDate()];
+            // The page report total is the base of the trend's impact threshold, as in the trending list
+            $requests['siteViews'] = [
+                'method' => 'API.getProcessedReport', 'apiModule' => 'Actions', 'apiAction' => 'getPageUrls', 'flat' => 1, 'period' => 'range',
+                'date' => $period->toMatomoDate(), 'format_metrics' => 0, 'filter_limit' => 1, 'showColumns' => 'nb_hits',
+            ];
             if ($compare) {
-                $requests['previous'] = $request + ['pageUrl' => $pageUrl, 'period' => 'range', 'date' => $period->previous()->toMatomoDate()];
                 $requests['previousSeries'] = $request + ['pageUrl' => $pageUrl, 'period' => $period->granularity(), 'date' => $period->previous()->toMatomoDate()];
             }
             // Only the page URL report carries timings and goal conversions; Actions.getPageUrl drops them
@@ -52,14 +58,20 @@ final readonly class PageDetailsService
             foreach (array_keys($languageUrls) as $languageId) {
                 $languages[$languageId] = $this->row($results['language' . $languageId]);
             }
+            $current = $this->row($results['current']);
+            $previousViews = (int)($this->row($results['previous'])['nb_hits'] ?? 0);
+            $currentViews = (int)($current['nb_hits'] ?? 0);
+            $siteViews = is_array($results['siteViews']) && is_array($results['siteViews']['reportTotal'] ?? null) ? (int)($results['siteViews']['reportTotal']['nb_hits'] ?? 0) : 0;
+            $trend = TrendingService::trend($previousViews, $currentViews, $siteViews);
             return [
-                'current' => $this->row($results['current']),
+                'current' => $current,
                 'previous' => $compare ? $this->row($results['previous']) : null,
                 'chart' => $this->chartFactory->create($period, $this->series($results['currentSeries']), $compare ? $this->series($results['previousSeries']) : null, EvolutionChartFactory::PAGE_METRICS),
                 // A site tracked under http and https has a row per scheme; the busier one wins
                 'pageRow' => $pageRows[0] ?? [],
                 'languages' => $languages,
                 'goals' => GoalsService::names($results['goals']),
+                'trend' => $trend === null ? null : ['direction' => $trend, 'difference' => $currentViews - $previousViews],
             ];
         });
     }

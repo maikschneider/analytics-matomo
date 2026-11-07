@@ -17,6 +17,7 @@ use MaikSchneider\AnalyticsMatomo\Module\ReportService;
 use MaikSchneider\AnalyticsMatomo\Module\ReportTableFactory;
 use MaikSchneider\AnalyticsMatomo\Module\TransitionsPanelFactory;
 use MaikSchneider\AnalyticsMatomo\Module\TransitionsService;
+use MaikSchneider\AnalyticsMatomo\Module\TrendingService;
 use MaikSchneider\AnalyticsMatomo\Module\VisitorsOverviewService;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageTarget;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageTargetResolver;
@@ -69,6 +70,7 @@ final readonly class ReportModuleController
         private TransitionsService $transitionsService,
         private TransitionsPanelFactory $transitionsPanelFactory,
         private GoalsService $goalsService,
+        private TrendingService $trendingService,
     ) {
     }
 
@@ -196,6 +198,14 @@ final readonly class ReportModuleController
                 $this->pageRenderer->loadJavaScriptModule('@maikschneider/analytics-matomo/evolution-chart.js');
             } elseif ($section === 'goals') {
                 $variables += $this->goals($goals ?? $this->goalsService->getGoals($selection->configuration), $report, $selection, $parameters, $route, $pageId, (int)$moduleData->get('language'));
+            } elseif ($section === 'behaviour' && $report === 'trending') {
+                $trending = $this->trendingService->getTrending($selection->configuration, $selection->period);
+                $reports = [];
+                foreach (['rising' => 'report.risingPages', 'falling' => 'report.fallingPages'] as $direction => $title) {
+                    $definition = ['module' => 'Actions', 'action' => 'getPageUrls', 'rows' => 'url', 'title' => $title, 'empty' => 'empty.trending', 'columns' => TrendingService::COLUMNS];
+                    $reports[] = ['definition' => $definition, 'current' => ReportTableFactory::fromRows($trending[$direction]), 'previous' => null];
+                }
+                $variables['tables'] = $this->tables($reports, $selection, $parameters, $route, $pageId, $report, (int)$moduleData->get('language'));
             } else {
                 $definitions = $this->catalog->getReports($section, $report);
                 $reports = [];
@@ -314,6 +324,7 @@ final readonly class ReportModuleController
                 'transitionsUrl' => (string)$this->uriBuilder->buildUriFromRoute('analytics_matomo_page', ['id' => $pageId, 'language' => $languageId, 'transitions' => 1]),
                 'transitions' => $withTransitions ? $this->transitions($selection, $target, $user) : null,
                 'goals' => $this->pageGoals($details['goals'], $details['pageRow']),
+                'trend' => $details['trend'] === null ? null : $details['trend'] + ['change' => (new MetricFormatter())->format($details['trend']['difference'], 'difference')],
             ],
             'minimumSamples' => ReportCatalog::MINIMUM_TIMING_SAMPLES,
             'tiles' => $this->tileFactory->createForOverview($details['current'], $details['previous'], EvolutionChartFactory::PAGE_METRICS),
