@@ -42,14 +42,23 @@ final readonly class ReportTableFactory
      * @param Report $report
      * @param Report|null $previous
      * @param array<string, mixed> $query
-     * @param array{title?: string, columns?: array<string, array{string, string}>, minimum?: array{string, int}, sort?: string, empty?: string} $options
-     *        catalog options: own title, own columns (name and metric type, e.g. raw metrics), minimum value of a column, default sort column, message for a report without rows
+     * @param array{title?: string, columns?: array<string, array{string, string}>, minimum?: array{string, int}, sort?: string, empty?: string, index?: int, export?: array{url: string, metric: string, value: string}} $options
+     *        catalog options: own title, own columns (name and metric type, e.g. raw metrics), minimum value of a column, default sort column, message for a report without rows;
+     *        position of the table on its page; translated extra headers to get all rows with raw values for a CSV export instead of the view
      * @return array<string, mixed>
      */
     public function create(array $report, ?array $previous, array $query, string $baseUrl, ?Site $site = null, int $languageId = -1, int $selectedPageId = 0, array $options = []): array
     {
+        $exportUrl = $baseUrl . (str_contains($baseUrl, '?') ? '&' : '?') . http_build_query(array_intersect_key($query, ['q' => true, 'sort' => true, 'dir' => true]) + ['export' => $options['index'] ?? 0]);
         if (!isset($report['columns']['label'])) {
-            return $this->createMetricList($report, $previous);
+            if (isset($options['export'])) {
+                $row = $report['reportData'][0] ?? [];
+                return ['csv' => [
+                    'header' => [$options['export']['metric'], $options['export']['value']],
+                    'rows' => array_map(static fn (string $key, string $label): array => [$label, $row[$key] ?? null], array_keys($report['columns']), $report['columns']),
+                ]];
+            }
+            return $this->createMetricList($report, $previous) + ['exportUrl' => $exportUrl];
         }
         if (isset($options['columns'])) {
             $report['columns'] = ['label' => $options['columns']['label'][0] ?? $report['columns']['label']] + array_map(static fn (array $column): string => $column[0], $options['columns']);
@@ -114,6 +123,18 @@ final readonly class ReportTableFactory
                 return $direction === 'asc' ? $order : -$order;
             });
         }
+        if (isset($options['export'])) {
+            $header = array_values($report['columns']);
+            $csvRows = [];
+            foreach ($rows as $row) {
+                $values = [];
+                foreach (array_keys($report['columns']) as $key) {
+                    $values[] = $row[$key] ?? null;
+                }
+                $csvRows[] = $site === null ? $values : [...$values, $row['url'] ?? null];
+            }
+            return ['csv' => ['header' => $site === null ? $header : [...$header, $options['export']['url']], 'rows' => $csvRows]];
+        }
         $total = count($rows);
         $pages = max(1, (int)ceil($total / 25));
         $page = min($pages, max(1, (int)($query['page'] ?? 1)));
@@ -139,7 +160,7 @@ final readonly class ReportTableFactory
             'title' => $options['title'] ?? (string)($report['metadata']['name'] ?? ''), 'columns' => $columns, 'rows' => $renderedRows,
             'emptyMessage' => $search === '' ? $options['empty'] ?? '' : '',
             'compare' => $previous !== null, 'total' => $total, 'page' => $page, 'pages' => $pages, 'query' => $search,
-            'searchUrl' => $baseUrl, 'sort' => $sort, 'direction' => $direction,
+            'searchUrl' => $baseUrl, 'sort' => $sort, 'direction' => $direction, 'exportUrl' => $exportUrl,
             'previousUrl' => $page > 1 ? $link(['page' => $page - 1]) : '', 'nextUrl' => $page < $pages ? $link(['page' => $page + 1]) : '',
         ];
     }

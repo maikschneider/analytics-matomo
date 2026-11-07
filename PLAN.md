@@ -77,6 +77,7 @@ The backend module (milestone 0.3.0 on) is designed in [MODULE.md](MODULE.md#tec
 | `Module\ReportService` | one cached bulk of processed reports per report page, with previous ranges when comparing; language of the backend user |
 | `Module\ReportTableFactory` | Matomo metadata to table view model, page/language/subtree access filtering, search, sort and 25-row paging in PHP |
 | `Module\MetricFormatter` | raw metric values formatted by Matomo metric type; unknown values remain unknown |
+| `Module\CsvExport` | CSV of a table's visible rows with raw values; formula-like text cells neutralised |
 | `Module\VisitorsOverviewService` | cached `API.get` range totals and evolution in one bulk, optional previous period; separate `Live.getCounters` cache (60 s) |
 | `Module\EvolutionChartFactory` | calendar day/week/month buckets, unknown values as null and previous buckets aligned by position; shared chart payload for the metric picker |
 | `Controller\ReportModuleController` | module docheader, page-tree site, shared selection, report/language module data and empty states |

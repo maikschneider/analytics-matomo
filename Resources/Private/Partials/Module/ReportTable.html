@@ -10,7 +10,11 @@
                 <input type="hidden" name="dir" value="{table.direction}" />
                 <label class="d-block mb-0"><span class="form-label d-block text-nowrap"><f:translate key="{ll}table.search" /></span><input class="form-control" type="search" name="q" value="{table.query}" /></label>
                 <button class="btn btn-default" type="submit"><core:icon identifier="actions-search" size="small" /> <f:translate key="{ll}table.search" /></button>
+                <f:if condition="{table.rows}"><a class="btn btn-default ms-auto" href="{table.exportUrl}" title="{f:translate(key: '{ll}table.export.title')}"><core:icon identifier="actions-download" size="small" /> <f:translate key="{ll}table.export" /></a></f:if>
             </form>
+        </f:if>
+        <f:if condition="{table.metricList} && {table.rows}">
+            <div class="d-flex mb-3"><a class="btn btn-default ms-auto" href="{table.exportUrl}" title="{f:translate(key: '{ll}table.export.title')}"><core:icon identifier="actions-download" size="small" /> <f:translate key="{ll}table.export" /></a></div>
         </f:if>
         <f:if condition="{table.rows}">
             <f:then>

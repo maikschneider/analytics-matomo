@@ -196,6 +196,9 @@
 			<trans-unit id="table.next"><source>Next</source><target>Weiter</target></trans-unit>
 			<trans-unit id="table.metric"><source>Metric</source><target>Kennzahl</target></trans-unit>
 			<trans-unit id="table.value"><source>Value</source><target>Wert</target></trans-unit>
+			<trans-unit id="table.url"><source>URL</source><target>URL</target></trans-unit>
+			<trans-unit id="table.export"><source>CSV</source><target>CSV</target></trans-unit>
+			<trans-unit id="table.export.title"><source>Download all rows as CSV</source><target>Alle Zeilen als CSV herunterladen</target></trans-unit>
 			<trans-unit id="report.slowestPages"><source>Slowest pages</source><target>Langsamste Seiten</target></trans-unit>
 			<trans-unit id="report.campaignKeywords"><source>Campaign keywords</source><target>Kampagnen-Keywords</target></trans-unit>
 			<trans-unit id="column.nb_hits"><source>Page views</source><target>Seitenaufrufe</target></trans-unit>

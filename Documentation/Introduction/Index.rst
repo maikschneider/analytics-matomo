@@ -78,6 +78,11 @@ language. Click a column heading to sort, search labels, or browse 25 rows per
 page. These controls work on cached data without another Matomo request.
 Reports without a dimension, such as returning visits, are shown as a list of
 metrics.
+:guilabel:`CSV` downloads all rows of a table that the user may see, with the
+current search and sort, translated column headings and raw numbers (ratios
+such as the bounce rate as decimals, durations in seconds). The file is built
+from the cached report; Matomo and its token are never exposed. Text cells that
+a spreadsheet would read as a formula get a leading apostrophe.
 :guilabel:`Compare` adds percentage changes against the previous period; a dash
 means no comparable previous value is available.
 

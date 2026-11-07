@@ -7,6 +7,7 @@ namespace MaikSchneider\AnalyticsMatomo\Controller;
 use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelection;
 use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelectionResolver;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
+use MaikSchneider\AnalyticsMatomo\Module\CsvExport;
 use MaikSchneider\AnalyticsMatomo\Module\EvolutionChartFactory;
 use MaikSchneider\AnalyticsMatomo\Module\GoalsService;
 use MaikSchneider\AnalyticsMatomo\Module\MetricFormatter;
@@ -38,6 +39,7 @@ use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Http\HtmlResponse;
+use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Site\SiteFinder;
@@ -73,6 +75,7 @@ final readonly class ReportModuleController
         private GoalsService $goalsService,
         private TrendingService $trendingService,
         private LinkAccess $linkAccess,
+        private CsvExport $csvExport,
     ) {
     }
 
@@ -220,6 +223,11 @@ final readonly class ReportModuleController
             $variables['errorMessage'] = $user->isAdmin() ? $exception->getMessage() : '';
         }
         $this->pageRenderer->loadJavaScriptModule('@maikschneider/analytics-matomo/module-filters.js');
+        foreach ($variables['tables'] ?? [] as $index => $table) {
+            if (isset($table['csv'])) {
+                return $this->csvResponse($table['csv'], $selection, $section, $report, $index);
+            }
+        }
         $template->assignMultiple($variables + [
             'sharedLabels' => rtrim(self::SHARED_LABELS, ':'),
             'selection' => $selection,
@@ -271,8 +279,12 @@ final readonly class ReportModuleController
     {
         $tables = [];
         $baseUrl = (string)$this->uriBuilder->buildUriFromRoute($route, ['id' => $pageId, 'report' => $report]);
-        foreach ($reports as ['definition' => $definition, 'current' => $current, 'previous' => $previous]) {
-            $options = array_intersect_key($definition, ['minimum' => true, 'sort' => true]);
+        $export = isset($parameters['export']) && is_numeric($parameters['export']) ? (int)$parameters['export'] : null;
+        foreach ($reports as $index => ['definition' => $definition, 'current' => $current, 'previous' => $previous]) {
+            $options = array_intersect_key($definition, ['minimum' => true, 'sort' => true]) + ['index' => $index];
+            if ($index === $export) {
+                $options['export'] = ['url' => $this->label('table.url'), 'metric' => $this->label('table.metric'), 'value' => $this->label('table.value')];
+            }
             foreach (['title', 'empty'] as $option) {
                 if (isset($definition[$option])) {
                     $options[$option] = $this->label($definition[$option]);
@@ -429,6 +441,20 @@ final readonly class ReportModuleController
             ];
         }
         return $speed;
+    }
+
+    /**
+     * @param array{header: list<string>, rows: list<list<mixed>>} $csv
+     */
+    private function csvResponse(array $csv, DashboardSelection $selection, string $section, string $report, int $index): ResponseInterface
+    {
+        $name = implode('-', ['matomo', $selection->site->getIdentifier(), $section, $report, $selection->period->from->format('Y-m-d'), $selection->period->to->format('Y-m-d')]) . ($index > 0 ? '-' . ($index + 1) : '');
+        $response = new Response();
+        $response->getBody()->write($this->csvExport->render($csv['header'], $csv['rows']));
+        return $response
+            ->withHeader('Content-Type', 'text/csv; charset=utf-8')
+            ->withHeader('Content-Disposition', 'attachment; filename="' . preg_replace('/[^A-Za-z0-9_.-]/', '_', $name) . '.csv"')
+            ->withHeader('Cache-Control', 'no-store');
     }
 
     /**

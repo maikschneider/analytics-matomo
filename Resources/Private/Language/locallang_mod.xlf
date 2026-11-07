@@ -150,6 +150,9 @@
 			<trans-unit id="table.next"><source>Next</source></trans-unit>
 			<trans-unit id="table.metric"><source>Metric</source></trans-unit>
 			<trans-unit id="table.value"><source>Value</source></trans-unit>
+			<trans-unit id="table.url"><source>URL</source></trans-unit>
+			<trans-unit id="table.export"><source>CSV</source></trans-unit>
+			<trans-unit id="table.export.title"><source>Download all rows as CSV</source></trans-unit>
 			<trans-unit id="report.slowestPages"><source>Slowest pages</source></trans-unit>
 			<trans-unit id="report.campaignKeywords"><source>Campaign keywords</source></trans-unit>
 			<trans-unit id="column.nb_hits"><source>Page views</source></trans-unit>
