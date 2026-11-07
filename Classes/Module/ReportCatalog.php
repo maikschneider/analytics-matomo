@@ -86,8 +86,8 @@ final readonly class ReportCatalog
                     'sort' => 'avg_page_load_time',
                 ],
             ]],
-            'outlinks' => ['reports' => [['module' => 'Actions', 'action' => 'getOutlinks', 'params' => ['flat' => 1], 'empty' => 'empty.linkTracking']]],
-            'downloads' => ['reports' => [['module' => 'Actions', 'action' => 'getDownloads', 'params' => ['flat' => 1], 'empty' => 'empty.linkTracking']]],
+            'outlinks' => ['reports' => [['module' => 'Actions', 'action' => 'getOutlinks', 'params' => ['flat' => 1], 'rows' => 'link', 'empty' => 'empty.linkTracking']]],
+            'downloads' => ['reports' => [['module' => 'Actions', 'action' => 'getDownloads', 'params' => ['flat' => 1], 'rows' => 'link', 'empty' => 'empty.linkTracking']]],
             'events' => ['reports' => [
                 ['module' => 'Events', 'action' => 'getCategory', 'params' => ['flat' => 1], 'empty' => 'empty.eventTracking'],
                 ['module' => 'Events', 'action' => 'getAction', 'params' => ['flat' => 1], 'empty' => 'empty.eventTracking'],

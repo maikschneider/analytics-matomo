@@ -1,0 +1,96 @@
+[
+	{
+		"website": "virtual-drums.com",
+		"prettyDate": "January 1 – November 6, 2026",
+		"metadata": {
+			"category": "Behaviour",
+			"subcategory": "Outlinks",
+			"name": "Outlinks",
+			"module": "Actions",
+			"action": "getOutlinks",
+			"dimension": "Clicked Outlink",
+			"documentation": "This report shows a hierarchical list of outlink URLs that were clicked by your visitors. An outlink is a link that leads the visitor away from your website (to another domain).<br />Use the plus and minus icons on the left to navigate.",
+			"metrics": {
+				"nb_visits": "Unique Clicks",
+				"nb_hits": "Clicks"
+			},
+			"metricsDocumentation": {
+				"nb_visits": "The number of visits that involved a click on this link. If a link was clicked multiple times during one visit, it is only counted once.",
+				"nb_hits": "The number of times this link was clicked.",
+				"nb_visits_percent_of_total": "The percentage of the report's total Unique Clicks that this row represents.",
+				"nb_hits_percent_of_total": "The percentage of the report's total Clicks that this row represents."
+			},
+			"metricTypes": {
+				"nb_visits": "number",
+				"nb_hits": "number",
+				"nb_visits_percent_of_total": "percent",
+				"nb_hits_percent_of_total": "percent"
+			},
+			"actionToLoadSubTables": "getOutlinks",
+			"uniqueId": "Actions_getOutlinks"
+		},
+		"columns": {
+			"label": "Clicked Outlink",
+			"nb_visits": "Unique Clicks",
+			"nb_visits_percent_of_total": "Unique Clicks (%)",
+			"nb_hits": "Clicks",
+			"nb_hits_percent_of_total": "Clicks (%)"
+		},
+		"reportData": [
+			{
+				"label": "www.dailymotion.com/video/xxss8_virtual-drums-batterie-virtuelle",
+				"nb_visits": 6,
+				"nb_hits": 6
+			},
+			{
+				"label": "shop.example.org/imprint",
+				"nb_visits": 5,
+				"nb_hits": 5
+			},
+			{
+				"label": "shop.example.org/fileadmin/catalogue.pdf",
+				"nb_visits": 4,
+				"nb_hits": 4
+			},
+			{
+				"label": "example.com/fileadmin/price-list.pdf",
+				"nb_visits": 3,
+				"nb_hits": 3
+			},
+			{
+				"label": "example.com/board",
+				"nb_visits": 2,
+				"nb_hits": 2
+			},
+			{
+				"label": "example.com/de/ueber-uns",
+				"nb_visits": 1,
+				"nb_hits": 1
+			}
+		],
+		"reportMetadata": [
+			{
+				"url": "http://www.dailymotion.com/video/xxss8_virtual-drums-batterie-virtuelle"
+			},
+			{
+				"url": "https://shop.example.org/imprint"
+			},
+			{
+				"url": "https://shop.example.org/fileadmin/catalogue.pdf"
+			},
+			{
+				"url": "https://example.com/fileadmin/price-list.pdf"
+			},
+			{
+				"url": "https://example.com/board"
+			},
+			{
+				"url": "https://example.com/de/ueber-uns"
+			}
+		],
+		"reportTotal": {
+			"nb_visits": 21,
+			"nb_hits": 21
+		}
+	}
+]

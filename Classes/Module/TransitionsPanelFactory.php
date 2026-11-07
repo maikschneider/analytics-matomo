@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MaikSchneider\AnalyticsMatomo\Module;
 
+use MaikSchneider\AnalyticsMatomo\Statistics\LinkAccess;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageRecordResolver;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageUrlMapper;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
@@ -14,7 +15,8 @@ use TYPO3\CMS\Core\Type\Bitmask\Permission;
 
 /**
  * View data of the Transitions panel: page labels become pages of the site the
- * user may see, like in the URL reports.
+ * user may see, like in the URL reports, and clicked links are filtered like the
+ * outlinks and downloads reports.
  */
 final readonly class TransitionsPanelFactory
 {
@@ -22,6 +24,7 @@ final readonly class TransitionsPanelFactory
         private PageUrlMapper $mapper,
         private PageRecordResolver $pageRecordResolver,
         private UriBuilder $uriBuilder,
+        private LinkAccess $linkAccess,
     ) {
     }
 
@@ -43,8 +46,8 @@ final readonly class TransitionsPanelFactory
             'referrers' => $referrers,
             'previousPages' => $this->pages($site, $this->list($transitions['previousPages'] ?? null), $user),
             'followingPages' => $this->pages($site, $this->list($transitions['followingPages'] ?? null), $user),
-            'outlinks' => $this->clicks($this->list($transitions['outlinks'] ?? null)),
-            'downloads' => $this->clicks($this->list($transitions['downloads'] ?? null)),
+            'outlinks' => $this->clicks($site, $this->list($transitions['outlinks'] ?? null), $user),
+            'downloads' => $this->clicks($site, $this->list($transitions['downloads'] ?? null), $user),
         ];
     }
 
@@ -88,9 +91,16 @@ final readonly class TransitionsPanelFactory
      * @param list<array<string, mixed>> $rows
      * @return list<array{label: string, visits: int}>
      */
-    private function clicks(array $rows): array
+    private function clicks(Site $site, array $rows, BackendUserAuthentication $user): array
     {
-        return array_map(static fn (array $row): array => ['label' => (string)($row['label'] ?? ''), 'visits' => (int)($row['referrals'] ?? 0)], $rows);
+        $clicks = [];
+        foreach ($rows as $row) {
+            $label = (string)($row['label'] ?? '');
+            if ($this->linkAccess->isVisible($site, $label, $user)) {
+                $clicks[] = ['label' => $label, 'visits' => (int)($row['referrals'] ?? 0)];
+            }
+        }
+        return $clicks;
     }
 
     /**

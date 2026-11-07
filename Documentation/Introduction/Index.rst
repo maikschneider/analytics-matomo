@@ -45,7 +45,9 @@ Every other report page shows one or more Matomo reports as tables:
     with fewer than five measured page views are left out), Outlinks,
     Downloads, Events (categories, actions, names) and Contents (names,
     pieces). Without data, these interaction reports name the tracking code
-    they need: link tracking, ``trackEvent`` or content tracking.
+    they need: link tracking, ``trackEvent`` or content tracking. Editors see
+    outlinks and downloads into a TYPO3 site only if they may access that site
+    and page.
 
     :guilabel:`Trending pages` lists the pages that gained or lost views
     against the previous period of the same length. A page is listed when its
@@ -118,7 +120,8 @@ raw visit logs, so they load only after a click on :guilabel:`Show
 transitions` and are cached like every report. Pages link to the
 :guilabel:`Page` module; like in the URL reports, editors only see pages they
 may access. Outlinks and downloads need the link tracking of the JavaScript
-tracker.
+tracker. Links into a TYPO3 site, such as files or pages of another site of the
+installation, are shown to editors only if they may access that site and page.
 
 :guilabel:`Speed` shows the average page load time and server time with the
 number of measured page views. Matomo collects these timings with its

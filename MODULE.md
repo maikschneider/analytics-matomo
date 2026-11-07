@@ -83,7 +83,8 @@ Site, period and compare are stored per user in `uc` (`analytics_matomo.dashboar
 
 ## TYPO3 integration
 
-- **Every internal page URL row resolves to a TYPO3 page** (page, entry/exit, performance, goal and trending reports; not outlinks and downloads, which are external URLs or files and are shown as they are) via the shared URL-to-page mapper (scheme-less labels, double slashes, trailing slash, language bases, `cHash`, `excluded_parameters`). Row actions: page details, Page module (page + language), edit page properties, view in frontend. Rows of pages the user may not read are hidden for non-admins (as top pages today); rows without a page are shown for admins only.
+- **Every internal page URL row resolves to a TYPO3 page** (page, entry/exit, performance, goal and trending reports) via the shared URL-to-page mapper (scheme-less labels, double slashes, trailing slash, language bases, `cHash`, `excluded_parameters`). Row actions: page details, Page module (page + language), edit page properties, view in frontend. Rows of pages the user may not read are hidden for non-admins (as top pages today); rows without a page are shown for admins only.
+- **Outlinks and downloads** (reports and Transitions) are shown as they are, unless they point into a TYPO3 site: then non-admins need access to its language and page, or to the site for URLs without a page (files). Sites whose base has no domain claim no links of other sites.
 - **Page tree aware:** the selected page filters URL reports to its subtree and picks the site. The root page or no page = whole site.
 - **Missing ≠ 0:** a page not in a capped Matomo report shows "–" (unknown), not 0.
 - **Permissions**

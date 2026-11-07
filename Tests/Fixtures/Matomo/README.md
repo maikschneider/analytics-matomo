@@ -28,4 +28,6 @@ Each response is wrapped in a list, matching the bulk client's decoded result. M
 
 `GoalChannelsAttribution.json` is a recorded `Referrers.getReferrerType` of site 3 with `idGoal=2`, `period=range`, `date=2026-01-01,2026-11-06`, `format_metrics=0`, `filter_limit=-1` (anonymous request). Matomo credits conversions to the referrer saved with them, so its campaigns row has 6 conversions of goal 2 (also 6 visits converted) in 2 visits.
 
+`SyntheticProcessedLinks.json` keeps the recorded outlinks metadata with made-up links: external, into the other test site (page and file), a file of the site, an unreadable page and a German page.
+
 `Trending.json` holds the flat `Actions.getPageUrls` of site 3 for 2026-10-27,2026-11-02 (`current`) and the week before (`previous`), reduced to `nb_hits` (`showColumns=nb_hits`). `SyntheticTrending.json` maps such rows to the test site, with a rising, a new, a falling, a vanished page and pages below the thresholds.

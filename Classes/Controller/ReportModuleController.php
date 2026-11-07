@@ -19,6 +19,7 @@ use MaikSchneider\AnalyticsMatomo\Module\TransitionsPanelFactory;
 use MaikSchneider\AnalyticsMatomo\Module\TransitionsService;
 use MaikSchneider\AnalyticsMatomo\Module\TrendingService;
 use MaikSchneider\AnalyticsMatomo\Module\VisitorsOverviewService;
+use MaikSchneider\AnalyticsMatomo\Statistics\LinkAccess;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageTarget;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageTargetResolver;
 use MaikSchneider\AnalyticsMatomo\Statistics\Period;
@@ -71,6 +72,7 @@ final readonly class ReportModuleController
         private TransitionsPanelFactory $transitionsPanelFactory,
         private GoalsService $goalsService,
         private TrendingService $trendingService,
+        private LinkAccess $linkAccess,
     ) {
     }
 
@@ -289,6 +291,9 @@ final readonly class ReportModuleController
                 if (isset($column[2])) {
                     $current['metadata']['metricsDocumentation'][$key] = $this->label($column[2]);
                 }
+            }
+            if (($definition['rows'] ?? '') === 'link') {
+                $current = $this->linkAccess->filterReport($selection->site, $current, $GLOBALS['BE_USER']);
             }
             $tables[] = $this->tableFactory->create($current, $previous, $parameters, $baseUrl, ($definition['rows'] ?? '') === 'url' ? $selection->site : null, $languageId, $pageId, $options);
         }
