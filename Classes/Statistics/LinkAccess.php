@@ -32,9 +32,21 @@ final readonly class LinkAccess
         if ($user->isAdmin()) {
             return true;
         }
+        $url = trim($url);
+        if (str_starts_with($url, '/') && !str_starts_with($url, '//')) {
+            $base = $site->getBase();
+            $url = ($base->getHost() === '' ? '' : $base->getScheme() . '://' . $base->getAuthority()) . $url;
+        } elseif (!str_contains($url, '://') && !str_starts_with($url, '//')) {
+            $url = 'https://' . $url;
+        }
+        $url = PageUrlMapper::normalize($url);
+        if ($url === null) {
+            return false;
+        }
         $found = $this->findSite($site, $url);
         if ($found === null) {
-            return true;
+            // A single-label host may be an unresolved Matomo label, not a confirmed external URL
+            return str_contains((string)parse_url($url, PHP_URL_HOST), '.');
         }
         [$owner, $match] = $found;
         if (!$user->checkLanguageAccess($match->language->getLanguageId())) {
@@ -68,17 +80,25 @@ final readonly class LinkAccess
      */
     private function findSite(Site $site, string $url): ?array
     {
-        $match = $this->mapper->match($site, $url);
-        if ($match !== null) {
-            return [$site, $match];
-        }
-        foreach ($this->siteFinder->getAllSites() as $other) {
-            $match = $other->getIdentifier() === $site->getIdentifier() ? null : $this->mapper->match($other, $url);
-            // A base without host serves any domain, so it claims no link of another site
-            if ($match !== null && $match->language->getBase()->getHost() !== '') {
-                return [$other, $match];
+        $found = null;
+        $best = [-1, -1];
+        $sites = [$site->getIdentifier() => $site] + $this->siteFinder->getAllSites();
+        foreach ($sites as $candidate) {
+            $match = $this->mapper->match($candidate, $url);
+            if ($match === null) {
+                continue;
+            }
+            $base = $match->language->getBase();
+            $explicitHost = $base->getHost() !== '';
+            if (!$explicitHost && ($candidate->getIdentifier() !== $site->getIdentifier() || parse_url($url, PHP_URL_HOST))) {
+                continue;
+            }
+            $specificity = [(int)$explicitHost, strlen($base->getPath())];
+            if ($specificity > $best) {
+                $best = $specificity;
+                $found = [$candidate, $match];
             }
         }
-        return null;
+        return $found;
     }
 }

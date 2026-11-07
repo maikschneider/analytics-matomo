@@ -69,6 +69,10 @@ final class FeatureAccessTest extends FunctionalTestCase
             $transitions['outlinks'][] = ['label' => $link['url'], 'referrals' => 10 + $index];
         }
         $transitions['downloads'] = array_map(static fn (array $row): array => ['label' => $row['label'], 'referrals' => (int)$row['nb_hits']], $this->fixtures['links']['reportData']);
+        $transitions['referrers'][] = ['label' => 'From websites', 'shortName' => 'website', 'visits' => 5, 'details' => [
+            ['label' => 'https://shop.example.org/imprint', 'referrals' => 3],
+            ['label' => 'https://external.example.net/', 'referrals' => 2],
+        ]];
         $this->fixtures['transitions'] = $transitions;
 
         $GLOBALS['TYPO3_CONF_VARS']['HTTP']['handler']['matomo'] = fn (callable $handler): \Closure => function (RequestInterface $request): FulfilledPromise {
@@ -145,6 +149,26 @@ final class FeatureAccessTest extends FunctionalTestCase
 
         self::assertStringNotContainsString('No accessible site with a Matomo connection', $html);
         self::assertStringNotContainsString('could not be loaded from Matomo', $html);
+        self::assertStringContainsString(match (true) {
+            isset($query['transitions']) => 'data-transitions',
+            $section === 'page' => 'tx-analytics-matomo-metric--views',
+            $section === 'goals' && $query['report'] === 'overview' => 'tx-analytics-matomo-metric--conversions',
+            $section === 'goals' => 'Conversions by entry page',
+            $query['report'] === 'trending' => '<h2>Rising pages</h2>',
+            default => '<table',
+        }, $html);
+    }
+
+    #[Test]
+    public function websiteReferrersRespectAccessToTheirTargetSite(): void
+    {
+        $admin = (string)$this->render(self::ADMIN, ['id' => '2', 'transitions' => '1'], 'page')->getBody();
+        $editor = (string)$this->render(self::MAIN_EDITOR, ['id' => '2', 'transitions' => '1'], 'page')->getBody();
+        [$admin] = explode('<h3>Outlinks</h3>', $admin);
+        [$editor] = explode('<h3>Outlinks</h3>', $editor);
+        self::assertStringContainsString('https://shop.example.org/imprint', $admin);
+        self::assertStringNotContainsString('https://shop.example.org/imprint', $editor);
+        self::assertStringContainsString('https://external.example.net/', $editor);
     }
 
     #[Test]

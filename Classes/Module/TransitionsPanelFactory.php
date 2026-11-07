@@ -36,10 +36,14 @@ final readonly class TransitionsPanelFactory
     {
         $referrers = [];
         foreach ($this->list($transitions['referrers'] ?? null) as $referrer) {
+            $details = $this->list($referrer['details'] ?? null);
+            if (($referrer['shortName'] ?? '') === 'website') {
+                $details = array_values(array_filter($details, fn (array $detail): bool => $this->linkAccess->isVisible($site, (string)($detail['label'] ?? ''), $user)));
+            }
             $referrers[] = [
                 'label' => (string)($referrer['label'] ?? ''),
                 'visits' => (int)($referrer['visits'] ?? 0),
-                'details' => array_slice(array_map(static fn (array $detail): array => ['label' => (string)($detail['label'] ?? ''), 'visits' => (int)($detail['referrals'] ?? 0)], $this->list($referrer['details'] ?? null)), 0, 5),
+                'details' => array_slice(array_map(static fn (array $detail): array => ['label' => (string)($detail['label'] ?? ''), 'visits' => (int)($detail['referrals'] ?? 0)], $details), 0, 5),
             ];
         }
         return [
