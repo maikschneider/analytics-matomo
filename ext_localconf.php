@@ -35,5 +35,12 @@ $GLOBALS['TYPO3_CONF_VARS']['BE']['customPermOptions']['analytics_matomo'] = [
             'actions-document-history-open',
             'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:permission.contentReview.description',
         ],
+        StatisticsPermission::WEEKLY_DIGEST => [
+            'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:permission.weeklyDigest',
+            'actions-envelope',
+            'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:permission.weeklyDigest.description',
+        ],
     ],
 ];
+
+$GLOBALS['TYPO3_CONF_VARS']['MAIL']['templateRootPaths'][1762560000] = 'EXT:analytics_matomo/Resources/Private/Templates/Email/';

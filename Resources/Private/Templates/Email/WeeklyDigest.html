@@ -1,0 +1,31 @@
+<f:layout name="SystemEmail" />
+<f:section name="Title">{headline}</f:section>
+<f:section name="Main">
+<p><f:translate key="LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:digest.period" arguments="{0: from, 1: to}" languageKey="{language}" /></p>
+<f:for each="{sites}" as="site">
+    <h2 style="font-size: 18px; margin: 24px 0 8px;">{site.title}</h2>
+    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+        <tr>
+            <td><f:translate key="LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:digest.visits" languageKey="{language}" /></td>
+            <td style="text-align: right;"><strong>{site.visits}</strong> <f:if condition="{site.visitsChange}">({site.visitsChange})</f:if></td>
+        </tr>
+        <tr>
+            <td><f:translate key="LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:digest.pageViews" languageKey="{language}" /></td>
+            <td style="text-align: right;"><strong>{site.pageViews}</strong> <f:if condition="{site.pageViewsChange}">({site.pageViewsChange})</f:if></td>
+        </tr>
+    </table>
+    <f:if condition="{site.topPages}">
+        <h3 style="font-size: 15px; margin: 16px 0 4px;"><f:translate key="LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:digest.topPages" languageKey="{language}" /></h3>
+        <table role="presentation" style="width: 100%; border-collapse: collapse;">
+            <f:for each="{site.topPages}" as="page">
+                <tr>
+                    <td><a href="{page.url}">{page.title}</a><br /><small>{page.url}</small></td>
+                    <td style="text-align: right;">{page.views}</td>
+                </tr>
+            </f:for>
+        </table>
+    </f:if>
+    <f:if condition="{site.moduleUrl}"><p><a href="{site.moduleUrl}"><f:translate key="LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:digest.open" languageKey="{language}" /></a></p></f:if>
+</f:for>
+<p><small><f:translate key="LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:digest.reason" languageKey="{language}" /></small></p>
+</f:section>

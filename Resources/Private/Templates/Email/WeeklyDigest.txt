@@ -1,0 +1,16 @@
+<f:layout name="SystemEmail" />
+<f:section name="Title">{headline}</f:section>
+<f:section name="Main"><f:translate key="LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:digest.period" arguments="{0: from, 1: to}" languageKey="{language}" />
+<f:for each="{sites}" as="site">
+
+== {site.title} ==
+<f:translate key="LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:digest.visits" languageKey="{language}" />: {site.visits}<f:if condition="{site.visitsChange}"> ({site.visitsChange})</f:if>
+<f:translate key="LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:digest.pageViews" languageKey="{language}" />: {site.pageViews}<f:if condition="{site.pageViewsChange}"> ({site.pageViewsChange})</f:if>
+<f:if condition="{site.topPages}">
+<f:translate key="LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:digest.topPages" languageKey="{language}" />:
+<f:for each="{site.topPages}" as="page">- {page.views} {page.title}: {page.url}
+</f:for></f:if>
+<f:if condition="{site.moduleUrl}"><f:translate key="LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:digest.open" languageKey="{language}" />: {site.moduleUrl}</f:if>
+</f:for>
+
+<f:translate key="LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:digest.reason" languageKey="{language}" /></f:section>

@@ -240,15 +240,16 @@ With :confval:`analyticsMatomo.annotations`, saving a page or content element
 in the live workspace, deleting a content element or publishing from a
 workspace adds a Matomo annotation such as
 ``TYPO3: https://example.com/about edited by jdoe`` for the page URL in the
-record's language. Drafts in a workspace, new pages, folders and pages without
+record's language, or in every site language for content elements of
+"All languages". Drafts in a workspace, new pages, folders and pages without
 URL are not annotated. Matomo is asked for the notes of the day first, so there
 is at most one annotation per page URL and day, also across several TYPO3
 instances; notes of other Matomo users are left alone.
 
 The annotation is written while saving, with a three-second timeout. If Matomo
-is unreachable, saving still succeeds, a warning is logged and changes in the
-next five minutes skip Matomo; later changes try again. To keep Matomo entirely
-out of the save, route
+or the message transport is unavailable, saving still succeeds, a warning is
+logged and changes in the next five minutes skip Matomo; later changes try
+again. To keep Matomo entirely out of the save, route
 ``MaikSchneider\AnalyticsMatomo\Annotation\ContentChangedMessage`` to an
 asynchronous transport of the core message bus.
 
@@ -260,6 +261,35 @@ the selected period with the days before, without the day of the change and
 today. This is an indication only: season, campaigns and other pages influence
 the numbers too. Annotations are cached for an hour. In demo data mode, the
 site :guilabel:`Cycles` shows generated annotations and nothing is written.
+
+..  _weekly-digest:
+
+Weekly digest
+=============
+
+Backend groups with :guilabel:`Receive the weekly digest` get a mail per member
+with visits, page views and their change against the week before, and the five
+most viewed pages of the last seven days, for every site the member sees in
+the dashboard widgets. Only active users with an e-mail address receive it,
+and only if they also have :guilabel:`View site statistics`. Visits and page
+views are the totals of the Matomo site, as in the :guilabel:`Site performance`
+widget. Top pages are limited to pages and languages the member may access and
+summed per page, linked with the page URL without tracked query parameters;
+URLs without a page are left out, also for administrators. The mail contains
+no visitor-level data and is in the member's backend language.
+
+Schedule :bash:`vendor/bin/typo3 analytics-matomo:send-digest` weekly, for
+example with the Scheduler task :guilabel:`Execute console commands`. It uses
+the TYPO3 mail configuration (:php:`$GLOBALS['TYPO3_CONF_VARS']['MAIL']`).
+:bash:`--dry-run` prints the mails instead of sending them. Each site is asked
+once per run, whatever the number of recipients. A site whose Matomo fails is
+left out of the mails, and the command exits with an error after sending the
+rest. The link to the module assumes the backend on the site's domain unless
+:php:`$GLOBALS['TYPO3_CONF_VARS']['BE']['entryPoint']` is an absolute URL.
+
+After :bash:`ddev init-typo3`, the group :guilabel:`Editors` receives the
+digest; :bash:`ddev exec vendor/bin/typo3 analytics-matomo:send-digest` sends
+it to Mailpit.
 
 Dashboard widgets
 =================

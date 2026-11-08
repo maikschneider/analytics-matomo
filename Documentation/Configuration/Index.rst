@@ -159,8 +159,12 @@ are granted in the backend group record, tab :guilabel:`Access Rights`, field
     The report page :guilabel:`Behaviour > Content review` in the module, in
     addition to the Behaviour section.
 
-Administrators always have all of them. Error details from Matomo are shown to
-administrators only.
+:guilabel:`Receive the weekly digest` (`analytics_matomo:weeklyDigest`)
+    Members get the :ref:`weekly digest <weekly-digest>` by mail. Unlike the
+    other options, administrators get it only as members of such a group.
+
+Administrators always have all of them, except the weekly digest. Error
+details from Matomo are shown to administrators only.
 
 The site-wide module reports and widgets show the numbers of the selected
 Matomo site. If several TYPO3 sites track into the same Matomo site, their

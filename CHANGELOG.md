@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Weekly digest (`analytics-matomo:send-digest`, schedulable, `--dry-run`): backend groups with the new custom option "Receive the weekly digest" get visits, page views and top pages of the sites their members may see, by FluidEmail in the member's language. Off by default; the demo group Editors receives it.
 - Annotations of content changes (site setting `analyticsMatomo.annotations`, off by default): live saves, content deletes and workspace publishing add `TYPO3: <page URL> edited by <user>` with the existing view token, at most once per page URL and day (Matomo is checked first). Saving never fails because of Matomo; after an error, changes skip Matomo for five minutes. Charts in Visitors overview and page details mark the annotations, the statistics bar compares daily views since and before the last change. The demo site Cycles shows example annotations.
 - Module icon in the style of the TYPO3 14 module icons (no background, `currentColor` and the accent colour, follows dark mode); the extension icon stays.
 - Daily traffic anomaly checks (`analytics-matomo:check-anomalies`, schedulable): yesterday in Matomo's site timezone vs. the median of the same weekday in the four preceding weeks. Traffic changes from 40 % with at least 50 baseline visits; bounce changes from 20 percentage points only with enough visits. Cached badges in Visitors overview and the site performance widget link admins to connection health. Demo initialization seeds an example per site.

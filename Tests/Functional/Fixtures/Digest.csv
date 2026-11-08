@@ -1,0 +1,23 @@
+"pages"
+,"uid","pid","title","slug","doktype","sys_language_uid","l10n_parent","perms_userid","perms_groupid","perms_user","perms_group","perms_everybody","hidden"
+,1,0,"Root","/",1,0,0,1,1,31,1,0,0
+,2,1,"About","/about",1,0,0,1,1,31,1,0,0
+,3,1,"Board","/board",1,0,0,1,99,31,0,0,0
+,4,1,"Über uns","/ueber-uns",1,1,2,1,1,31,1,0,0
+,10,0,"Shop","/",1,0,0,1,1,31,1,0,0
+,20,0,"Demo","/",1,0,0,1,1,31,1,0,0
+"be_groups"
+,"uid","pid","title","custom_options","subgroup","allowed_languages"
+,1,0,"Digest readers","analytics_matomo:weeklyDigest,analytics_matomo:siteStatistics","","0"
+,2,0,"Statistics only","analytics_matomo:siteStatistics","",""
+,3,0,"Digest without site statistics","analytics_matomo:weeklyDigest","",""
+,4,0,"Digest via subgroup","","1","0,1"
+"be_users"
+,"uid","pid","username","realName","email","admin","usergroup","db_mountpoints","lang","disable"
+,1,0,"admin","Admin","admin@example.com",1,"","","default",0
+,2,0,"leser","Lea Leser","lea@example.com",0,"1","1","de",0
+,3,0,"statistics","Stat","stat@example.com",0,"2","1","default",0
+,4,0,"nomail","No Mail","",0,"1","1","default",0
+,5,0,"disabled","Disabled","disabled@example.com",0,"1","1","default",1
+,7,0,"nosites","No Sites","nosites@example.com",0,"3","1","default",0
+,8,0,"reader","Rob Reader","rob@example.com",0,"4","1,10","default",0

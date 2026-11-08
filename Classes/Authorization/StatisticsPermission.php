@@ -15,6 +15,7 @@ final class StatisticsPermission
     public const SITE = 'siteStatistics';
     public const SITE_SEARCH = 'siteSearch';
     public const CONTENT_REVIEW = 'contentReview';
+    public const WEEKLY_DIGEST = 'weeklyDigest';
 
     public static function isGranted(BackendUserAuthentication $backendUser, string $option): bool
     {

@@ -16,6 +16,14 @@ services:
         description: 'Refresh daily traffic anomaly badges for configured Matomo sites'
         schedulable: true
 
+  MaikSchneider\AnalyticsMatomo\Command\SendDigestCommand:
+    autoconfigure: false
+    tags:
+      - name: console.command
+        command: 'analytics-matomo:send-digest'
+        description: 'Mail the weekly Matomo digest to backend groups that receive it'
+        schedulable: true
+
   MaikSchneider\AnalyticsMatomo\Annotation\AnnotationWriter:
     tags:
       - name: messenger.message_handler

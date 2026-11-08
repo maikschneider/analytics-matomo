@@ -108,6 +108,33 @@
 			<trans-unit id="permission.contentReview.description" resname="permission.contentReview.description">
 				<source>Lists pages without views and old pages with traffic in the Matomo module (Behaviour).</source>
 			</trans-unit>
+			<trans-unit id="permission.weeklyDigest" resname="permission.weeklyDigest">
+				<source>Receive the weekly digest</source>
+			</trans-unit>
+			<trans-unit id="permission.weeklyDigest.description" resname="permission.weeklyDigest.description">
+				<source>Members with an email address get visits, page views and top pages of the last week for every site they may see in the site statistics, by mail. Needs "View site statistics" and the scheduled command analytics-matomo:send-digest.</source>
+			</trans-unit>
+			<trans-unit id="digest.subject" resname="digest.subject">
+				<source>Matomo: Your week</source>
+			</trans-unit>
+			<trans-unit id="digest.period" resname="digest.period">
+				<source>Statistics from %1$s to %2$s compared with the week before.</source>
+			</trans-unit>
+			<trans-unit id="digest.visits" resname="digest.visits">
+				<source>Visits</source>
+			</trans-unit>
+			<trans-unit id="digest.pageViews" resname="digest.pageViews">
+				<source>Page views</source>
+			</trans-unit>
+			<trans-unit id="digest.topPages" resname="digest.topPages">
+				<source>Most viewed pages</source>
+			</trans-unit>
+			<trans-unit id="digest.open" resname="digest.open">
+				<source>Open the statistics in TYPO3</source>
+			</trans-unit>
+			<trans-unit id="digest.reason" resname="digest.reason">
+				<source>You receive this mail because one of your TYPO3 backend groups receives the weekly Matomo digest.</source>
+			</trans-unit>
 			<trans-unit id="pageViews.title" resname="pageViews.title">
 				<source>Matomo: %1$s views in the last %2$d days, %3$s in the %2$d days before</source>
 			</trans-unit>
