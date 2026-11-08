@@ -16,6 +16,7 @@ use TYPO3\CMS\Backend\Template\Components\ActionGroup;
 use TYPO3\CMS\Backend\Template\Components\Buttons\LinkButton;
 use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Domain\Record;
 use TYPO3\CMS\Core\Domain\RecordInterface;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Imaging\IconFactory;
@@ -28,6 +29,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Page views of the last 30 days next to pages in the page tree and the List module, with a
  * rising or falling arrow. Off by default; users switch it on in the Matomo module.
+ *
+ * @phpstan-import-type Views from PageViewsService
  */
 final class PageViewsListener
 {
@@ -36,7 +39,9 @@ final class PageViewsListener
 
     /** @var array<int, array{text: string, title: string}|null> */
     private array $badges = [];
-    private int $remainingFallbacks = 20;
+    /** @var array<string, Views|null> */
+    private array $siteViews = [];
+    private int $remainingFallbacks = 1;
 
     public function __construct(
         private readonly PageViewsService $pageViewsService,
@@ -80,6 +85,9 @@ final class PageViewsListener
         if ($record instanceof RecordInterface) {
             $table = $record->getMainType();
             $row = $record->toArray();
+            if ($record instanceof Record) {
+                $row['sys_language_uid'] = $record->getLanguageInfo()?->getLanguageId() ?? 0;
+            }
         } else {
             $table = (string)$this->callUntyped($event, 'getTable');
             $row = is_array($record) ? $record : [];
@@ -132,7 +140,10 @@ final class PageViewsListener
         } catch (SiteNotFoundException) {
             return $this->badges[$pageId] = null;
         }
-        $views = $this->pageViewsService->getViews($site);
+        if (!array_key_exists($site->getIdentifier(), $this->siteViews)) {
+            $this->siteViews[$site->getIdentifier()] = $this->pageViewsService->getViews($site);
+        }
+        $views = $this->siteViews[$site->getIdentifier()];
         if ($views === null) {
             return $this->badges[$pageId] = null;
         }

@@ -258,6 +258,29 @@ final class PageTreeViewsListenerTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function translatedResolvedListRecordsGetNoDefaultLanguageBadge(): void
+    {
+        if (!class_exists(\TYPO3\CMS\Backend\Template\Components\ComponentGroup::class)) {
+            self::markTestSkipped('Resolved record actions require TYPO3 14');
+        }
+        $user = $this->setUpBackendUser(1);
+        $user->uc['analytics_matomo']['pageTreeViews'] = true;
+        $GLOBALS['LANG'] = $this->get(LanguageServiceFactory::class)->createFromUserPreferences($user);
+        $row = $this->get(ConnectionPool::class)->getConnectionForTable('pages')->select(['*'], 'pages', ['uid' => 3])->fetchAssociative();
+        self::assertIsArray($row);
+        $record = $this->get(\TYPO3\CMS\Core\Domain\RecordFactory::class)->createResolvedRecordFromDatabaseRow('pages', $row);
+        $event = new \TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListRecordActionsEvent(
+            new \TYPO3\CMS\Backend\Template\Components\ComponentGroup('primary'),
+            new \TYPO3\CMS\Backend\Template\Components\ComponentGroup('secondary'),
+            $record,
+            self::createStub(\TYPO3\CMS\Backend\RecordList\DatabaseRecordList::class),
+            new ServerRequest('https://example.com/typo3/'),
+        );
+        $this->get(\Psr\EventDispatcher\EventDispatcherInterface::class)->dispatch($event);
+        self::assertFalse($event->hasAction('analyticsMatomoViews'));
+    }
+
+    #[Test]
     public function theListModuleShowsNoViewsForFolders(): void
     {
         $html = $this->recordList(1, true);

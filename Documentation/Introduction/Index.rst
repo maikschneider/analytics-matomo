@@ -195,10 +195,11 @@ tree, and as a button to page details in the List module. An arrow marks pages
 that rose or fell against the 30 days before, with the thresholds of trending
 pages; the tooltip shows both numbers. Views of all languages the user may
 access are added up. A dash means unknown: Matomo truncated its page report and
-the page may be among the cut rows. For at most 20 visible pages per request,
-unknown counts fall back to a bulk lookup of the page's canonical URLs in its
-accessible translations. The result is cached per URL, not tree level. A failed
-fallback keeps the dash. Folders, shortcuts and links get no views.
+the page may be among the cut rows. One visible page per request can fall back to
+a bulk lookup of its canonical URLs in the accessible translations. This bounds
+the extra latency if Matomo's per-page lookup is slow. The result is cached per
+URL, not tree level. Other unknown counts and a failed fallback keep the dash.
+Folders, shortcuts and links get no views.
 
 The setting is per user and off by default. It needs the page statistics
 permission. One cached request per site and hour answers every tree level; when
