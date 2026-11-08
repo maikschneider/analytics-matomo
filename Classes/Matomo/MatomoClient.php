@@ -26,10 +26,11 @@ final readonly class MatomoClient
      * @param list<array<string, int|string>> $requests API parameters per call, e.g. ['method' => 'Actions.getPageUrl', ...]
      * @param string $language language of translated labels, e.g. 'de'; Matomo ignores it inside the single requests
      * @param bool $keepErrors return the error of a single call (['result' => 'error', 'message' => …]) as its result instead of throwing
+     * @param int $timeout seconds; writes during a backend save wait less than reports
      * @return list<mixed> one decoded result per request, in the same order
      * @throws MatomoApiException
      */
-    public function bulkRequest(MatomoConfiguration $configuration, array $requests, string $language = '', bool $keepErrors = false): array
+    public function bulkRequest(MatomoConfiguration $configuration, array $requests, string $language = '', bool $keepErrors = false, int $timeout = self::TIMEOUT_SECONDS): array
     {
         if ($configuration->demo) {
             return $this->demoData->results($requests, $configuration);
@@ -53,7 +54,7 @@ final readonly class MatomoClient
         try {
             $response = $this->requestFactory->request($configuration->getApiUrl(), 'POST', [
                 'form_params' => $body,
-                'timeout' => self::TIMEOUT_SECONDS,
+                'timeout' => $timeout,
                 'http_errors' => false,
                 // A 307/308 redirect would resend the token to the redirect target
                 'allow_redirects' => false,

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MaikSchneider\AnalyticsMatomo\Module;
 
+use MaikSchneider\AnalyticsMatomo\Annotation\Annotation;
 use MaikSchneider\AnalyticsMatomo\Statistics\Period;
 
 final readonly class EvolutionChartFactory
@@ -66,6 +67,32 @@ final readonly class EvolutionChartFactory
             }
         }
         return ['granularity' => $period->granularity(), 'labels' => $labels, 'previousLabels' => $previousLabels, 'metrics' => $series];
+    }
+
+    /**
+     * Each annotation at the index of the bucket that contains its day; the annotations are those of the chart's period
+     *
+     * @param array<string, mixed> $chart with the bucket start dates as labels
+     * @param list<Annotation> $annotations oldest first
+     * @return array<string, mixed> the chart with a list of annotations {index, date, note}
+     */
+    public function withAnnotations(array $chart, array $annotations): array
+    {
+        $labels = is_array($chart['labels'] ?? null) ? array_values($chart['labels']) : [];
+        $markers = [];
+        foreach ($annotations as $annotation) {
+            $index = null;
+            foreach ($labels as $position => $start) {
+                if ((string)$start <= $annotation->date) {
+                    $index = $position;
+                }
+            }
+            if ($index !== null) {
+                $markers[] = ['index' => $index, 'date' => $annotation->date, 'note' => $annotation->note];
+            }
+        }
+        $chart['annotations'] = $markers;
+        return $chart;
     }
 
     /** @return list<string> */

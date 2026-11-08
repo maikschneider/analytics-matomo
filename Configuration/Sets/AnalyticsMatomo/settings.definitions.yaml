@@ -27,6 +27,12 @@ settings:
     category: analyticsMatomo
     type: bool
     default: false
+  analyticsMatomo.annotations:
+    label: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:settings.annotations'
+    description: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:settings.annotations.description'
+    category: analyticsMatomo
+    type: bool
+    default: false
   analyticsMatomo.wordsPerMinute:
     label: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:settings.wordsPerMinute'
     description: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:settings.wordsPerMinute.description'

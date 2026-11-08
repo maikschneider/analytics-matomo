@@ -1,2 +1,3 @@
 analyticsMatomo:
   demoData: true
+  annotations: true

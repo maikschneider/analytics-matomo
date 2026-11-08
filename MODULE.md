@@ -209,5 +209,5 @@ A throwaway skeleton (not committed) proved on TYPO3 14.3 in a functional test: 
 | Visitors, Behaviour, Acquisition, site search; widgets as entry points (after their target reports exist) | #41, #42, #43, #44, #24, #40 | 0.4.0 |
 | Page details (Transitions, languages, speed, reading time), Goals, trending pages | #45, #14, #18, #21, #20, #25, #22, #23 | 0.5.0 |
 | All sites, CSV export, stored segments (+ health/token checks in the Reports module) | #30, #46, #47, #13, #19 | 0.6.0 |
-| Annotations as chart markers, content review | #27, #29 | 0.7.0 |
+| Annotations as chart markers, content review | #27, #29 | 0.7.0, 1.0.0 |
 | Visits log | #48 | Backlog |

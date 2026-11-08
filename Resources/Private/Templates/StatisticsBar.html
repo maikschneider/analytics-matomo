@@ -35,6 +35,11 @@
                 </f:else>
             </f:if>
             <div class="tx-analytics-matomo-meta">
+                <f:if condition="{impact}">
+                    <small class="tx-analytics-matomo-impact" data-annotation-impact title="{f:translate(key: '{ll}:bar.impact.title')}">
+                        <f:translate key="{ll}:bar.impact" arguments="{0: '{impact.date -> f:format.date()}', 1: impact.after, 2: impact.before}" /><f:if condition="{impact.change}"> ({impact.change})</f:if>
+                    </small>
+                </f:if>
                 <label class="visually-hidden" for="tx-analytics-matomo-days"><f:translate key="{ll}:bar.period" /></label>
                 <select id="tx-analytics-matomo-days" class="form-select form-select-sm" data-analytics-matomo-days>
                     <f:for each="{periods}" as="period">

@@ -42,9 +42,20 @@ Site settings
     as that user and create a token in the :guilabel:`Auth tokens` section of
     the personal security settings. Tick :guilabel:`Only allow secure requests`,
     so Matomo accepts the token in POST requests only, as Matomo recommends.
-    View access still lets a token create annotations; this extension never
-    writes to Matomo, but a leaked token could. The :ref:`connection status
+    View access still lets a token create annotations: this extension writes
+    them only with :confval:`analyticsMatomo.annotations`, but a leaked token
+    could as well. The :ref:`connection status
     <connection-status>` warns about tokens with admin or superuser access.
+
+..  confval:: analyticsMatomo.annotations
+    :type: bool
+    :default: false
+
+    :ref:`Annotates content changes <annotations>` in Matomo. The token above is
+    enough: Matomo 4 and 5 let every non-anonymous user with view access add
+    annotations (``AnnotationList::canUserAddNotesFor()`` and
+    ``Annotations\API::checkUserCanAddNotesFor()``). Annotations are visible
+    to every Matomo user of the site.
 
 ..  confval:: analyticsMatomo.demoData
     :type: bool

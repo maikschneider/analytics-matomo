@@ -1,0 +1,66 @@
+{
+	"matomo5": {
+		"3": [
+			{
+				"id": 11,
+				"idsite": 3,
+				"date": "2026-11-02",
+				"note": "TYPO3: https://example.com/about edited by editor",
+				"starred": 0,
+				"user": "typo3-view",
+				"canEditOrDelete": false,
+				"idNote": 11
+			},
+			{
+				"id": 12,
+				"idsite": 3,
+				"date": "2026-11-03",
+				"note": "Newsletter &quot;November&quot; sent",
+				"starred": 1,
+				"user": "marketing",
+				"canEditOrDelete": false,
+				"idNote": 12
+			},
+			{
+				"id": 13,
+				"idsite": 3,
+				"date": "2026-11-04",
+				"note": "TYPO3: https://example.com/about-us edited by editor",
+				"starred": 0,
+				"user": "typo3-view",
+				"canEditOrDelete": false,
+				"idNote": 13
+			},
+			{
+				"id": 14,
+				"idsite": 3,
+				"date": "2026-11-05",
+				"note": "TYPO3: https://example.com/de/ueber-uns?tab=1&amp;view=2 edited by redakteur",
+				"starred": 0,
+				"user": "typo3-view",
+				"canEditOrDelete": false,
+				"idNote": 14
+			}
+		]
+	},
+	"matomo4": {
+		"3": {
+			"1": {
+				"date": "2026-11-04",
+				"note": "TYPO3: https://example.com/about edited by admin",
+				"starred": 0,
+				"user": "typo3-view",
+				"idNote": 1,
+				"canEditOrDelete": false
+			},
+			"0": {
+				"date": "2026-11-01",
+				"note": "Relaunch",
+				"starred": 0,
+				"user": "admin",
+				"idNote": 0,
+				"canEditOrDelete": false
+			}
+		}
+	}
+}

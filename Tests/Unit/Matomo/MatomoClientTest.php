@@ -129,6 +129,19 @@ final class MatomoClientTest extends UnitTestCase
     }
 
     #[Test]
+    public function bulkRequestWaitsTheGivenTimeout(): void
+    {
+        $this->requestFactory->expects(self::once())
+            ->method('request')
+            ->with(self::anything(), self::anything(), self::callback(
+                static fn (array $options): bool => $options['timeout'] === 3
+            ))
+            ->willReturn($this->response(200, '["6.0.0"]'));
+
+        $this->subject->bulkRequest(new MatomoConfiguration('https://matomo.example.com', 1, 'secret'), [['method' => 'API.getMatomoVersion']], timeout: 3);
+    }
+
+    #[Test]
     public function errorMessagesNeverContainTheToken(): void
     {
         $this->requestFactory->method('request')

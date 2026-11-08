@@ -124,7 +124,7 @@ final readonly class DemoData
     public function results(array $requests, MatomoConfiguration $configuration): array
     {
         $pageUrls = [];
-        if (array_intersect(['Actions.getPageUrls', 'Actions.getEntryPageUrls', 'Transitions.getTransitionsForAction'], array_column($requests, 'method')) !== [] || array_intersect(['getPageUrls', 'getEntryPageUrls', 'getExitPageUrls', 'getPageTitles'], array_column($requests, 'apiAction')) !== []) {
+        if (array_intersect(['Actions.getPageUrls', 'Actions.getEntryPageUrls', 'Transitions.getTransitionsForAction', 'Annotations.getAll'], array_column($requests, 'method')) !== [] || array_intersect(['getPageUrls', 'getEntryPageUrls', 'getExitPageUrls', 'getPageTitles'], array_column($requests, 'apiAction')) !== []) {
             $pageUrls = $this->pageUrls?->get($configuration->idSite) ?? [];
             if ($pageUrls === []) {
                 $pageUrls = array_map(static fn (string $path): string => rtrim($configuration->url, '/') . '/' . $path, self::FALLBACK_PATHS);
@@ -161,6 +161,9 @@ final readonly class DemoData
      */
     private function result(array $request, string $site, array $pageUrls): mixed
     {
+        if (($request['method'] ?? '') === 'Annotations.getAll') {
+            return [$this->annotations((string)($request['date'] ?? ''), $site, $pageUrls)];
+        }
         if (($request['method'] ?? '') === 'SegmentEditor.getAll') {
             return array_map(static fn (int $id, array $segment): array => [
                 'idsegment' => $id, 'name' => $segment[0], 'definition' => $segment[1],
@@ -648,6 +651,33 @@ final readonly class DemoData
     private function sum(array $dates, \Closure $perDay): int
     {
         return array_sum(array_map($perDay, $dates));
+    }
+
+    /**
+     * Changes of every third page and a campaign of the site within the last two weeks before today,
+     * in the shape of Annotations.getAll
+     *
+     * @param list<string> $pageUrls
+     * @return list<array{date: string, note: string, starred: int, user: string}>
+     */
+    private function annotations(string $date, string $site, array $pageUrls): array
+    {
+        $today = new \DateTimeImmutable('today');
+        $notes = [$today->modify('-9 days')->format('Y-m-d') => ['Newsletter sent']];
+        foreach ($pageUrls as $index => $url) {
+            if ($index % 3 === 0) {
+                $notes[$today->modify('-' . $this->between('annotation' . $site . $url, 3, 13) . ' days')->format('Y-m-d')][] = 'TYPO3: ' . $url . ' edited by editor';
+            }
+        }
+        $days = array_flip($this->dates($date));
+        ksort($notes);
+        $annotations = [];
+        foreach ($notes as $day => $texts) {
+            foreach (isset($days[$day]) ? $texts : [] as $text) {
+                $annotations[] = ['date' => $day, 'note' => $text, 'starred' => 0, 'user' => 'typo3'];
+            }
+        }
+        return $annotations;
     }
 
     private function between(string $seed, int $min, int $max): int

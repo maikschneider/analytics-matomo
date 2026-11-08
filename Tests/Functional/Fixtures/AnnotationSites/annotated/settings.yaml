@@ -1,0 +1,5 @@
+analyticsMatomo:
+  url: 'https://matomo.example.com/'
+  idSite: 3
+  tokenAuth: 'view-token'
+  annotations: true

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MaikSchneider\AnalyticsMatomo\Controller;
 
+use MaikSchneider\AnalyticsMatomo\Annotation\Annotation;
+use MaikSchneider\AnalyticsMatomo\Annotation\AnnotationService;
 use MaikSchneider\AnalyticsMatomo\Authorization\StatisticsPermission;
 use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelection;
 use MaikSchneider\AnalyticsMatomo\Dashboard\DashboardSelectionResolver;
@@ -91,6 +93,8 @@ final readonly class ReportModuleController
         private ContentReviewService $contentReviewService,
         private IconFactory $iconFactory,
         private AnomalyBadgeFactory $anomalyBadgeFactory,
+        private AnnotationService $annotationService,
+        private EvolutionChartFactory $chartFactory,
     ) {
     }
 
@@ -213,7 +217,7 @@ final readonly class ReportModuleController
                 $overview = $this->overviewService->getOverview($selection->configuration, $selection->period, $selection->compare);
                 $variables += $this->anomalyBadgeFactory->create($selection->configuration, $user);
                 $variables['tiles'] = $this->tileFactory->createForOverview($overview['current'], $overview['previous']);
-                $variables['chart'] = $overview['chart'];
+                $variables['chart'] = $this->chartFactory->withAnnotations($overview['chart'], $this->annotationService->get($selection->site, $selection->configuration, $selection->period));
                 $variables['counters'] = $this->overviewService->getCounters($selection->configuration);
                 $this->pageRenderer->addCssFile('EXT:analytics_matomo/Resources/Public/Css/statistics-bar.css');
                 $this->pageRenderer->addCssFile('EXT:analytics_matomo/Resources/Public/Css/dashboard.css');
@@ -408,7 +412,7 @@ final readonly class ReportModuleController
             ],
             'minimumSamples' => ReportCatalog::MINIMUM_TIMING_SAMPLES,
             'tiles' => $this->tileFactory->createForOverview($details['current'], $details['previous'], EvolutionChartFactory::PAGE_METRICS),
-            'chart' => $details['chart'],
+            'chart' => $this->chartFactory->withAnnotations($details['chart'], Annotation::forPage($this->annotationService->get($selection->site, $target->configuration, $selection->period), $target->pageUrl)),
         ];
     }
 

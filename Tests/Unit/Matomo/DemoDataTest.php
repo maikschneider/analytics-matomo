@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MaikSchneider\AnalyticsMatomo\Tests\Unit\Matomo;
 
+use MaikSchneider\AnalyticsMatomo\Annotation\Annotation;
 use MaikSchneider\AnalyticsMatomo\Configuration\MatomoConfiguration;
 use MaikSchneider\AnalyticsMatomo\Dashboard\SiteStatisticsService;
 use MaikSchneider\AnalyticsMatomo\Matomo\DemoData;
@@ -60,6 +61,27 @@ final class DemoDataTest extends UnitTestCase
         self::assertIsArray($mobile);
         self::assertGreaterThan(0, $mobile['nb_visits']);
         self::assertLessThan($all['nb_visits'], $mobile['nb_visits']);
+    }
+
+    #[Test]
+    public function annotationsMarkChangesOfDemoPagesAndASiteEventInTheRequestedRange(): void
+    {
+        $today = new \DateTimeImmutable('today');
+        $period = Period::lastDays(30, $today);
+        $request = ['method' => 'Annotations.getAll', 'period' => 'range', 'date' => $period->toMatomoDate()];
+        [$result, $again] = (new DemoData())->results([$request, $request], $this->configuration);
+        self::assertSame($result, $again);
+
+        $annotations = Annotation::listFromApiResult($result);
+        self::assertGreaterThanOrEqual(2, count($annotations));
+        self::assertNotSame([], Annotation::forPage($annotations, 'https://example.com/'));
+        foreach ($annotations as $annotation) {
+            self::assertGreaterThanOrEqual($period->from->format('Y-m-d'), $annotation->date);
+            self::assertLessThan($today->format('Y-m-d'), $annotation->date);
+        }
+
+        [$older] = (new DemoData())->results([['method' => 'Annotations.getAll', 'period' => 'range', 'date' => '2020-01-01,2020-01-31']], $this->configuration);
+        self::assertSame([], Annotation::listFromApiResult($older));
     }
 
     #[Test]

@@ -1,0 +1,9 @@
+[
+	[
+		[]
+	],
+	{
+		"result": "error",
+		"message": "The current user is not allowed to add notes for site #3."
+	}
+]

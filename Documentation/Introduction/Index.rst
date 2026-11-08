@@ -231,6 +231,36 @@ connection health report. Results expire daily; before the first run or after a
 cache flush there is no badge. Demo initialization runs the command for both
 demo sites; rerun it after flushing caches to restore their example alerts.
 
+..  _annotations:
+
+Annotations of content changes
+==============================
+
+With :confval:`analyticsMatomo.annotations`, saving a page or content element
+in the live workspace, deleting a content element or publishing from a
+workspace adds a Matomo annotation such as
+``TYPO3: https://example.com/about edited by jdoe`` for the page URL in the
+record's language. Drafts in a workspace, new pages, folders and pages without
+URL are not annotated. Matomo is asked for the notes of the day first, so there
+is at most one annotation per page URL and day, also across several TYPO3
+instances; notes of other Matomo users are left alone.
+
+The annotation is written while saving, with a three-second timeout. If Matomo
+is unreachable, saving still succeeds, a warning is logged and changes in the
+next five minutes skip Matomo; later changes try again. To keep Matomo entirely
+out of the save, route
+``MaikSchneider\AnalyticsMatomo\Annotation\ContentChangedMessage`` to an
+asynchronous transport of the core message bus.
+
+The evolution charts of :guilabel:`Visitors > Overview` (all annotations of
+the site) and page details (this page's changes) show the annotations as
+dashed lines, in the tooltip and as a list below the chart. The statistics bar
+of the Page module compares the average daily views since the last change in
+the selected period with the days before, without the day of the change and
+today. This is an indication only: season, campaigns and other pages influence
+the numbers too. Annotations are cached for an hour. In demo data mode, the
+site :guilabel:`Cycles` shows generated annotations and nothing is written.
+
 Dashboard widgets
 =================
 

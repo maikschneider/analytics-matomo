@@ -235,6 +235,8 @@
 			<trans-unit id="siteMetric.conversions.description" resname="siteMetric.conversions.description"><source>How often the goals were reached. A goal that allows several conversions per visit can count more than once.</source></trans-unit>
 			<trans-unit id="siteMetric.conversionRate.description" resname="siteMetric.conversionRate.description"><source>Share of the visits that reached a goal.</source></trans-unit>
 			<trans-unit id="siteMetric.revenue.description" resname="siteMetric.revenue.description"><source>Revenue of the conversions, as set on the goals in Matomo.</source></trans-unit>
+			<trans-unit id="bar.impact" resname="bar.impact"><source>Changed on %1$s: %2$s views per day since, %3$s before</source></trans-unit>
+			<trans-unit id="bar.impact.title" resname="bar.impact.title"><source>Average daily page views since and before the last change in the period, without the day of the change and today. An indication only: season, campaigns and other pages influence the numbers too.</source></trans-unit>
 			<trans-unit id="bar.details" resname="bar.details"><source>Details</source></trans-unit>
 			<trans-unit id="bar.details.title" resname="bar.details.title"><source>Page details in the Matomo Analytics module</source></trans-unit>
 			<trans-unit id="metric.conversions" resname="metric.conversions"><source>Conversions</source></trans-unit>
@@ -244,6 +246,8 @@
 			<trans-unit id="settings.wordsPerMinute.description" resname="settings.wordsPerMinute.description"><source>Used to estimate the reading time of a page in the page details of the Matomo Analytics module.</source></trans-unit>
 			<trans-unit id="settings.statusMaxHoursWithoutVisits" resname="settings.statusMaxHoursWithoutVisits"><source>Hours without visits before a warning</source></trans-unit>
 			<trans-unit id="settings.statusMaxHoursWithoutVisits.description" resname="settings.statusMaxHoursWithoutVisits.description"><source>The Reports module warns when Matomo has tracked no visit for this many hours. Raise it for sites with little traffic; 0 turns the warning off.</source></trans-unit>
+			<trans-unit id="settings.annotations" resname="settings.annotations"><source>Annotate content changes in Matomo</source></trans-unit>
+			<trans-unit id="settings.annotations.description" resname="settings.annotations.description"><source>Saving a page or content element in the live workspace, or publishing it from a workspace, adds a Matomo annotation with the page URL and the editor's username, at most one per page URL and day. Annotations are visible to every Matomo user of the site. Charts and the statistics bar show them.</source></trans-unit>
 			<trans-unit id="status.notConfigured" resname="status.notConfigured"><source>Not configured</source></trans-unit>
 			<trans-unit id="status.unreachable" resname="status.unreachable"><source>Not reachable</source></trans-unit>
 			<trans-unit id="status.version" resname="status.version"><source>Matomo %s</source></trans-unit>

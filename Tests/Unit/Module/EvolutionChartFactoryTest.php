@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MaikSchneider\AnalyticsMatomo\Tests\Unit\Module;
 
+use MaikSchneider\AnalyticsMatomo\Annotation\Annotation;
 use MaikSchneider\AnalyticsMatomo\Module\EvolutionChartFactory;
 use MaikSchneider\AnalyticsMatomo\Statistics\Period;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -59,5 +60,22 @@ final class EvolutionChartFactoryTest extends UnitTestCase
         $series = EvolutionChartFactory::byBucketStart(['2026-07-27,2026-08-02' => ['nb_conversions' => 4], '2026-08-03,2026-08-09' => ['nb_conversions' => 2], '2026-08-10' => []]);
 
         self::assertSame(['2026-07-27' => ['nb_conversions' => 4], '2026-08-03' => ['nb_conversions' => 2], '2026-08-10' => []], $series);
+    }
+
+    #[Test]
+    public function marksAnnotationsInTheirBucket(): void
+    {
+        $factory = new EvolutionChartFactory();
+        $annotations = [new Annotation('2026-10-01', 'Before the period'), new Annotation('2026-10-28', 'Relaunch'), new Annotation('2026-10-28', 'Newsletter'), new Annotation('2026-11-02', 'Today')];
+
+        $days = $factory->withAnnotations($factory->create(Period::lastDays(7, new \DateTimeImmutable('2026-11-02')), []), $annotations);
+        self::assertSame([
+            ['index' => 1, 'date' => '2026-10-28', 'note' => 'Relaunch'],
+            ['index' => 1, 'date' => '2026-10-28', 'note' => 'Newsletter'],
+            ['index' => 6, 'date' => '2026-11-02', 'note' => 'Today'],
+        ], $days['annotations']);
+
+        $weeks = $factory->withAnnotations($factory->create(Period::fromPreset('90', new \DateTimeImmutable('2026-11-02')), []), $annotations);
+        self::assertSame(['2026-09-28', '2026-10-26', '2026-10-26', '2026-11-02'], array_map(static fn (array $marker): string => $weeks['labels'][$marker['index']], $weeks['annotations']));
     }
 }

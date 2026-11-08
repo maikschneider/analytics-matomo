@@ -16,6 +16,10 @@ services:
         description: 'Refresh daily traffic anomaly badges for configured Matomo sites'
         schedulable: true
 
+  MaikSchneider\AnalyticsMatomo\Annotation\AnnotationWriter:
+    tags:
+      - name: messenger.message_handler
+
   cache.analytics_matomo:
     class: TYPO3\CMS\Core\Cache\Frontend\FrontendInterface
     factory: ['@TYPO3\CMS\Core\Cache\CacheManager', 'getCache']

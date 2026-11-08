@@ -190,6 +190,7 @@
 			<trans-unit id="chart.current"><source>Selected period</source></trans-unit>
 			<trans-unit id="chart.previous"><source>Previous period</source></trans-unit>
 			<trans-unit id="chart.fallback"><source>The chart requires JavaScript. Summary values are shown above.</source></trans-unit>
+			<trans-unit id="chart.annotations"><source>Matomo annotations (%d)</source></trans-unit>
 			<trans-unit id="empty.page" resname="empty.page"><source>Select a page in the page tree to see its statistics.</source></trans-unit>
 			<trans-unit id="empty.pageWithoutUrl" resname="empty.pageWithoutUrl"><source>This page has no frontend URL in the selected language that you may access, so there are no statistics for it.</source></trans-unit>
 			<trans-unit id="page.url" resname="page.url"><source>Statistics for %s</source></trans-unit>

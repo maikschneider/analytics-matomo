@@ -1,0 +1,13 @@
+base: 'https://demo.example.net/'
+rootPageId: 20
+dependencies:
+  - maikschneider/analytics-matomo
+languages:
+  -
+    title: English
+    enabled: true
+    languageId: 0
+    base: /
+    locale: en_US.UTF-8
+    navigationTitle: English
+    flag: us

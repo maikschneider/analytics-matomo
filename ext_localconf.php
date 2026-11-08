@@ -1,5 +1,6 @@
 <?php
 
+use MaikSchneider\AnalyticsMatomo\Annotation\ContentChangeHook;
 use MaikSchneider\AnalyticsMatomo\Authorization\StatisticsPermission;
 
 defined('TYPO3') or die();
@@ -7,6 +8,9 @@ defined('TYPO3') or die();
 $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['analytics_matomo']['options']['defaultLifetime'] ??= 3600;
 // Cached reports follow the structure of the code, so a deployment's cache:flush has to clear them
 $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['analytics_matomo']['groups'] ??= ['system'];
+
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass']['analytics_matomo'] = ContentChangeHook::class;
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processCmdmapClass']['analytics_matomo'] = ContentChangeHook::class;
 
 $GLOBALS['TYPO3_CONF_VARS']['BE']['customPermOptions']['analytics_matomo'] = [
     'header' => 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:permission.header',

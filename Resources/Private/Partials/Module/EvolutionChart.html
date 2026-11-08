@@ -15,6 +15,16 @@
         <div class="tx-analytics-matomo-evolution-canvas">
             <canvas role="img" aria-label="{f:translate(key: '{ll}chart.title')}"><f:translate key="{ll}chart.fallback" /></canvas>
         </div>
+        <f:if condition="{chart.annotations}">
+            <details class="mt-3" data-chart-annotations>
+                <summary><f:translate key="{ll}chart.annotations" arguments="{0: '{chart.annotations -> f:count()}'}" /></summary>
+                <ul class="list-unstyled small mb-0 mt-2">
+                    <f:for each="{chart.annotations}" as="annotation">
+                        <li><time datetime="{annotation.date}">{annotation.date -> f:format.date()}</time>: {annotation.note}</li>
+                    </f:for>
+                </ul>
+            </details>
+        </f:if>
     </div>
 </section>
 </html>

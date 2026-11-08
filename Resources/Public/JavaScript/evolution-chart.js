@@ -28,9 +28,30 @@ function initialize() {
       }
       return series;
     };
+    const annotations = payload.annotations ?? [];
+    const notesAt = (index) => annotations.filter((annotation) => annotation.index === index).map((annotation) => `${annotation.date}: ${annotation.note}`);
+    const annotationMarkers = {
+      id: 'annotationMarkers',
+      afterDatasetsDraw: (instance) => {
+        const { ctx, chartArea, scales } = instance;
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.globalAlpha = 0.5;
+        ctx.setLineDash([2, 3]);
+        new Set(annotations.map((annotation) => annotation.index)).forEach((index) => {
+          const x = scales.x.getPixelForValue(index);
+          ctx.beginPath();
+          ctx.moveTo(x, chartArea.top);
+          ctx.lineTo(x, chartArea.bottom);
+          ctx.stroke();
+        });
+        ctx.restore();
+      },
+    };
     const chart = new Chart(element.querySelector('canvas'), {
       type: 'line',
       data: { labels: payload.labels, datasets: datasets() },
+      plugins: [annotationMarkers],
       options: {
         responsive: true,
         maintainAspectRatio: false,
@@ -44,6 +65,7 @@ function initialize() {
           tooltip: { callbacks: {
             title: (items) => items.map((item) => item.datasetIndex === 1 ? (payload.previousLabels[item.dataIndex] ?? '–') : payload.labels[item.dataIndex]),
             label: (item) => `${item.dataset.label}: ${format(item.raw, payload.metrics[picker.value].type)}`,
+            footer: (items) => items.length > 0 ? notesAt(items[0].dataIndex) : [],
           } },
         },
       },
