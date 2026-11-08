@@ -62,6 +62,18 @@ final class MatomoWidgetTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function performanceShowsCachedAnomalyBadges(): void
+    {
+        $configuration = new \MaikSchneider\AnalyticsMatomo\Configuration\MatomoConfiguration('https://matomo.example.com/', 3, 'secret-token');
+        $this->get(\MaikSchneider\AnalyticsMatomo\Statistics\StatisticsCache::class)->set(['anomalies', $configuration->getCacheIdentifier(), '2026-11-02'], ['alerts' => [
+            ['metric' => 'visits', 'date' => '2026-11-01', 'current' => 50.0, 'baseline' => 100.0, 'change' => -50.0],
+        ]]);
+        $html = $this->render(1, 'analyticsMatomoPerformance', 'SitePerformance');
+        self::assertStringContainsString('data-matomo-anomaly', $html);
+        self::assertStringContainsString('−50', $html);
+    }
+
+    #[Test]
     public function performanceShowsSiteTiles(): void
     {
         $html = $this->render(1, 'analyticsMatomoPerformance', 'SitePerformance');

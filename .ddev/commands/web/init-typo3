@@ -93,3 +93,8 @@ _done
 _progress "Flushing caches"
     "$typo3Binary" cache:flush
 _done
+
+_progress "Preparing demo traffic anomaly badges"
+    "$typo3Binary" analytics-matomo:check-anomalies --site=cycles
+    "$typo3Binary" analytics-matomo:check-anomalies --site=rental
+_done

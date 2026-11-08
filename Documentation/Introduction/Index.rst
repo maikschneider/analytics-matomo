@@ -206,6 +206,31 @@ permission. One cached request per site and hour answers every tree level; when
 Matomo is unreachable, the tree shows no views and asks again after five
 minutes.
 
+Traffic anomaly alerts
+======================
+
+Run :bash:`vendor/bin/typo3 analytics-matomo:check-anomalies` daily after Matomo
+archiving (for example at 07:00 UTC), with the Scheduler's
+:guilabel:`Execute console commands` task or cron. Optional :bash:`--site=cycles`
+limits the command to one TYPO3 site. No backend user is required. One failing
+site does not stop the others; a failed run returns a nonzero exit code.
+
+The core ``VisitsSummary.get`` API is asked for ``previous29`` days, so today is
+never included and the dates follow Matomo's site timezone. The last closed day
+is compared with the median of the four preceding same weekdays. Traffic needs
+a baseline of at least 50 visits and a change of at least 40 %. Bounce rate
+needs 50 visits on every baseline day and the current day, and a change of 20
+percentage points. Missing days are unknown, never zero. A holiday in the
+baseline therefore does not dominate the result. These are indications, not
+proof of a tracking defect.
+
+Visitors overview and the site performance widget read the daily cached result
+without contacting Matomo. Badges show the checked date, independently of the
+selected report period or language. With EXT:reports, admins can open the
+connection health report. Results expire daily; before the first run or after a
+cache flush there is no badge. Demo initialization runs the command for both
+demo sites; rerun it after flushing caches to restore their example alerts.
+
 Dashboard widgets
 =================
 

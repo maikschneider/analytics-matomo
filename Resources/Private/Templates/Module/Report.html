@@ -41,6 +41,7 @@
                         <f:render partial="Module/PageDetails" arguments="{_all}" />
                     </f:then>
                     <f:else>
+                        <f:render partial="Anomalies" arguments="{_all}" />
                         <f:if condition="{tiles}">
                             <div class="tx-analytics-matomo tx-analytics-matomo--grid mb-3">
                                 <f:for each="{tiles}" as="tile">

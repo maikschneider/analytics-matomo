@@ -8,6 +8,14 @@ services:
     resource: '../Classes/*'
     exclude: '../Classes/Dashboard/Widget/*'
 
+  MaikSchneider\AnalyticsMatomo\Command\CheckAnomaliesCommand:
+    autoconfigure: false
+    tags:
+      - name: console.command
+        command: 'analytics-matomo:check-anomalies'
+        description: 'Refresh daily traffic anomaly badges for configured Matomo sites'
+        schedulable: true
+
   cache.analytics_matomo:
     class: TYPO3\CMS\Core\Cache\Frontend\FrontendInterface
     factory: ['@TYPO3\CMS\Core\Cache\CacheManager', 'getCache']

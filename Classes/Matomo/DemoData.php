@@ -167,6 +167,17 @@ final readonly class DemoData
                 'enable_only_idsite' => 0, 'auto_archive' => (int)$segment[2], 'deleted' => 0,
             ], array_keys(self::SEGMENTS), self::SEGMENTS);
         }
+        if (($request['method'] ?? '') === 'VisitsSummary.get' && ($request['date'] ?? '') === 'previous29') {
+            $last = new \DateTimeImmutable('yesterday', new \DateTimeZone('Europe/Berlin'));
+            $series = [];
+            for ($offset = 28; $offset >= 0; $offset--) {
+                $series[$last->modify('-' . $offset . ' days')->format('Y-m-d')] = [
+                    'nb_visits' => $offset === 0 ? ($this->between('anomaly' . $site, 0, 1) === 0 ? 60 : 400) : 200,
+                    'bounce_rate' => 0.4,
+                ];
+            }
+            return $series;
+        }
         $dates = $this->dates((string)($request['date'] ?? ''));
         $granularity = (string)($request['period'] ?? '');
         if (in_array($granularity, ['day', 'week', 'month'], true)) {

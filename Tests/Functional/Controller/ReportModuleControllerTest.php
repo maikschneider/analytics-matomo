@@ -21,7 +21,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
 {
     use ModuleRequestTrait;
 
-    protected array $coreExtensionsToLoad = ['dashboard'];
+    protected array $coreExtensionsToLoad = ['dashboard', 'reports'];
     protected array $testExtensionsToLoad = ['maikschneider/analytics-matomo'];
     protected array $pathsToLinkInTestInstance = [
         'typo3conf/ext/analytics_matomo/Tests/Functional/Fixtures/Sites' => 'typo3conf/sites',
@@ -96,6 +96,22 @@ final class ReportModuleControllerTest extends FunctionalTestCase
             $GLOBALS['TYPO3_REQUEST'] = $this->previousRequest;
         }
         parent::tearDown();
+    }
+
+    #[Test]
+    public function overviewShowsCachedAnomaliesAndLinksAdminsToConnectionHealth(): void
+    {
+        $configuration = new \MaikSchneider\AnalyticsMatomo\Configuration\MatomoConfiguration('https://matomo.example.com/', 3, 'secret-token');
+        $this->get(\MaikSchneider\AnalyticsMatomo\Statistics\StatisticsCache::class)->set(['anomalies', $configuration->getCacheIdentifier(), '2026-11-02'], ['alerts' => [
+            ['metric' => 'visits', 'date' => '2026-11-01', 'current' => 50.0, 'baseline' => 100.0, 'change' => -50.0],
+        ]]);
+        $html = (string)$this->render(1, ['id' => '1'])->getBody();
+        self::assertStringContainsString('data-matomo-anomaly', $html);
+        self::assertStringContainsString('−50', $html);
+        self::assertStringContainsString('2026-11-01', $html);
+        self::assertStringContainsString('Connection health', $html);
+        $shop = (string)$this->render(1, ['id' => '10'])->getBody();
+        self::assertStringNotContainsString('data-matomo-anomaly', $shop);
     }
 
     #[Test]

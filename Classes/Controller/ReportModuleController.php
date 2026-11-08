@@ -25,6 +25,7 @@ use MaikSchneider\AnalyticsMatomo\Module\TransitionsPanelFactory;
 use MaikSchneider\AnalyticsMatomo\Module\TransitionsService;
 use MaikSchneider\AnalyticsMatomo\Module\TrendingService;
 use MaikSchneider\AnalyticsMatomo\Module\VisitorsOverviewService;
+use MaikSchneider\AnalyticsMatomo\Monitoring\AnomalyBadgeFactory;
 use MaikSchneider\AnalyticsMatomo\Statistics\LinkAccess;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageTarget;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageTargetResolver;
@@ -89,6 +90,7 @@ final readonly class ReportModuleController
         private AllSitesService $allSitesService,
         private ContentReviewService $contentReviewService,
         private IconFactory $iconFactory,
+        private AnomalyBadgeFactory $anomalyBadgeFactory,
     ) {
     }
 
@@ -209,6 +211,7 @@ final readonly class ReportModuleController
                 $variables += $this->pageDetails($pageId, (int)$moduleData->get('language'), $selection, (bool)($parameters['transitions'] ?? false), $user);
             } elseif ($section === 'visitors' && $report === 'overview') {
                 $overview = $this->overviewService->getOverview($selection->configuration, $selection->period, $selection->compare);
+                $variables += $this->anomalyBadgeFactory->create($selection->configuration, $user);
                 $variables['tiles'] = $this->tileFactory->createForOverview($overview['current'], $overview['previous']);
                 $variables['chart'] = $overview['chart'];
                 $variables['counters'] = $this->overviewService->getCounters($selection->configuration);

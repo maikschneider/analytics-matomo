@@ -40,4 +40,6 @@ Each response is wrapped in a list, matching the bulk client's decoded result. M
 
 `PageViews90Days.json` is a recorded `API.getBulkRequest` of the flat `Actions.getPageUrls` of site 3 over 90 days (`period=range`, `date=2026-08-09,2026-11-06`, `format_metrics=0`, `filter_limit=-1`, `showColumns=nb_hits`; anonymous request): untruncated, 18 rows. `SyntheticPageViews90Days.json` has rows in the same shape with the URLs of the functional test sites, including a tracking parameter and a URL without a page.
 
+`VisitsPerDay.json` is a recorded anonymous `VisitsSummary.get` of site 3 (`period=day`, `date=previous29`, `format_metrics=0`, `showColumns=nb_visits,bounce_rate`), wrapped as a bulk response. It contains 29 closed days in Matomo's site timezone. The detector's low-volume, holiday and spike examples are synthetic test arrays, not recordings.
+
 `PageTreeViews.json` is a recorded `API.getBulkRequest` of the flat `Actions.getPageUrls` of site 3 for `2026-10-08,2026-11-06` and the 30 days before (`format_metrics=0`, `filter_limit=-1`, `showColumns=nb_hits`; anonymous request), the requests of the page tree views.

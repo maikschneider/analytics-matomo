@@ -3,6 +3,9 @@
 	<file source-language="en" target-language="de" datatype="plaintext" original="EXT:analytics_matomo/Resources/Private/Language/locallang.xlf" product-name="analytics_matomo">
 		<header/>
 		<body>
+		  <trans-unit id="anomaly.visits"><source>Traffic</source><target>Besuche</target></trans-unit>
+		  <trans-unit id="anomaly.bounceRate"><source>Bounce rate</source><target>Absprungrate</target></trans-unit>
+		  <trans-unit id="anomaly.health"><source>Connection health</source><target>Verbindung prüfen</target></trans-unit>
 			<trans-unit id="bar.label" resname="bar.label">
 				<source>Matomo statistics of this page</source>
 				<target>Matomo-Statistik dieser Seite</target>

@@ -1,0 +1,33 @@
+[
+	{
+		"2026-10-10": {"nb_visits": 3499, "bounce_rate": 0.36},
+		"2026-10-11": {"nb_visits": 2252, "bounce_rate": 0.41},
+		"2026-10-12": {"nb_visits": 2826, "bounce_rate": 0.4},
+		"2026-10-13": {"nb_visits": 3087, "bounce_rate": 0.39},
+		"2026-10-14": {"nb_visits": 5423, "bounce_rate": 0.52},
+		"2026-10-15": {"nb_visits": 3249, "bounce_rate": 0.35},
+		"2026-10-16": {"nb_visits": 2809, "bounce_rate": 0.38},
+		"2026-10-17": {"nb_visits": 3469, "bounce_rate": 0.34},
+		"2026-10-18": {"nb_visits": 2115, "bounce_rate": 0.39},
+		"2026-10-19": {"nb_visits": 3169, "bounce_rate": 0.37},
+		"2026-10-20": {"nb_visits": 3440, "bounce_rate": 0.35},
+		"2026-10-21": {"nb_visits": 4542, "bounce_rate": 0.33},
+		"2026-10-22": {"nb_visits": 3238, "bounce_rate": 0.37},
+		"2026-10-23": {"nb_visits": 3358, "bounce_rate": 0.37},
+		"2026-10-24": {"nb_visits": 3133, "bounce_rate": 0.36},
+		"2026-10-25": {"nb_visits": 2221, "bounce_rate": 0.4},
+		"2026-10-26": {"nb_visits": 3436, "bounce_rate": 0.38},
+		"2026-10-27": {"nb_visits": 2789, "bounce_rate": 0.37},
+		"2026-10-28": {"nb_visits": 3996, "bounce_rate": 0.36},
+		"2026-10-29": {"nb_visits": 3500, "bounce_rate": 0.35},
+		"2026-10-30": {"nb_visits": 3473, "bounce_rate": 0.36},
+		"2026-10-31": {"nb_visits": 3626, "bounce_rate": 0.35},
+		"2026-11-01": {"nb_visits": 2836, "bounce_rate": 0.37},
+		"2026-11-02": {"nb_visits": 2847, "bounce_rate": 0.37},
+		"2026-11-03": {"nb_visits": 3187, "bounce_rate": 0.36},
+		"2026-11-04": {"nb_visits": 3718, "bounce_rate": 0.35},
+		"2026-11-05": {"nb_visits": 3077, "bounce_rate": 0.36},
+		"2026-11-06": {"nb_visits": 3331, "bounce_rate": 0.36},
+		"2026-11-07": {"nb_visits": 3754, "bounce_rate": 0.31}
+	}
+]

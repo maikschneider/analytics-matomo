@@ -58,6 +58,7 @@
 </f:section>
 
 <f:section name="performance">
+    <f:render partial="Anomalies" arguments="{_all}" />
     <div class="tx-analytics-matomo tx-analytics-matomo--grid">
         <f:for each="{tiles}" as="tile">
             <f:render partial="Tile" arguments="{tile: tile, days: selection.period.days, ll: ll, descriptionPrefix: 'siteMetric'}" />

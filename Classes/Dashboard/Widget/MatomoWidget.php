@@ -11,6 +11,7 @@ use MaikSchneider\AnalyticsMatomo\Dashboard\SiteStatisticsService;
 use MaikSchneider\AnalyticsMatomo\Dashboard\Traffic;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
 use MaikSchneider\AnalyticsMatomo\Module\AllSitesService;
+use MaikSchneider\AnalyticsMatomo\Monitoring\AnomalyBadgeFactory;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageUrlMapper;
 use MaikSchneider\AnalyticsMatomo\Statistics\Period;
 use MaikSchneider\AnalyticsMatomo\Statistics\TileFactory;
@@ -71,6 +72,7 @@ final class MatomoWidget implements WidgetInterface, RequestAwareWidgetInterface
         private readonly ViewFactoryInterface $viewFactory,
         private readonly UriBuilder $uriBuilder,
         private readonly LoggerInterface $logger,
+        private readonly AnomalyBadgeFactory $anomalyBadgeFactory,
         private readonly array $options = [],
     ) {
     }
@@ -170,7 +172,7 @@ final class MatomoWidget implements WidgetInterface, RequestAwareWidgetInterface
     private function loadReport(string $report, DashboardSelection $selection): array
     {
         if ($report === self::REPORT_PERFORMANCE) {
-            return ['tiles' => $this->tileFactory->createForSite($this->statisticsService->getPerformance($selection->configuration, $selection->period))];
+            return ['tiles' => $this->tileFactory->createForSite($this->statisticsService->getPerformance($selection->configuration, $selection->period))] + $this->anomalyBadgeFactory->create($selection->configuration, $this->getBackendUser());
         }
         if ($report === self::REPORT_TRAFFIC) {
             $traffic = $this->statisticsService->getTraffic($selection->configuration, $selection->period);

@@ -1,0 +1,9 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:for each="{anomalies}" as="anomaly">
+    <p class="alert alert-warning" data-matomo-anomaly>
+        <strong><f:translate key="LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:anomaly.{anomaly.metric}" /> {anomaly.formattedChange}</strong>
+        <span>{anomaly.date}</span>
+        <f:if condition="{healthUrl}"><a href="{healthUrl}"><f:translate key="LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:anomaly.health" /></a></f:if>
+    </p>
+</f:for>
+</html>
