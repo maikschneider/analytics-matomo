@@ -10,6 +10,20 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 final class AnomalyDetectorTest extends UnitTestCase
 {
+    /** @param list<string> $metrics */
+    #[Test]
+    #[\PHPUnit\Framework\Attributes\TestWith([140, 0.5, ['visits']])]
+    #[\PHPUnit\Framework\Attributes\TestWith([60, 0.5, ['visits']])]
+    #[\PHPUnit\Framework\Attributes\TestWith([100, 0.7, ['bounceRate']])]
+    #[\PHPUnit\Framework\Attributes\TestWith([100, 0.3, ['bounceRate']])]
+    #[\PHPUnit\Framework\Attributes\TestWith([139, 0.69, []])]
+    public function thresholdsIncludeTheExactBoundary(int $visits, float $bounce, array $metrics): void
+    {
+        $series = $this->series();
+        $series['2026-11-07'] = ['nb_visits' => $visits, 'bounce_rate' => $bounce];
+        self::assertSame($metrics, array_column(AnomalyDetector::detect($series), 'metric'));
+    }
+
     #[Test]
     public function aHolidayDoesNotDistortTheSameWeekdayMedian(): void
     {

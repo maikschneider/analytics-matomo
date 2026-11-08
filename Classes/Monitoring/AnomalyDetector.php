@@ -43,14 +43,14 @@ final class AnomalyDetector
         }
         $alerts = [];
         $change = ((float)$current['nb_visits'] / $visits - 1) * 100;
-        if (abs($change) >= self::TRAFFIC_THRESHOLD) {
+        if (round(abs($change), 8) >= self::TRAFFIC_THRESHOLD) {
             $alerts[] = ['metric' => 'visits', 'date' => $date, 'current' => (float)$current['nb_visits'], 'baseline' => $visits, 'change' => $change];
         }
         $bounces = array_column($baseline, 'bounce_rate');
         if ((int)$current['nb_visits'] >= self::MINIMUM_VISITS && min(array_column($baseline, 'nb_visits')) >= self::MINIMUM_VISITS && count($bounces) === 4 && is_numeric($current['bounce_rate'] ?? null)) {
             $bounce = self::median($bounces);
             $difference = ((float)$current['bounce_rate'] - $bounce) * 100;
-            if (abs($difference) >= self::BOUNCE_THRESHOLD) {
+            if (round(abs($difference), 8) >= self::BOUNCE_THRESHOLD) {
                 $alerts[] = ['metric' => 'bounceRate', 'date' => $date, 'current' => (float)$current['bounce_rate'], 'baseline' => $bounce, 'change' => $difference];
             }
         }
