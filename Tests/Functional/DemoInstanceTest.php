@@ -99,6 +99,7 @@ final class DemoInstanceTest extends FunctionalTestCase
         $configuration = $this->get(MatomoConfigurationResolver::class)->resolve($site);
         self::assertNotNull($configuration);
 
+        $this->setUpBackendUser(self::EDITOR);
         $review = $this->get(ContentReviewService::class)->getReview($site, $configuration, 1);
 
         self::assertContains('About us', array_column($review['withoutViews'], 'label'));

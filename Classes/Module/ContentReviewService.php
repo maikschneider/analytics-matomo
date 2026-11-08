@@ -27,6 +27,7 @@ use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Type\Bitmask\Permission;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\RootlineUtility;
 
 /**
  * Visible pages of a site (or of a subtree) without views in the last 90 days, and pages
@@ -128,6 +129,12 @@ final readonly class ContentReviewService
         $liveContext->setAspect('workspace', new WorkspaceAspect(0));
         $liveContext->setAspect('visibility', new VisibilityAspect());
         $repository = GeneralUtility::makeInstance(PageRepository::class, $liveContext);
+        $rootline = GeneralUtility::makeInstance(RootlineUtility::class, $pageId, '', $liveContext)->get();
+        foreach ($rootline as $ancestor) {
+            if (!empty($ancestor['extendToSubpages']) && $repository->checkRecord('pages', (int)$ancestor['uid']) === null) {
+                return [];
+            }
+        }
         $pageIds = [$pageId, ...$repository->getDescendantPageIdsRecursive($pageId, 100, 0, $otherRoots)];
         $queryBuilder = $this->livePages();
         $ids = $queryBuilder->createNamedParameter(array_values(array_diff($pageIds, $excluded)), Connection::PARAM_INT_ARRAY);

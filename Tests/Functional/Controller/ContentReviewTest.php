@@ -117,8 +117,13 @@ final class ContentReviewTest extends FunctionalTestCase
         $html = (string)$this->render(1, ['id' => '1', 'report' => 'review'], 'behaviour')->getBody();
         self::assertStringContainsString('<td>Public descendant</td>', $html);
         $pages->update('pages', ['extendToSubpages' => 1], ['uid' => 5]);
+        $this->get(\TYPO3\CMS\Core\Cache\CacheManager::class)->getCache('runtime')->flush();
         $html = (string)$this->render(1, ['id' => '1', 'report' => 'review'], 'behaviour')->getBody();
         self::assertStringNotContainsString('<td>Public descendant</td>', $html);
+        foreach ([5, 8] as $selected) {
+            $html = (string)$this->render(1, ['id' => (string)$selected, 'report' => 'review'], 'behaviour')->getBody();
+            self::assertStringNotContainsString('<td>Public descendant</td>', $html);
+        }
     }
 
     #[Test]
