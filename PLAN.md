@@ -146,8 +146,8 @@ All planned features must work with Matomo core (no premium plugins) and a view-
 | [0.4.0](https://github.com/maikschneider/analytics-matomo/milestone/4) | Module reports: Visitors (#41), Behaviour pages (#42) and interactions (#43), Acquisition (#44), site search (#24), widgets as entry points into these reports (#40). *Done.* |
 | [0.5.0](https://github.com/maikschneider/analytics-matomo/milestone/5) | Page details (#45) with Transitions (#14, #18), languages (#21), page speed (#20), reading time (#25); Goals (#22); trending pages (#23). *Done.* |
 | [0.6.0](https://github.com/maikschneider/analytics-matomo/milestone/6) | Admin: connection status (#13), token check (#19), multi-site overview (#30), CSV export (#46), stored segments (#47). *Done.* |
-| [0.7.0](https://github.com/maikschneider/analytics-matomo/milestone/8) | Content workflow and monitoring: page tree badges (#28), content review (#29) and daily anomaly alerts (#31) *done*. Remaining: annotations (#27, named view-token validation with #15) and weekly digest (#32). |
-| [1.0.0](https://github.com/maikschneider/analytics-matomo/milestone/3) | Real Matomo 5 + 6 with a view token (#15), site-side setup docs (#33), first TER + Packagist release (#16) |
+| [0.7.0](https://github.com/maikschneider/analytics-matomo/milestone/8) | Content workflow and monitoring: page tree badges (#28), content review (#29) and daily anomaly alerts (#31). *Done.* Annotations (#27) and weekly digest (#32) moved to 1.0.0 with integration and data-egress QA. |
+| [1.0.0](https://github.com/maikschneider/analytics-matomo/milestone/3) | Real Matomo 5 + 6 with a named view token (#15), annotations with publish/retry/ownership checks (#27), opt-in weekly digest with recipient and disclosure checks (#32), site-side setup docs (#33), first TER + Packagist release (#16) |
 | [Backlog](https://github.com/maikschneider/analytics-matomo/milestone/7) | 404 → redirect suggestions (#34), privacy-safe visits log (#48, needs a decision) |
 
 Dropped: native per-widget settings on v14 (#12): widgets and module share one selection per user. Ecommerce reports: see [MODULE.md](MODULE.md#goals).
