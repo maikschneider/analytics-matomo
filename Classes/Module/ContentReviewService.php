@@ -12,14 +12,21 @@ use MaikSchneider\AnalyticsMatomo\Statistics\PageTargetResolver;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageUrlMapper;
 use MaikSchneider\AnalyticsMatomo\Statistics\Period;
 use MaikSchneider\AnalyticsMatomo\Statistics\StatisticsCache;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Context\VisibilityAspect;
+use TYPO3\CMS\Core\Context\WorkspaceAspect;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Database\Query\Restriction\WorkspaceRestriction;
+use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Routing\RouterInterface;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
+use TYPO3\CMS\Core\Site\SiteFinder;
+use TYPO3\CMS\Core\Type\Bitmask\Permission;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Visible pages of a site (or of a subtree) without views in the last 90 days, and pages
@@ -48,6 +55,7 @@ final readonly class ContentReviewService
         private PageRecordResolver $pageRecordResolver,
         private ConnectionPool $connectionPool,
         private Context $context,
+        private SiteFinder $siteFinder,
     ) {
     }
 
@@ -79,6 +87,10 @@ final readonly class ContentReviewService
         foreach ($this->pages($site, $pageId) as $page) {
             $languageId = (int)$page['sys_language_uid'];
             $defaultPageId = $languageId > 0 ? (int)$page['l10n_parent'] : (int)$page['uid'];
+            $user = $GLOBALS['BE_USER'];
+            if (!$user->checkLanguageAccess($languageId) || !BackendUtility::readPageAccess($defaultPageId, $user->getPagePermsClause(Permission::PAGE_SHOW))) {
+                continue;
+            }
             $rows = $report->rowsOfPage($defaultPageId, $languageId);
             $views = $rows === null ? null : (int)array_sum(array_column($rows, 'nb_hits'));
             $lastChanged = max((int)$page['tstamp'], (int)$page['SYS_LASTCHANGED']);
@@ -111,10 +123,12 @@ final readonly class ContentReviewService
     private function pages(Site $site, int $pageId): array
     {
         $excluded = PageTargetResolver::errorPageIds($site);
-        $pageIds = [];
-        for ($parents = [$pageId]; $parents !== []; $parents = $this->children($parents)) {
-            $pageIds = [...$pageIds, ...$parents];
-        }
+        $otherRoots = array_values(array_map(static fn (Site $other): int => $other->getRootPageId(), array_filter($this->siteFinder->getAllSites(), static fn (Site $other): bool => $other->getIdentifier() !== $site->getIdentifier())));
+        $liveContext = clone $this->context;
+        $liveContext->setAspect('workspace', new WorkspaceAspect(0));
+        $liveContext->setAspect('visibility', new VisibilityAspect());
+        $repository = GeneralUtility::makeInstance(PageRepository::class, $liveContext);
+        $pageIds = [$pageId, ...$repository->getDescendantPageIdsRecursive($pageId, 100, 0, $otherRoots)];
         $queryBuilder = $this->livePages();
         $ids = $queryBuilder->createNamedParameter(array_values(array_diff($pageIds, $excluded)), Connection::PARAM_INT_ARRAY);
         $languageIds = array_map(static fn (SiteLanguage $language): int => $language->getLanguageId(), $site->getLanguages());
@@ -134,26 +148,6 @@ final readonly class ContentReviewService
             ->orderBy('sorting')
             ->executeQuery()
             ->fetchAllAssociative();
-    }
-
-    /**
-     * Visible subpages; a hidden page hides its subtree from visitors too
-     *
-     * @param list<int> $pageIds
-     * @return list<int>
-     */
-    private function children(array $pageIds): array
-    {
-        $queryBuilder = $this->livePages();
-        return array_map(intval(...), $queryBuilder
-            ->select('uid')
-            ->from('pages')
-            ->where(
-                $queryBuilder->expr()->in('pid', $queryBuilder->createNamedParameter($pageIds, Connection::PARAM_INT_ARRAY)),
-                $queryBuilder->expr()->eq('sys_language_uid', 0),
-            )
-            ->executeQuery()
-            ->fetchFirstColumn());
     }
 
     /**

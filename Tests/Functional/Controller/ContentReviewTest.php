@@ -98,6 +98,30 @@ final class ContentReviewTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function nestedSitesNeverContributeCandidatesToTheirParentSite(): void
+    {
+        $pages = $this->get(ConnectionPool::class)->getConnectionForTable('pages');
+        $pages->update('pages', ['pid' => 1, 'title' => 'Private nested site', 'perms_group' => 0], ['uid' => 10]);
+        $html = (string)$this->render(3, ['id' => '1', 'report' => 'review'], 'behaviour')->getBody();
+        self::assertStringNotContainsString('<td>Private nested site</td>', $html);
+        self::assertStringNotContainsString('<td>Products</td>', $html);
+        $admin = (string)$this->render(1, ['id' => '1', 'report' => 'review'], 'behaviour')->getBody();
+        self::assertStringNotContainsString('<td>Private nested site</td>', $admin);
+    }
+
+    #[Test]
+    public function hiddenParentsOnlyHideDescendantsWhenRestrictionsAreExtended(): void
+    {
+        $pages = $this->get(ConnectionPool::class)->getConnectionForTable('pages');
+        $pages->insert('pages', ['uid' => 8, 'pid' => 5, 'title' => 'Public descendant', 'slug' => '/public-descendant', 'doktype' => 1, 'crdate' => 1, 'tstamp' => 1]);
+        $html = (string)$this->render(1, ['id' => '1', 'report' => 'review'], 'behaviour')->getBody();
+        self::assertStringContainsString('<td>Public descendant</td>', $html);
+        $pages->update('pages', ['extendToSubpages' => 1], ['uid' => 5]);
+        $html = (string)$this->render(1, ['id' => '1', 'report' => 'review'], 'behaviour')->getBody();
+        self::assertStringNotContainsString('<td>Public descendant</td>', $html);
+    }
+
+    #[Test]
     public function listsVisiblePagesWithoutViewsAndOldPagesWithTraffic(): void
     {
         $html = (string)$this->render(1, ['id' => '1', 'report' => 'review'], 'behaviour')->getBody();
