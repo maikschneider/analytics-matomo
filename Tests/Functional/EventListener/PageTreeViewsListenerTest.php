@@ -296,7 +296,7 @@ final class PageTreeViewsListenerTest extends FunctionalTestCase
         $user = $this->setUpBackendUser($userId);
         $user->uc['analytics_matomo']['pageTreeViews'] = $showViews;
         $GLOBALS['LANG'] = $this->get(LanguageServiceFactory::class)->createFromUserPreferences($user);
-        $module = $this->get(ModuleProvider::class)->getModule('records') ?? $this->get(ModuleProvider::class)->getModule('web_list');
+        $module = $this->get(ModuleProvider::class)->getModule('records', $user) ?? $this->get(ModuleProvider::class)->getModule('web_list', $user);
         self::assertNotNull($module);
         $route = $this->get(Router::class)->getRoute($module->getIdentifier());
         self::assertNotNull($route);
