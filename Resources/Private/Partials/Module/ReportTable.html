@@ -45,7 +45,7 @@
                 <tbody>
                     <f:for each="{table.rows}" as="row"><tr>
                         <f:for each="{row.cells}" as="cell">
-                            <td>{cell.value}</td>
+                            <td><f:if condition="{cell.flag}"><core:icon identifier="{cell.flag}" size="small" /> </f:if>{cell.value}</td>
                             <f:if condition="{table.compare} && {cell.metric}"><td>{cell.change}</td></f:if>
                         </f:for>
                         <f:if condition="{table.hasActions}"><td>

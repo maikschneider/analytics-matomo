@@ -9,6 +9,7 @@ use MaikSchneider\AnalyticsMatomo\Statistics\PageUrlMapper;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Imaging\IconRegistry;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Type\Bitmask\Permission;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -24,6 +25,7 @@ final readonly class ReportTableFactory
         private PageUrlMapper $mapper,
         private UriBuilder $uriBuilder,
         private PageRecordResolver $pageRecordResolver,
+        private IconRegistry $iconRegistry,
     ) {
     }
 
@@ -42,9 +44,9 @@ final readonly class ReportTableFactory
      * @param Report $report
      * @param Report|null $previous
      * @param array<string, mixed> $query
-     * @param array{title?: string, columns?: array<string, array{string, string}>, minimum?: array{string, int}, sort?: string, empty?: string, truncated?: bool, index?: int, export?: array{url: string, metric: string, value: string}} $options
+     * @param array{title?: string, columns?: array<string, array{string, string}>, minimum?: array{string, int}, sort?: string, empty?: string, truncated?: bool, flag?: string, index?: int, export?: array{url: string, metric: string, value: string}} $options
      *        catalog options: own title, own columns (name and metric type, e.g. raw metrics), minimum value of a column, default sort column, message for a report without rows,
-     *        rows built from a report Matomo truncated;
+     *        rows built from a report Matomo truncated, row attribute with the country code for a flag before the label;
      *        position of the table on its page; translated extra headers to get all rows with raw values for a CSV export instead of the view
      * @return array<string, mixed>
      */
@@ -149,9 +151,10 @@ final readonly class ReportTableFactory
         foreach (array_slice($rows, ($page - 1) * 25, 25) as $row) {
             $cells = [];
             $old = $previousRows[$this->identity($row)] ?? [];
+            $flag = isset($options['flag']) ? $this->flag($row[$options['flag']] ?? null) : '';
             foreach ($report['columns'] as $key => $label) {
                 $value = $row[$key] ?? null;
-                $cells[] = ['value' => $key === 'label' ? (string)$value : $this->formatter->format($value, $this->type($report, $key)), 'metric' => $key !== 'label', 'change' => $this->change($value, $old[$key] ?? null)];
+                $cells[] = ['value' => $key === 'label' ? (string)$value : $this->formatter->format($value, $this->type($report, $key)), 'metric' => $key !== 'label', 'change' => $this->change($value, $old[$key] ?? null), 'flag' => $key === 'label' ? $flag : ''];
             }
             $renderedRows[] = ['cells' => $cells, 'actions' => $row['_actions'] ?? []];
         }
@@ -189,6 +192,18 @@ final readonly class ReportTableFactory
             'metricList' => true, 'title' => (string)($report['metadata']['name'] ?? ''), 'rows' => $row === [] ? [] : $rows,
             'compare' => $previous !== null, 'hasActions' => false, 'truncated' => false,
         ];
+    }
+
+    /**
+     * Matomo's pseudo codes for unknown or grouped locations (xx, a1, ap, ...) have no core flag
+     */
+    private function flag(mixed $code): string
+    {
+        if (!is_string($code) || $code === '') {
+            return '';
+        }
+        $identifier = 'flags-' . strtolower($code);
+        return $this->iconRegistry->isRegistered($identifier) ? $identifier : '';
     }
 
     /** @param Report $report */

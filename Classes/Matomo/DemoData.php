@@ -20,6 +20,8 @@ final readonly class DemoData
         'SitesManager.getSitesIdWithAdminAccess', 'SitesManager.getSitesIdWithAtLeastViewAccess', 'UsersManager.getSitesAccessFromUser',
     ];
     private const FALLBACK_PATHS = ['', 'about', 'products', 'news', 'contact', 'jobs', 'blog', 'imprint'];
+    /** Codes Matomo attaches to location rows, keyed by the country name ending a demo location label */
+    private const COUNTRY_CODES = ['Germany' => 'de', 'Austria' => 'at', 'Switzerland' => 'ch', 'United States' => 'us', 'Netherlands' => 'nl', 'France' => 'fr', 'Unknown' => 'xx'];
     /**
      * Processed reports: name, dimension (empty for reports without one), metric set and the labels
      * with their share of the visits in percent, in Matomo's order
@@ -273,14 +275,22 @@ final readonly class DemoData
             return ['metadata' => $metadata, 'columns' => $columns, 'reportData' => $this->metrics($set, $method . $site, $total, $total), 'reportMetadata' => [], 'reportTotal' => []];
         }
         $rows = [];
+        $rowMetadata = [];
         foreach ($this->labels($method) as $label => $percent) {
             $label = (string)$label;
             $visits = $this->labelVisits($site, $label, $percent, $dates);
             $rows[] = ['label' => $label] + $this->metrics($set, $label . $site, $visits, $total);
+            $parts = explode(', ', $label);
+            $code = self::COUNTRY_CODES[end($parts)] ?? '';
+            $rowMetadata[] = match (true) {
+                !str_starts_with($method, 'UserCountry.') => [],
+                $method === 'UserCountry.getCountry' => ['code' => $code],
+                default => ['country' => $code],
+            };
         }
         return [
             'metadata' => $metadata, 'columns' => ['label' => $dimension] + $columns,
-            'reportData' => $rows, 'reportMetadata' => array_fill(0, count($rows), []),
+            'reportData' => $rows, 'reportMetadata' => $rowMetadata,
             'reportTotal' => ['nb_visits' => array_sum(array_column($rows, 'nb_visits'))],
         ];
     }
