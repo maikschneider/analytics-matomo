@@ -11,6 +11,17 @@ function initialize() {
       event.formData.set(input.name, input.value.split('T')[0]);
     });
   });
+  const range = document.querySelector('#matomo-custom-range');
+  if (range) {
+    // The period menu item "Custom range" links to the form
+    const reveal = () => {
+      if (location.hash === '#matomo-custom-range') {
+        range.hidden = false;
+      }
+    };
+    window.addEventListener('hashchange', reveal);
+    reveal();
+  }
 }
 
 if (document.readyState === 'loading') {

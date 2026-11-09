@@ -20,6 +20,36 @@ test('core date pickers submit date-only values for the custom period', () => {
     }
 });
 
+test('the custom period menu item reveals the hidden range form', () => {
+    const listeners = {};
+    const range = { hidden: true };
+    const location = { hash: '' };
+    runInNewContext(source.replace(/^import .*;\n/, ''), {
+        DateTimePicker: { initialize: () => {} },
+        document: { readyState: 'complete', querySelectorAll: () => [], querySelector: (selector) => selector === '#matomo-custom-range' ? range : null },
+        location,
+        window: { addEventListener: (event, callback) => { listeners[event] = callback; } },
+    });
+    assert.equal(range.hidden, true);
+    location.hash = '#other';
+    listeners.hashchange();
+    assert.equal(range.hidden, true);
+    location.hash = '#matomo-custom-range';
+    listeners.hashchange();
+    assert.equal(range.hidden, false);
+});
+
+test('a range form opened by URL hash is revealed on load', () => {
+    const range = { hidden: true };
+    runInNewContext(source.replace(/^import .*;\n/, ''), {
+        DateTimePicker: { initialize: () => {} },
+        document: { readyState: 'complete', querySelectorAll: () => [], querySelector: (selector) => selector === '#matomo-custom-range' ? range : null },
+        location: { hash: '#matomo-custom-range' },
+        window: { addEventListener: () => {} },
+    });
+    assert.equal(range.hidden, false);
+});
+
 test('a changed page tree setting refreshes the page tree once', () => {
     const dispatched = [];
     const run = (marker) => runInNewContext(source.replace(/^import .*;\n/, ''), {
