@@ -10,7 +10,7 @@
         </p>
         <p class="text-body-secondary"><f:translate key="{ll}language.hint" /></p>
         <f:if condition="{reportHint}"><p class="text-body-secondary" data-report-hint>{reportHint}</p></f:if>
-        <form id="matomo-custom-range" action="{formAction}" method="post" class="card mb-4">
+        <form id="matomo-custom-range" action="{formAction}" method="post" class="card mb-4"{f:if(condition: '{selection.period.preset} != \'custom\'', then: ' hidden')}>
             <input type="hidden" name="period" value="custom" />
             <fieldset class="card-body">
                 <legend class="h3"><f:translate key="{ll}range.title" /></legend>

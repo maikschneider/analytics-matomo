@@ -452,6 +452,12 @@ final class ReportModuleControllerTest extends FunctionalTestCase
         self::assertStringContainsString('Period: Last month', $html);
         self::assertStringContainsString('href="#matomo-custom-range"', $html);
         self::assertStringNotContainsString('period=custom', $html);
+        self::assertMatchesRegularExpression('#<form id="matomo-custom-range"[^>]* hidden#', $html);
+
+        $html = (string)$this->render(1, ['id' => '30'], body: ['period' => 'custom', 'from' => '2026-09-01', 'to' => '2026-09-17'])->getBody();
+
+        self::assertDoesNotMatchRegularExpression('#<form id="matomo-custom-range"[^>]* hidden#', $html);
+        self::assertStringContainsString('value="2026-09-01"', $html);
     }
 
     #[Test]
