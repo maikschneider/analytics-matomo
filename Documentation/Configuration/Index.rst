@@ -83,6 +83,20 @@ Site settings
     tracked no visit for this many hours. Raise it for sites with little
     traffic; `0` turns the warning off.
 
+..  confval:: analyticsMatomo.notFoundMinimumHits
+    :type: int
+    :default: 2
+
+    :ref:`404 pages <not-found>` lists a path only with at least this many hits
+    in the selected period.
+
+..  confval:: analyticsMatomo.notFoundIgnoredPaths
+    :type: stringlist
+    :default: ['/wp-', '/xmlrpc.php', '/.env', '/.git', '/phpmyadmin']
+
+    :ref:`404 pages <not-found>` leaves out paths starting with one of these,
+    regardless of case. Bots probe them on every site.
+
 ..  _connection-status:
 
 Connection status
@@ -247,6 +261,40 @@ Apache Solr for TYPO3, in an override of :file:`Templates/Search/Results.html`:
     </f:if>
 
 Use the same script as above.
+
+..  _not-found:
+
+404 pages
+=========
+
+:guilabel:`Behaviour > 404 pages` needs EXT:redirects (`typo3/cms-redirects`);
+without it, the page is not offered. Matomo has no 404 report of its own, so
+the 404 page of the site sets its page title before `trackPageView`, as
+`described by Matomo <https://matomo.org/faq/how-to/faq_60/>`__:
+
+..  code-block:: javascript
+
+    _paq.push(['setDocumentTitle', '404/URL = ' + encodeURIComponent(document.location.pathname + document.location.search) + ' /From = ' + encodeURIComponent(document.referrer)]);
+
+Add it only to the tracking code of the error page that the site
+configuration's error handling shows for 404. The report reads these titles
+(`Actions.getPageTitles`) with the token of the site; view access is enough.
+It lists each path with its hits in the selected period and the referrer with
+the most hits. Paths are compared without query string.
+
+Each path gets up to three suggestions among the pages the user may read in the
+language of the path: by Levenshtein similarity of the whole path and of its
+last segment to the page's URL and to old URLs that redirects of the site
+still point to the page (for example from slug changes, also disabled or
+expired ones).
+
+A suggestion opens a preview of the redirect: source path and domain, target
+page and status code 301. Only the button in the preview creates the
+`sys_redirect` record, with the user's permissions through DataHandler, on the
+root level like new records of the Redirects module. Users
+without write access to redirects (:guilabel:`Tables (modify)`) see the
+suggestions without the button. Paths that already have an active redirect
+show it instead of suggestions.
 
 Caching
 =======

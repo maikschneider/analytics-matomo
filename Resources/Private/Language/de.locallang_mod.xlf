@@ -314,6 +314,31 @@
 			<trans-unit id="column.age" resname="column.age"><source>Days unchanged</source><target>Tage unverändert</target></trans-unit>
 			<trans-unit id="column.priority" resname="column.priority"><source>Review priority</source><target>Prüfpriorität</target></trans-unit>
 			<trans-unit id="column.priority.description" resname="column.priority.description"><source>Views × days unchanged: much read, long untouched.</source><target>Aufrufe × Tage unverändert: viel gelesen, lange nicht angefasst.</target></trans-unit>
+			<trans-unit id="report.notFound" resname="report.notFound"><source>404 pages</source><target>404-Seiten</target></trans-unit>
+			<trans-unit id="notFound.list" resname="notFound.list"><source>URLs that ended on the 404 page</source><target>URLs, die auf der 404-Seite endeten</target></trans-unit>
+			<trans-unit id="notFound.hint" resname="notFound.hint"><source>Paths with at least %d hits in this period, tracked with the page title of the 404 page. The minimum and the ignored paths are site settings.</source><target>Pfade mit mindestens %d Aufrufen in diesem Zeitraum, erfasst über den Seitentitel der 404-Seite. Mindestwert und ignorierte Pfade sind Site-Einstellungen.</target></trans-unit>
+			<trans-unit id="notFound.empty" resname="notFound.empty"><source>No 404 page views in this period. The 404 page has to set the page title described in the documentation of the extension.</source><target>Keine Aufrufe der 404-Seite in diesem Zeitraum. Die 404-Seite muss den in der Dokumentation der Extension beschriebenen Seitentitel setzen.</target></trans-unit>
+			<trans-unit id="notFound.column.path" resname="notFound.column.path"><source>Path</source><target>Pfad</target></trans-unit>
+			<trans-unit id="notFound.column.hits" resname="notFound.column.hits"><source>Hits</source><target>Aufrufe</target></trans-unit>
+			<trans-unit id="notFound.column.referrer" resname="notFound.column.referrer"><source>Top referrer</source><target>Häufigste Herkunft</target></trans-unit>
+			<trans-unit id="notFound.column.suggestions" resname="notFound.column.suggestions"><source>Suggested redirect</source><target>Vorgeschlagene Weiterleitung</target></trans-unit>
+			<trans-unit id="notFound.score" resname="notFound.score"><source>%d %% match</source><target>%d %% Übereinstimmung</target></trans-unit>
+			<trans-unit id="notFound.score.description" resname="notFound.score.description"><source>Similarity of the whole path and of its last segment</source><target>Ähnlichkeit des ganzen Pfads und seines letzten Segments</target></trans-unit>
+			<trans-unit id="notFound.oldSlug" resname="notFound.oldSlug"><source>Old URL of the page</source><target>Alte URL der Seite</target></trans-unit>
+			<trans-unit id="notFound.noSuggestion" resname="notFound.noSuggestion"><source>No similar page</source><target>Keine ähnliche Seite</target></trans-unit>
+			<trans-unit id="notFound.redirected" resname="notFound.redirected"><source>Redirected</source><target>Weitergeleitet</target></trans-unit>
+			<trans-unit id="notFound.editRedirect" resname="notFound.editRedirect"><source>Edit redirect</source><target>Weiterleitung bearbeiten</target></trans-unit>
+			<trans-unit id="notFound.noPermission" resname="notFound.noPermission"><source>Creating redirects needs write access to redirects. Ask an administrator for it.</source><target>Zum Anlegen von Weiterleitungen sind Schreibrechte für Weiterleitungen nötig. Bitte eine Administratorin oder einen Administrator darum.</target></trans-unit>
+			<trans-unit id="notFound.preview" resname="notFound.preview"><source>Create redirect…</source><target>Weiterleitung anlegen…</target></trans-unit>
+			<trans-unit id="notFound.preview.title" resname="notFound.preview.title"><source>Create this redirect?</source><target>Diese Weiterleitung anlegen?</target></trans-unit>
+			<trans-unit id="notFound.preview.source" resname="notFound.preview.source"><source>Source</source><target>Quelle</target></trans-unit>
+			<trans-unit id="notFound.preview.anyHost" resname="notFound.preview.anyHost"><source>any domain</source><target>jede Domain</target></trans-unit>
+			<trans-unit id="notFound.preview.target" resname="notFound.preview.target"><source>Target page</source><target>Zielseite</target></trans-unit>
+			<trans-unit id="notFound.preview.statusCode" resname="notFound.preview.statusCode"><source>Status code</source><target>Statuscode</target></trans-unit>
+			<trans-unit id="notFound.create" resname="notFound.create"><source>Create redirect</source><target>Weiterleitung anlegen</target></trans-unit>
+			<trans-unit id="notFound.cancel" resname="notFound.cancel"><source>Cancel</source><target>Abbrechen</target></trans-unit>
+			<trans-unit id="notFound.created" resname="notFound.created"><source>Redirect from %1$s to "%2$s" created.</source><target>Weiterleitung von %1$s auf „%2$s“ angelegt.</target></trans-unit>
+			<trans-unit id="notFound.failed" resname="notFound.failed"><source>The redirect could not be created.</source><target>Die Weiterleitung konnte nicht angelegt werden.</target></trans-unit>
 		</body>
 	</file>
 </xliff>

@@ -10,6 +10,7 @@ use MaikSchneider\AnalyticsMatomo\Dashboard\SiteStatisticsService;
 use MaikSchneider\AnalyticsMatomo\Matomo\DemoData;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoClient;
 use MaikSchneider\AnalyticsMatomo\Module\TrendingService;
+use MaikSchneider\AnalyticsMatomo\Redirect\NotFoundService;
 use MaikSchneider\AnalyticsMatomo\Statistics\Period;
 use MaikSchneider\AnalyticsMatomo\Tests\Unit\InMemoryCacheTrait;
 use PHPUnit\Framework\Attributes\Test;
@@ -134,6 +135,24 @@ final class DemoDataTest extends UnitTestCase
         self::assertGreaterThan(0, $result[0]['nb_hits_with_time_server']);
         self::assertGreaterThan(0, $result[0]['goals']['idgoal=1']['nb_conversions_page_uniq']);
         self::assertLessThanOrEqual($result[0]['goals']['idgoal=1']['nb_conversions_page_uniq'], $result[0]['goals']['idgoal=1']['nb_conversions_attrib']);
+    }
+
+    #[Test]
+    public function notFoundTitlesHoldMistypedAndOldPagePathsAndBotPaths(): void
+    {
+        $request = ['method' => 'Actions.getPageTitles', 'flat' => 1, 'period' => 'range', 'filter_pattern' => '404/URL', 'filter_limit' => -1];
+        [$week, $day] = (new DemoData())->results([
+            $request + ['date' => $this->period->toMatomoDate()],
+            $request + ['date' => '2026-11-06'],
+        ], $this->configuration);
+
+        $paths = array_column(NotFoundService::aggregate($week), 'hits', 'path');
+        self::assertCount(count($week), array_filter($week, static fn (array $row): bool => NotFoundService::parse($row) !== null));
+        self::assertArrayHasKey('/wp-login.php', $paths);
+        self::assertArrayHasKey('/abou', $paths);
+        self::assertArrayHasKey('/products.html', $paths);
+        self::assertContains('https://www.google.com/', array_column(NotFoundService::aggregate($week), 'referrer'));
+        self::assertGreaterThan(array_sum(array_column($day, 'nb_hits')), array_sum($paths));
     }
 
     #[Test]

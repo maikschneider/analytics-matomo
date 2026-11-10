@@ -61,6 +61,7 @@
                                 </f:for>
                             </dl></div></section>
                         </f:if>
+                        <f:if condition="{notFound}"><f:render partial="Module/NotFound" arguments="{notFound: notFound, ll: ll}" /></f:if>
                         <f:for each="{tables}" as="table">
                             <f:render partial="Module/ReportTable" arguments="{table: table, ll: ll}" />
                         </f:for>

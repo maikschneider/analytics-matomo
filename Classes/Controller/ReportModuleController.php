@@ -28,6 +28,8 @@ use MaikSchneider\AnalyticsMatomo\Module\TransitionsService;
 use MaikSchneider\AnalyticsMatomo\Module\TrendingService;
 use MaikSchneider\AnalyticsMatomo\Module\VisitorsOverviewService;
 use MaikSchneider\AnalyticsMatomo\Monitoring\AnomalyBadgeFactory;
+use MaikSchneider\AnalyticsMatomo\Redirect\NotFoundService;
+use MaikSchneider\AnalyticsMatomo\Redirect\RedirectWriter;
 use MaikSchneider\AnalyticsMatomo\Statistics\LinkAccess;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageTarget;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageTargetResolver;
@@ -49,12 +51,16 @@ use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Http\HtmlResponse;
+use TYPO3\CMS\Core\Http\RedirectResponse;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Imaging\IconSize;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Site\SiteFinder;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -95,6 +101,9 @@ final readonly class ReportModuleController
         private AnomalyBadgeFactory $anomalyBadgeFactory,
         private AnnotationService $annotationService,
         private EvolutionChartFactory $chartFactory,
+        private NotFoundService $notFoundService,
+        private RedirectWriter $redirectWriter,
+        private FlashMessageService $flashMessageService,
     ) {
     }
 
@@ -236,6 +245,12 @@ final readonly class ReportModuleController
                 $variables['tables'] = $this->tables($reports, $selection, $parameters, $route, $pageId, $report, (int)$moduleData->get('language'));
             } elseif ($section === 'behaviour' && $report === 'review') {
                 $variables += $this->contentReview($selection, $parameters, $route, $pageId, $report, (int)$moduleData->get('language'));
+            } elseif ($section === 'behaviour' && $report === 'notFound') {
+                $notFound = $this->notFound($request, $selection, $parameters, $route, $pageId, $user);
+                if ($notFound instanceof ResponseInterface) {
+                    return $notFound;
+                }
+                $variables += $notFound;
             } else {
                 $definitions = $this->catalog->getReports($section, $report);
                 $reports = [];
@@ -376,6 +391,96 @@ final readonly class ReportModuleController
         return [
             'tables' => $tables,
             'reportHint' => sprintf($this->label('review.hint'), $period->from->format('Y-m-d'), $period->to->format('Y-m-d'), ContentReviewService::OLD_DAYS),
+        ];
+    }
+
+    /**
+     * Paths that ended on the 404 page with suggested redirect targets. A redirect is created
+     * only by a POST from the preview, and only for a listed path and one of its suggestions.
+     *
+     * @param array<string, mixed> $parameters
+     * @return array<string, mixed>|ResponseInterface
+     * @throws MatomoApiException
+     */
+    private function notFound(ServerRequestInterface $request, DashboardSelection $selection, array $parameters, string $route, int $pageId, BackendUserAuthentication $user): array|ResponseInterface
+    {
+        $site = $selection->site;
+        $pages = $this->notFoundService->getPages($site, $selection->configuration, $selection->period, $user);
+        $mayCreate = $this->redirectWriter->mayCreate($user);
+        $listUrl = (string)$this->uriBuilder->buildUriFromRoute($route, ['id' => $pageId, 'report' => 'notFound']);
+        $chosen = null;
+        if ($mayCreate && isset($parameters['redirectPath'], $parameters['redirectTarget'])) {
+            foreach ($pages as $page) {
+                foreach ($page['redirect'] === null && $page['path'] === (string)$parameters['redirectPath'] ? $page['suggestions'] : [] as $suggestion) {
+                    if ($suggestion->candidate->pageId === (int)$parameters['redirectTarget']) {
+                        $chosen = [$page, $suggestion->candidate];
+                    }
+                }
+            }
+        }
+        if ($chosen !== null && $request->getMethod() === 'POST' && !empty($parameters['createRedirect'])) {
+            [$page, $target] = $chosen;
+            try {
+                $this->redirectWriter->create($site, $page['path'], $target, $user);
+                $message = new FlashMessage(sprintf($this->label('notFound.created'), $page['path'], $target->title), '', ContextualFeedbackSeverity::OK, true);
+            } catch (\RuntimeException $exception) {
+                $this->logger->warning('Creating a redirect failed: {message}', ['message' => $exception->getMessage(), 'site' => $site->getIdentifier()]);
+                $message = new FlashMessage($this->label('notFound.failed'), '', ContextualFeedbackSeverity::ERROR, true);
+            }
+            $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($message);
+            return new RedirectResponse($listUrl, 303);
+        }
+
+        $sourceHost = RedirectWriter::sourceHost($site);
+        $rows = [];
+        foreach ($pages as $page) {
+            $suggestions = [];
+            foreach ($page['suggestions'] as $suggestion) {
+                $suggestions[] = [
+                    'title' => $suggestion->candidate->title,
+                    'path' => $suggestion->candidate->path,
+                    'pageId' => $suggestion->candidate->pageId,
+                    'score' => $suggestion->score,
+                    'oldSlug' => $suggestion->candidate->oldSlug,
+                    'previewUrl' => $mayCreate && $page['redirect'] === null
+                        ? (string)$this->uriBuilder->buildUriFromRoute($route, ['id' => $pageId, 'report' => 'notFound', 'redirectPath' => $page['path'], 'redirectTarget' => $suggestion->candidate->pageId])
+                        : '',
+                ];
+            }
+            $rows[] = [
+                'path' => $page['path'],
+                'hits' => $page['hits'],
+                'referrer' => $page['referrer'],
+                'suggestions' => $suggestions,
+                'redirect' => $page['redirect'],
+                'redirectUrl' => $mayCreate && $page['redirect'] !== null
+                    ? (string)$this->uriBuilder->buildUriFromRoute('record_edit', ['edit' => ['sys_redirect' => [$page['redirect'] => 'edit']], 'returnUrl' => $listUrl])
+                    : '',
+            ];
+        }
+        $preview = null;
+        if ($chosen !== null) {
+            [$page, $target] = $chosen;
+            $preview = [
+                'source' => ($sourceHost === '*' ? '' : $sourceHost) . $page['path'],
+                'anyHost' => $sourceHost === '*',
+                'path' => $page['path'],
+                'hits' => $page['hits'],
+                'title' => $target->title,
+                'pageId' => $target->pageId,
+                'target' => (string)$site->getRouter()->generateUri($target->pageId, ['_language' => $target->languageId]),
+                'statusCode' => RedirectWriter::STATUS_CODE,
+                'formAction' => $listUrl,
+            ];
+        }
+        return [
+            'notFound' => [
+                'rows' => $rows,
+                'mayCreate' => $mayCreate,
+                'preview' => $preview,
+                'listUrl' => $listUrl,
+                'minimumHits' => max(1, (int)$site->getSettings()->get('analyticsMatomo.notFoundMinimumHits', 2)),
+            ],
         ];
     }
 

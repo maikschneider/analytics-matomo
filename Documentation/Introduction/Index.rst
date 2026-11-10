@@ -67,6 +67,11 @@ Every other report page shows one or more Matomo reports as tables:
     truncated its page report, pages without a row show "unknown" instead of
     0 views. The report never deletes anything.
 
+    :guilabel:`404 pages` (only with EXT:redirects) lists the URLs that ended
+    on the 404 page, with hits, top referrer and up to three suggested
+    redirect targets. It needs a page title on the 404 page, see
+    :ref:`404 pages <not-found>`.
+
 :guilabel:`Acquisition`
     All channels (channel types and all referrers), Websites, Search engines
     and keywords, Social networks, AI assistants and Campaigns (names and

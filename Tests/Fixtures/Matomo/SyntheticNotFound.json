@@ -1,0 +1,67 @@
+[
+	{
+		"label": "404/URL = /wp-login.php /From =",
+		"nb_hits": 9,
+		"Actions_PageTitle": "404/URL = %2Fwp-login.php /From ="
+	},
+	{
+		"label": "404/URL = /redirected /From =",
+		"nb_hits": 5,
+		"Actions_PageTitle": "404/URL = %2Fredirected /From ="
+	},
+	{
+		"label": "404/URL = /abuot /From = https://www.google.com/",
+		"nb_hits": 4,
+		"Actions_PageTitle": "404/URL = %2Fabuot /From = https%3A%2F%2Fwww.google.com%2F"
+	},
+	{
+		"label": "404/URL = /de/ueber-un /From =",
+		"nb_hits": 3,
+		"Actions_PageTitle": "404/URL = %2Fde%2Fueber-un /From ="
+	},
+	{
+		"label": "404/URL = /summer-sale-2025 /From = https://example.com/",
+		"nb_hits": 3,
+		"Actions_PageTitle": "404/URL = %2Fsummer-sale-2025 /From = https%3A%2F%2Fexample.com%2F"
+	},
+	{
+		"label": "404/URL = /abuot /From = https://forum.example.org/t/1",
+		"nb_hits": 2,
+		"Actions_PageTitle": "404/URL = %2Fabuot /From = https%3A%2F%2Fforum.example.org%2Ft%2F1"
+	},
+	{
+		"label": "404/URL = /about-old /From =",
+		"nb_hits": 2,
+		"Actions_PageTitle": "404/URL = %2Fabout-old /From ="
+	},
+	{
+		"label": "404/URL = /nothing-like-it /From =",
+		"nb_hits": 2,
+		"Actions_PageTitle": "404/URL = %2Fnothing-like-it /From ="
+	},
+	{
+		"label": "404/URL = /abuot?utm_source=newsletter /From =",
+		"nb_hits": 1,
+		"Actions_PageTitle": "404/URL = %2Fabuot%3Futm_source%3Dnewsletter /From ="
+	},
+	{
+		"label": "404/URL = /question%3Fmark /From =",
+		"nb_hits": 2,
+		"Actions_PageTitle": "404/URL = %2Fquestion%253Fmark /From ="
+	},
+	{
+		"label": "404/URL = /hash%23tag /From =",
+		"nb_hits": 2,
+		"Actions_PageTitle": "404/URL = %2Fhash%2523tag /From ="
+	},
+	{
+		"label": "404/URL = /saxony /From =",
+		"nb_hits": 1,
+		"Actions_PageTitle": "404/URL = %2Fsaxony /From ="
+	},
+	{
+		"label": "404/URL = /<script>alert(1)</script> /From = javascript:alert(1)",
+		"nb_hits": 2,
+		"Actions_PageTitle": "404/URL = %2F%3Cscript%3Ealert(1)%3C%2Fscript%3E /From = javascript%3Aalert(1)"
+	}
+]

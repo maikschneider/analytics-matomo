@@ -1,0 +1,28 @@
+[
+	[
+		{
+			"label": "404/URL = /drums/snare?color=red&size=14 /From =",
+			"nb_hits": 1,
+			"Actions_PageTitle": "404/URL = %2Fdrums%2Fsnare%3Fcolor%3Dred%26size%3D14 /From =",
+			"segment": "pageTitle==404%252FURL%2B%253D%2B%25252Fdrums%25252Fsnare%25253Fcolor%25253Dred%252526size%25253D14%2B%252FFrom%2B%253D"
+		},
+		{
+			"label": "404/URL = /videos-old.php /From = https://forum.example.org/thread/42",
+			"nb_hits": 1,
+			"Actions_PageTitle": "404/URL = %2Fvideos-old.php /From = https%3A%2F%2Fforum.example.org%2Fthread%2F42",
+			"segment": "pageTitle==404%252FURL%2B%253D%2B%25252Fvideos-old.php%2B%252FFrom%2B%253D%2Bhttps%25253A%25252F%25252Fforum.example.org%25252Fthread%25252F42"
+		},
+		{
+			"label": "404/URL = /videos-old.php /From = https://www.google.com/",
+			"nb_hits": 2,
+			"Actions_PageTitle": "404/URL = %2Fvideos-old.php /From = https%3A%2F%2Fwww.google.com%2F",
+			"segment": "pageTitle==404%252FURL%2B%253D%2B%25252Fvideos-old.php%2B%252FFrom%2B%253D%2Bhttps%25253A%25252F%25252Fwww.google.com%25252F"
+		},
+		{
+			"label": "404/URL = /wp-login.php /From =",
+			"nb_hits": 1,
+			"Actions_PageTitle": "404/URL = %2Fwp-login.php /From =",
+			"segment": "pageTitle==404%252FURL%2B%253D%2B%25252Fwp-login.php%2B%252FFrom%2B%253D"
+		}
+	]
+]

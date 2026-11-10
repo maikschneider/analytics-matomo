@@ -124,7 +124,7 @@ final readonly class DemoData
     public function results(array $requests, MatomoConfiguration $configuration): array
     {
         $pageUrls = [];
-        if (array_intersect(['Actions.getPageUrls', 'Actions.getEntryPageUrls', 'Transitions.getTransitionsForAction', 'Annotations.getAll'], array_column($requests, 'method')) !== [] || array_intersect(['getPageUrls', 'getEntryPageUrls', 'getExitPageUrls', 'getPageTitles'], array_column($requests, 'apiAction')) !== []) {
+        if (array_intersect(['Actions.getPageUrls', 'Actions.getEntryPageUrls', 'Actions.getPageTitles', 'Transitions.getTransitionsForAction', 'Annotations.getAll'], array_column($requests, 'method')) !== [] || array_intersect(['getPageUrls', 'getEntryPageUrls', 'getExitPageUrls', 'getPageTitles'], array_column($requests, 'apiAction')) !== []) {
             $pageUrls = $this->pageUrls?->get($configuration->idSite) ?? [];
             if ($pageUrls === []) {
                 $pageUrls = array_map(static fn (string $path): string => rtrim($configuration->url, '/') . '/' . $path, self::FALLBACK_PATHS);
@@ -232,8 +232,47 @@ final readonly class DemoData
             'Goals.get' => $this->goal($site, $dates, $visits, isset($request['idGoal']) ? [(int)$request['idGoal']] : array_keys(self::GOALS)),
             'Referrers.getReferrerType' => $this->goalRows($site, $dates, (int)($request['idGoal'] ?? 0), self::REPORTS[$method][3], 'nb_visits', 'nb_conversions', fn (string $label, int $share): int => $this->labelVisits($site, $label, $share, $dates)),
             'Actions.getEntryPageUrls' => $this->goalRows($site, $dates, (int)($request['idGoal'] ?? 0), array_fill_keys($pageUrls, 0), 'entry_nb_visits', 'nb_conversions_entry', fn (string $url): int => intdiv((int)$this->pageRow($site, $url, $dates)['nb_hits'] * $this->between('entries' . $url, 30, 60), 100)),
+            'Actions.getPageTitles' => $this->notFoundTitles($site, $dates, $pageUrls),
             default => throw new MatomoApiException('The demo data have no answer for ' . $method, 1793960301),
         };
+    }
+
+    /**
+     * Page titles of the 404 page (https://matomo.org/faq/how-to/faq_60/): mistyped paths
+     * and old static URLs of the site's pages, and bots probing for other systems
+     *
+     * @param list<string> $dates
+     * @param list<string> $pageUrls
+     * @return list<array{label: string, nb_hits: int, Actions_PageTitle: string}>
+     */
+    private function notFoundTitles(string $site, array $dates, array $pageUrls): array
+    {
+        $paths = ['/wp-login.php' => [''], '/.env' => ['']];
+        foreach ($pageUrls as $index => $url) {
+            $path = rtrim(rawurldecode((string)parse_url($url, PHP_URL_PATH)), '/');
+            // Not the root page of the site or of a language ("/de")
+            if (strlen($path) <= 3) {
+                continue;
+            }
+            if ($index % 4 === 1) {
+                $paths[substr($path, 0, -1)] = ['https://www.google.com/', ''];
+            } elseif ($index % 4 === 2) {
+                $paths[$path . '.html'] = ['https://www.google.com/', ''];
+            }
+        }
+        $rows = [];
+        foreach ($paths as $path => $referrers) {
+            foreach ($referrers as $referrer) {
+                $hits = $this->sum($dates, fn (string $date): int => (int)($this->between('notFound' . $site . $path . $referrer . $date, 0, 3) === 0));
+                if ($hits > 0) {
+                    // The browser encodes the path, the snippet encodes it once more; Matomo's label decodes once
+                    $title = '404/URL = ' . rawurlencode(implode('/', array_map(rawurlencode(...), explode('/', $path)))) . ' /From =' . ($referrer === '' ? '' : ' ' . rawurlencode($referrer));
+                    $rows[] = ['label' => rawurldecode($title), 'nb_hits' => $hits, 'Actions_PageTitle' => $title];
+                }
+            }
+        }
+        usort($rows, static fn (array $a, array $b): int => $b['nb_hits'] <=> $a['nb_hits']);
+        return $rows;
     }
 
     /**

@@ -13,6 +13,9 @@ use MaikSchneider\AnalyticsMatomo\Dashboard\Widget\MatomoWidget;
 use MaikSchneider\AnalyticsMatomo\Matomo\DemoPageUrls;
 use MaikSchneider\AnalyticsMatomo\Module\ContentReviewService;
 use MaikSchneider\AnalyticsMatomo\Module\ReadingTimeEstimator;
+use MaikSchneider\AnalyticsMatomo\Redirect\NotFoundService;
+use MaikSchneider\AnalyticsMatomo\Redirect\RedirectSuggestion;
+use MaikSchneider\AnalyticsMatomo\Redirect\RedirectWriter;
 use MaikSchneider\AnalyticsMatomo\Statistics\Period;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\RequestInterface;
@@ -37,6 +40,7 @@ final class DemoInstanceTest extends FunctionalTestCase
 
     protected array $coreExtensionsToLoad = [
         'dashboard',
+        'redirects',
     ];
 
     protected array $testExtensionsToLoad = [
@@ -106,6 +110,28 @@ final class DemoInstanceTest extends FunctionalTestCase
         self::assertContains('Über uns', array_column($review['withoutViews'], 'label'));
         self::assertNotSame([], $review['old']);
         self::assertTrue(StatisticsPermission::isGranted($this->setUpBackendUser(self::EDITOR), StatisticsPermission::CONTENT_REVIEW));
+        self::assertSame([], $this->sentRequests);
+    }
+
+    #[Test]
+    public function demo404PagesSuggestRedirectsInTheLanguageOfThePath(): void
+    {
+        $site = $this->get(SiteFinder::class)->getSiteByIdentifier('cycles');
+        $configuration = $this->get(MatomoConfigurationResolver::class)->resolve($site);
+        self::assertNotNull($configuration);
+
+        $pages = $this->get(NotFoundService::class)->getPages($site, $configuration, Period::lastDays(30, new \DateTimeImmutable('2026-11-02')), $this->setUpBackendUser(self::EDITOR));
+        $suggestions = [];
+        foreach ($pages as $page) {
+            $suggestions[$page['path']] = array_map(static fn (RedirectSuggestion $suggestion): string => $suggestion->candidate->path, $page['suggestions']);
+        }
+
+        self::assertSame('/bikes/e-bikes', $suggestions['/bikes/e-bike'][0] ?? null);
+        self::assertSame('/de/fahrraeder/e-bikes', $suggestions['/de/fahrraeder/e-bikes.html'][0] ?? null);
+        // French falls back to English pages
+        self::assertSame('/fr/news', $suggestions['/fr/new'][0] ?? null);
+        self::assertArrayNotHasKey('/wp-login.php', $suggestions);
+        self::assertTrue($this->get(RedirectWriter::class)->mayCreate($this->setUpBackendUser(self::EDITOR)));
         self::assertSame([], $this->sentRequests);
     }
 
