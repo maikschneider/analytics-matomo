@@ -338,7 +338,7 @@ final readonly class ReportModuleController
         $baseUrl = (string)$this->uriBuilder->buildUriFromRoute($route, ['id' => $pageId, 'report' => $report]);
         $export = isset($parameters['export']) && is_numeric($parameters['export']) ? (int)$parameters['export'] : null;
         foreach ($reports as $index => ['definition' => $definition, 'current' => $current, 'previous' => $previous]) {
-            $options = array_intersect_key($definition, ['minimum' => true, 'sort' => true, 'truncated' => true]) + ['index' => $index];
+            $options = array_intersect_key($definition, ['minimum' => true, 'sort' => true, 'truncated' => true, 'flag' => true]) + ['index' => $index];
             if ($index === $export) {
                 $options['export'] = ['url' => $this->label('table.url'), 'metric' => $this->label('table.metric'), 'value' => $this->label('table.value')];
             }

@@ -496,7 +496,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
             $html = (string)$this->render(1, ['id' => '1', 'report' => $report])->getBody();
             foreach ($tables as $title => $firstLabel) {
                 self::assertStringContainsString('<h2>' . $title . '</h2>', $html, $report);
-                self::assertStringContainsString('<td>' . $firstLabel . '</td>', $html, $report);
+                self::assertMatchesRegularExpression('#<td>(<span [^>]*data-identifier="flags-[a-z]+".*?</span> )?' . preg_quote($firstLabel, '#') . '</td>#s', $html, $report);
             }
             self::assertSame(count($tables), substr_count($html, '<h2>'), $report);
         }
@@ -511,7 +511,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
         $default = (string)$this->render(1, ['id' => '1', 'language' => '0'])->getBody();
         $this->render(1, ['id' => '10', 'language' => '1']);
 
-        self::assertStringContainsString('<td>United States</td>', $german);
+        self::assertStringContainsString('</span> United States</td>', $german);
         self::assertSame(substr($german, (int)strpos($german, '<h2>')), substr($default, (int)strpos($default, '<h2>')));
         self::assertCount(2, $this->sentRequests);
         $sites = [];
@@ -522,6 +522,20 @@ final class ReportModuleControllerTest extends FunctionalTestCase
             $sites[] = $subRequest['idSite'];
         }
         self::assertSame(['3', '7'], $sites);
+    }
+
+    #[Test]
+    public function locationReportsShowTheCoreFlagOfTheCountryBeforeTheName(): void
+    {
+        $this->fixture = 'ProcessedVisitorsLocations';
+        $html = (string)$this->render(1, ['id' => '1', 'report' => 'locations'])->getBody();
+
+        self::assertMatchesRegularExpression('#<td><span [^>]*data-identifier="flags-us"[^>]*aria-hidden="true".*?</span> United States</td>#s', $html);
+        self::assertMatchesRegularExpression('#<td><span [^>]*data-identifier="flags-cn".*?</span> Shanghai Shi, China</td>#s', $html);
+        self::assertMatchesRegularExpression('#<td><span [^>]*data-identifier="flags-cn".*?</span> Shanghai, Shanghai Shi, China</td>#s', $html);
+        self::assertStringContainsString('<td>English</td>', $html);
+        self::assertStringNotContainsString('default-not-found', $html);
+        self::assertStringNotContainsString('Morpheus', $html);
     }
 
     #[Test]

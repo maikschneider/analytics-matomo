@@ -10,11 +10,12 @@ use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
 /**
  * Report pages per section. A report may have its own title and columns (label keys of locallang_mod.xlf),
- * hide rows below a minimum, set a default sort column and explain an empty result (label key).
+ * hide rows below a minimum, set a default sort column, explain an empty result (label key) and name the row
+ * attribute with the country code whose flag precedes the label.
  * Optional pages are only offered when the site's Matomo has their first report; pages with a permission
  * only to users with that custom option, pages with an extension only when it is installed.
  *
- * @phpstan-type Definition array{module: string, action: string, params?: array<string, int|string>, rows?: string, title?: string, columns?: array<string, array{0: string, 1: string, 2?: string}>, minimum?: array{string, int}, sort?: string, empty?: string, truncated?: bool}
+ * @phpstan-type Definition array{module: string, action: string, params?: array<string, int|string>, rows?: string, title?: string, columns?: array<string, array{0: string, 1: string, 2?: string}>, minimum?: array{string, int}, sort?: string, empty?: string, truncated?: bool, flag?: string}
  */
 final readonly class ReportCatalog
 {
@@ -25,9 +26,9 @@ final readonly class ReportCatalog
             'overview' => ['reports' => []],
             'sites' => ['reports' => []],
             'locations' => ['reports' => [
-                ['module' => 'UserCountry', 'action' => 'getCountry'],
-                ['module' => 'UserCountry', 'action' => 'getRegion'],
-                ['module' => 'UserCountry', 'action' => 'getCity'],
+                ['module' => 'UserCountry', 'action' => 'getCountry', 'flag' => 'code'],
+                ['module' => 'UserCountry', 'action' => 'getRegion', 'flag' => 'country'],
+                ['module' => 'UserCountry', 'action' => 'getCity', 'flag' => 'country'],
                 ['module' => 'UserLanguage', 'action' => 'getLanguage'],
             ]],
             'devices' => ['reports' => [

@@ -11,6 +11,7 @@ use MaikSchneider\AnalyticsMatomo\Statistics\PageUrlMapper;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Imaging\IconRegistry;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 final class ReportTableFactoryTest extends UnitTestCase
@@ -18,7 +19,7 @@ final class ReportTableFactoryTest extends UnitTestCase
     #[Test]
     public function searchesThenSortsRawNumbersAndPagesTwentyFiveRows(): void
     {
-        $factory = new ReportTableFactory(new MetricFormatter(), new PageUrlMapper(new Context()), $this->createMock(UriBuilder::class), new PageRecordResolver(new Context()));
+        $factory = new ReportTableFactory(new MetricFormatter(), new PageUrlMapper(new Context()), $this->createMock(UriBuilder::class), new PageRecordResolver(new Context()), $this->createMock(IconRegistry::class));
         $rows = [];
         for ($i = 1; $i <= 60; $i++) {
             $rows[] = ['label' => ($i <= 55 ? 'Device ' : 'Other ') . $i, 'nb_visits' => $i];
@@ -38,7 +39,7 @@ final class ReportTableFactoryTest extends UnitTestCase
     #[Test]
     public function comparisonMatchesLabelsAndKeepsMissingPreviousRowsUnknown(): void
     {
-        $factory = new ReportTableFactory(new MetricFormatter(), new PageUrlMapper(new Context()), $this->createMock(UriBuilder::class), new PageRecordResolver(new Context()));
+        $factory = new ReportTableFactory(new MetricFormatter(), new PageUrlMapper(new Context()), $this->createMock(UriBuilder::class), new PageRecordResolver(new Context()), $this->createMock(IconRegistry::class));
         $report = ['metadata' => ['name' => 'Devices', 'metricTypes' => ['nb_visits' => 'number']], 'columns' => ['label' => 'Device', 'nb_visits' => 'Visits'], 'reportData' => [['label' => 'Desktop', 'nb_visits' => 30], ['label' => 'Tablet', 'nb_visits' => 10]], 'reportMetadata' => [], 'reportTotal' => []];
         $previous = array_replace($report, ['reportData' => [['label' => 'Desktop', 'nb_visits' => 20]]]);
         $table = $factory->create($report, $previous, [], '/module?report=devices');
@@ -50,7 +51,7 @@ final class ReportTableFactoryTest extends UnitTestCase
     #[Test]
     public function catalogOptionsSetTitleRawColumnsMinimumAndDefaultSort(): void
     {
-        $factory = new ReportTableFactory(new MetricFormatter(), new PageUrlMapper(new Context()), $this->createMock(UriBuilder::class), new PageRecordResolver(new Context()));
+        $factory = new ReportTableFactory(new MetricFormatter(), new PageUrlMapper(new Context()), $this->createMock(UriBuilder::class), new PageRecordResolver(new Context()), $this->createMock(IconRegistry::class));
         $rows = [
             ['label' => '/fast', 'nb_hits' => 50, 'avg_page_load_time' => 0.5, 'nb_hits_with_time_network' => 40],
             ['label' => '/rare', 'nb_hits' => 2, 'avg_page_load_time' => 9.0, 'nb_hits_with_time_network' => 2],
@@ -74,9 +75,24 @@ final class ReportTableFactoryTest extends UnitTestCase
     }
 
     #[Test]
+    public function flagOptionShowsOnlyRegisteredCountryFlagsOnTheLabel(): void
+    {
+        $icons = $this->createMock(IconRegistry::class);
+        $icons->method('isRegistered')->willReturnCallback(static fn (string $identifier): bool => in_array($identifier, ['flags-de', 'flags-eu'], true));
+        $factory = new ReportTableFactory(new MetricFormatter(), new PageUrlMapper(new Context()), $this->createMock(UriBuilder::class), new PageRecordResolver(new Context()), $icons);
+        $rows = [['label' => 'Germany', 'nb_visits' => 4], ['label' => 'Unknown', 'nb_visits' => 3], ['label' => 'European Union', 'nb_visits' => 2], ['label' => 'No code', 'nb_visits' => 1]];
+        $report = ['metadata' => ['name' => 'Country'], 'columns' => ['label' => 'Country', 'nb_visits' => 'Visits'], 'reportData' => $rows, 'reportMetadata' => [['code' => 'DE'], ['code' => 'xx'], ['code' => 'eu'], []], 'reportTotal' => []];
+
+        $table = $factory->create($report, null, [], '/module', options: ['flag' => 'code']);
+        self::assertSame(['flags-de', '', 'flags-eu', ''], array_map(static fn (array $row): string => $row['cells'][0]['flag'], $table['rows']));
+        self::assertSame('', $table['rows'][0]['cells'][1]['flag']);
+        self::assertSame('', $factory->create($report, null, [], '/module')['rows'][0]['cells'][0]['flag']);
+    }
+
+    #[Test]
     public function reportsWithoutDimensionListOneRowPerMetricWithChange(): void
     {
-        $factory = new ReportTableFactory(new MetricFormatter(), new PageUrlMapper(new Context()), $this->createMock(UriBuilder::class), new PageRecordResolver(new Context()));
+        $factory = new ReportTableFactory(new MetricFormatter(), new PageUrlMapper(new Context()), $this->createMock(UriBuilder::class), new PageRecordResolver(new Context()), $this->createMock(IconRegistry::class));
         $report = ['metadata' => ['name' => 'Returning Visits', 'metricTypes' => ['nb_visits_new' => 'number', 'bounce_rate_new' => 'percent']], 'columns' => ['nb_visits_new' => 'New Visits', 'bounce_rate_new' => 'Bounce Rate'], 'reportData' => [['nb_visits_new' => 30, 'bounce_rate_new' => 0.5]], 'reportMetadata' => [], 'reportTotal' => []];
         $previous = array_replace($report, ['reportData' => [['nb_visits_new' => 20]]]);
         $table = $factory->create($report, $previous, [], '/module?report=engagement');

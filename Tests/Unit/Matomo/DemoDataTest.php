@@ -257,6 +257,22 @@ final class DemoDataTest extends UnitTestCase
     }
 
     #[Test]
+    public function locationRowsCarryMatomosCountryCodes(): void
+    {
+        $request = ['method' => 'API.getProcessedReport', 'apiModule' => 'UserCountry', 'period' => 'range', 'date' => $this->period->toMatomoDate()];
+        [$countries, $regions, $languages] = (new DemoData())->results([
+            $request + ['apiAction' => 'getCountry'],
+            $request + ['apiAction' => 'getRegion'],
+            ['apiModule' => 'UserLanguage', 'apiAction' => 'getLanguage'] + $request,
+        ], $this->configuration);
+
+        self::assertSame(['code' => 'de'], $countries['reportMetadata'][0]);
+        self::assertSame(['country' => 'de'], $regions['reportMetadata'][0]);
+        self::assertSame(['country' => 'xx'], end($regions['reportMetadata']));
+        self::assertSame([], $languages['reportMetadata'][0]);
+    }
+
+    #[Test]
     public function demoConfigurationHasNoReportUrl(): void
     {
         self::assertSame('', $this->configuration->getReportUrl($this->period));
