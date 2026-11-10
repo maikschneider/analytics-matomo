@@ -1,0 +1,76 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:if condition="{notFound.preview}">
+    <section class="card mb-4 border-primary" data-redirect-preview>
+        <div class="card-header"><h2><f:translate key="{ll}notFound.preview.title" /></h2></div>
+        <div class="card-body">
+            <dl class="row mb-3">
+                <dt class="col-sm-3"><f:translate key="{ll}notFound.preview.source" /></dt>
+                <dd class="col-sm-9"><code>{notFound.preview.source}</code><f:if condition="{notFound.preview.anyHost}"> <span class="text-body-secondary">(<f:translate key="{ll}notFound.preview.anyHost" />)</span></f:if></dd>
+                <dt class="col-sm-3"><f:translate key="{ll}notFound.preview.target" /></dt>
+                <dd class="col-sm-9">{notFound.preview.title} [{notFound.preview.pageId}]<br><code>{notFound.preview.target}</code></dd>
+                <dt class="col-sm-3"><f:translate key="{ll}notFound.preview.statusCode" /></dt>
+                <dd class="col-sm-9">{notFound.preview.statusCode}</dd>
+                <dt class="col-sm-3"><f:translate key="{ll}notFound.column.hits" /></dt>
+                <dd class="col-sm-9">{notFound.preview.hits}</dd>
+            </dl>
+            <form action="{notFound.preview.formAction}" method="post" class="d-flex gap-2">
+                <input type="hidden" name="redirectPath" value="{notFound.preview.path}" />
+                <input type="hidden" name="redirectTarget" value="{notFound.preview.pageId}" />
+                <input type="hidden" name="createRedirect" value="1" />
+                <button type="submit" class="btn btn-primary"><core:icon identifier="actions-check" size="small" /> <f:translate key="{ll}notFound.create" /></button>
+                <a class="btn btn-default" href="{notFound.listUrl}"><f:translate key="{ll}notFound.cancel" /></a>
+            </form>
+        </div>
+    </section>
+</f:if>
+<section class="card mb-4">
+    <div class="card-header"><h2><f:translate key="{ll}notFound.list" /></h2></div>
+    <div class="card-body">
+        <p class="text-body-secondary"><f:translate key="{ll}notFound.hint" arguments="{0: notFound.minimumHits}" /></p>
+        <f:if condition="{notFound.rows}">
+            <f:then>
+                <f:if condition="!{notFound.mayCreate}"><f:be.infobox state="-1"><f:translate key="{ll}notFound.noPermission" /></f:be.infobox></f:if>
+                <div class="table-fit table-fit-wrap">
+                    <table class="table table-striped table-hover w-100" data-not-found>
+                        <thead><tr>
+                            <th scope="col"><f:translate key="{ll}notFound.column.path" /></th>
+                            <th scope="col"><f:translate key="{ll}notFound.column.hits" /></th>
+                            <th scope="col"><f:translate key="{ll}notFound.column.referrer" /></th>
+                            <th scope="col"><f:translate key="{ll}notFound.column.suggestions" /></th>
+                        </tr></thead>
+                        <tbody>
+                            <f:for each="{notFound.rows}" as="row"><tr data-path="{row.path}">
+                                <td><code>{row.path}</code></td>
+                                <td>{row.hits}</td>
+                                <td><f:if condition="{row.referrer}"><f:then><span class="text-break">{row.referrer}</span></f:then><f:else>–</f:else></f:if></td>
+                                <td>
+                                    <f:if condition="{row.redirect}">
+                                        <f:then>
+                                            <span class="badge badge-success"><f:translate key="{ll}notFound.redirected" /></span>
+                                            <f:if condition="{row.redirectUrl}"> <a href="{row.redirectUrl}"><f:translate key="{ll}notFound.editRedirect" /></a></f:if>
+                                        </f:then>
+                                        <f:else if="{row.suggestions}">
+                                            <ul class="list-unstyled mb-0">
+                                                <f:for each="{row.suggestions}" as="suggestion"><li class="d-flex flex-wrap gap-2 align-items-center mb-1">
+                                                    <span>{suggestion.title} <code>{suggestion.path}</code></span>
+                                                    <span class="badge badge-default" title="{f:translate(key: '{ll}notFound.score.description')}"><f:translate key="{ll}notFound.score" arguments="{0: suggestion.score}" /></span>
+                                                    <f:if condition="{suggestion.oldSlug}"><span class="badge badge-info"><f:translate key="{ll}notFound.oldSlug" /></span></f:if>
+                                                    <f:if condition="{suggestion.previewUrl}"><a class="btn btn-default btn-sm" href="{suggestion.previewUrl}"><core:icon identifier="actions-link" size="small" /> <f:translate key="{ll}notFound.preview" /></a></f:if>
+                                                </li></f:for>
+                                            </ul>
+                                        </f:else>
+                                        <f:else><span class="text-body-secondary"><f:translate key="{ll}notFound.noSuggestion" /></span></f:else>
+                                    </f:if>
+                                </td>
+                            </tr></f:for>
+                        </tbody>
+                    </table>
+                </div>
+            </f:then>
+            <f:else>
+                <f:be.infobox state="-1"><f:translate key="{ll}notFound.empty" /></f:be.infobox>
+            </f:else>
+        </f:if>
+    </div>
+</section>
+</html>

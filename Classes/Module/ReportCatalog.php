@@ -6,12 +6,13 @@ namespace MaikSchneider\AnalyticsMatomo\Module;
 
 use MaikSchneider\AnalyticsMatomo\Authorization\StatisticsPermission;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
 /**
  * Report pages per section. A report may have its own title and columns (label keys of locallang_mod.xlf),
  * hide rows below a minimum, set a default sort column and explain an empty result (label key).
  * Optional pages are only offered when the site's Matomo has their first report; pages with a permission
- * only to users with that custom option.
+ * only to users with that custom option, pages with an extension only when it is installed.
  *
  * @phpstan-type Definition array{module: string, action: string, params?: array<string, int|string>, rows?: string, title?: string, columns?: array<string, array{0: string, 1: string, 2?: string}>, minimum?: array{string, int}, sort?: string, empty?: string, truncated?: bool}
  */
@@ -62,6 +63,8 @@ final readonly class ReportCatalog
             'entryPages' => ['reports' => [['module' => 'Actions', 'action' => 'getEntryPageUrls', 'params' => ['flat' => 1], 'rows' => 'url']]],
             'exitPages' => ['reports' => [['module' => 'Actions', 'action' => 'getExitPageUrls', 'params' => ['flat' => 1], 'rows' => 'url']]],
             'pageTitles' => ['reports' => [['module' => 'Actions', 'action' => 'getPageTitles', 'params' => ['flat' => 1]]]],
+            // Page titles of the 404 page, joined with the page tree in NotFoundService; suggests sys_redirect records
+            'notFound' => ['extension' => 'redirects', 'reports' => []],
             // Search keywords can contain personal data
             'siteSearch' => ['permission' => StatisticsPermission::SITE_SEARCH, 'reports' => [
                 ['module' => 'Actions', 'action' => 'getSiteSearchKeywords', 'empty' => 'empty.siteSearch'],
@@ -122,6 +125,9 @@ final readonly class ReportCatalog
         $pages = [];
         foreach (self::PAGES[$section] ?? [] as $page => $definition) {
             if (isset($definition['permission']) && !StatisticsPermission::isGranted($user, $definition['permission'])) {
+                continue;
+            }
+            if (isset($definition['extension']) && !ExtensionManagementUtility::isLoaded($definition['extension'])) {
                 continue;
             }
             $pages[$page] = 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang_mod.xlf:report.' . $page;

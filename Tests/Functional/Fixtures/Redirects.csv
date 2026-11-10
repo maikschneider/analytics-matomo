@@ -1,0 +1,4 @@
+"sys_redirect"
+,"uid","pid","source_host","source_path","target","target_statuscode","disabled","is_regexp"
+,1,1,"example.com","/about-old","t3://page?uid=2&_language=0",301,1,0
+,2,0,"*","/redirected","t3://page?uid=7",301,0,0

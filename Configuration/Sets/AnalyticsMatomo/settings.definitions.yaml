@@ -45,3 +45,20 @@ settings:
     category: analyticsMatomo
     type: int
     default: 24
+  analyticsMatomo.notFoundMinimumHits:
+    label: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:settings.notFoundMinimumHits'
+    description: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:settings.notFoundMinimumHits.description'
+    category: analyticsMatomo
+    type: int
+    default: 2
+  analyticsMatomo.notFoundIgnoredPaths:
+    label: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:settings.notFoundIgnoredPaths'
+    description: 'LLL:EXT:analytics_matomo/Resources/Private/Language/locallang.xlf:settings.notFoundIgnoredPaths.description'
+    category: analyticsMatomo
+    type: stringlist
+    default:
+      - /wp-
+      - /xmlrpc.php
+      - /.env
+      - /.git
+      - /phpmyadmin
