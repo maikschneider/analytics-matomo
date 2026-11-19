@@ -9,10 +9,23 @@ Introduction
 The extension shows Matomo statistics in the Matomo Analytics backend module,
 a statistics bar in the Page module and widgets on the dashboard.
 
+..  figure:: /Images/module-overview.webp
+    :alt: Matomo Analytics module with the visitors overview of a site, the page tree with page views and the evolution chart compared to the previous period
+    :class: with-shadow
+
+    Visitors overview in the Matomo Analytics module
+
 ..  _module:
 
 Matomo Analytics module
 =======================
+
+..  figure:: /Images/module-header.webp
+    :alt: Docheader of the Matomo Analytics module with the open period menu: last 7, 14, 30 or 90 days, this month, last month, this year and a custom range
+    :class: with-shadow
+
+    Section, report page, language, period, comparison and segment in the
+    docheader
 
 :guilabel:`Visitors > Overview` shows visits, unique visitors, page views,
 bounce rate, visit duration and actions per visit. The evolution chart's metric
@@ -39,6 +52,12 @@ Every other report page shows one or more Matomo reports as tables:
     weekday) and Engagement (new and returning visits, visit duration, pages
     per visit, visit number, days since the last visit)
 
+    ..  figure:: /Images/locations.webp
+        :alt: Country report with flags, visits, actions, time on site and bounce rate, each with the change against the previous period
+        :class: with-shadow
+
+        Visitors > Locations with country flags and comparison
+
 :guilabel:`Behaviour`
     Pages, Trending pages, Entry pages, Exit pages, Page titles, Site search (keywords,
     keywords without results and categories; needs its own permission, see
@@ -50,6 +69,12 @@ Every other report page shows one or more Matomo reports as tables:
     they need: link tracking, ``trackEvent`` or content tracking. Editors see
     outlinks and downloads into a TYPO3 site only if they may access that site
     and page.
+
+    ..  figure:: /Images/pages.webp
+        :alt: Page URL report with page views, bounce rate and time on page, and buttons for page details, Page module, page properties and frontend
+        :class: with-shadow
+
+        Behaviour > Pages with row actions
 
     :guilabel:`Trending pages` lists the pages that gained or lost views
     against the previous period of the same length. A page is listed when its
@@ -71,6 +96,12 @@ Every other report page shows one or more Matomo reports as tables:
     on the 404 page, with hits, top referrer and up to three suggested
     redirect targets. It needs a page title on the 404 page, see
     :ref:`404 pages <not-found>`.
+
+    ..  figure:: /Images/notfound.webp
+        :alt: List of URLs that ended on the 404 page with hits, top referrer and suggested redirect targets with match percentage and a button to create the redirect
+        :class: with-shadow
+
+        Behaviour > 404 pages with redirect suggestions
 
 :guilabel:`Acquisition`
     All channels (channel types and all referrers), Websites, Search engines
@@ -171,6 +202,12 @@ visits often end.
 
 Statistics bar
 ==============
+
+..  figure:: /Images/statistics-bar.webp
+    :alt: Statistics bar above the page content with page views, bounce rate, average time on page and exit rate, a period selector and a link to the page details
+    :class: with-shadow
+
+    Statistics bar in the Page module
 
 The bar sits above the content of the :guilabel:`Content > Page` module. It
 shows, for the selected page and language:
@@ -315,6 +352,12 @@ Each widget links to its report page in the :ref:`Matomo Analytics module
 devices, browsers and countries are reports in the module.
 
 The dashboard preset :guilabel:`Matomo overview` adds all of them at once.
+
+..  figure:: /Images/dashboard.webp
+    :alt: Dashboard with the widgets site performance, visits over time, top pages and all sites
+    :class: with-shadow
+
+    Dashboard preset Matomo overview
 
 All widgets of a user show the same site and period; changing them in one
 widget reloads the others. Only sites with a Matomo connection whose root page

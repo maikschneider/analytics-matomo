@@ -17,6 +17,8 @@ Shows Matomo statistics in the TYPO3 backend: a statistics bar for the current p
 > [!NOTE]
 > Alpha. Look and feel follow the page performance bar and dashboard widgets of [TYPO3GmbH/analytics](https://github.com/TYPO3GmbH/analytics), the data comes from your own Matomo.
 
+![Matomo Analytics module with the visitors overview of a site](Documentation/Images/module-overview.webp)
+
 ## ✨ Features
 
 * Statistics bar above the page content: page views, bounce rate, average time on page and exit rate with trend and sparkline, loaded asynchronously, so a slow Matomo never slows down the Page module
@@ -29,6 +31,12 @@ Shows Matomo statistics in the TYPO3 backend: a statistics bar for the current p
 * One HTTP request per page or widget and period, cached for an hour
 * Reuses the Matomo URL and site ID of EXT:matomo_integration, EXT:matomo_widgets or EXT:matomo_tracking
 * Demo data mode (`analyticsMatomo.demoData`) to try it out without a Matomo instance
+
+| Statistics bar in the Page module | Dashboard widgets |
+|---|---|
+| ![Statistics bar above the page content](Documentation/Images/statistics-bar.webp) | ![Dashboard preset Matomo overview](Documentation/Images/dashboard.webp) |
+| **Locations with country flags** | **404 pages with redirect suggestions** |
+| ![Country report with flags and comparison](Documentation/Images/locations.webp) | ![URLs that ended on the 404 page with suggested redirects](Documentation/Images/notfound.webp) |
 
 ## 🔥 Installation
 
