@@ -17,6 +17,12 @@ Site settings
       idSite: 1
       tokenAuth: '%env(MATOMO_TOKEN)%'
 
+..  figure:: /Images/site-settings.webp
+    :alt: Site settings editor with the category Matomo statistics: Matomo URL, site ID, auth token as environment variable, demo data and annotations
+    :class: with-shadow
+
+    The same settings in :guilabel:`Sites > Setup > Edit settings`
+
 ..  confval:: analyticsMatomo.url
     :type: string
     :default: ''
@@ -153,6 +159,12 @@ Statistics are opt-in per backend group. Module sections use TYPO3's normal
 module access (see below), not custom options. Features outside the module
 are granted in the backend group record, tab :guilabel:`Access Rights`, field
 :guilabel:`Custom module options`, section :guilabel:`Analytics for Matomo`:
+
+..  figure:: /Images/permissions.webp
+    :alt: Backend group record with the Matomo dashboard widgets and the custom module options of Analytics for Matomo
+    :class: with-shadow
+
+    Dashboard widgets and custom module options of a backend group
 
 :guilabel:`View page statistics` (`analytics_matomo:pageStatistics`)
     The statistics bar in the Page module and the views in the page tree and
