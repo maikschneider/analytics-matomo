@@ -114,14 +114,15 @@ final class StatisticsBarListenerTest extends FunctionalTestCase
                 'function' => count($languageIds) > 1 ? 2 : 1,
                 'language' => $languageIds[0],
             ]));
+        $pageContext = [];
         if (class_exists(PageContextFactory::class)) {
-            $request = $request->withAttribute(
-                'pageContext',
-                $this->get(PageContextFactory::class)->createWithLanguages($request, $pageId, $languageIds, $GLOBALS['BE_USER'])
-            );
+            $pageContext[] = $this->get(PageContextFactory::class)->createWithLanguages($request, $pageId, $languageIds, $GLOBALS['BE_USER']);
+            $request = $request->withAttribute('pageContext', $pageContext[0]);
         }
 
-        $event = new ModifyPageLayoutContentEvent($request, $this->get(ModuleTemplateFactory::class)->create($request));
+        // The page context is a constructor argument since TYPO3 14.3.12, older versions ignore it
+        // @phpstan-ignore arguments.count (count of the unpacked list depends on the TYPO3 version)
+        $event = new ModifyPageLayoutContentEvent($request, $this->get(ModuleTemplateFactory::class)->create($request), ...$pageContext);
         $this->get(EventDispatcherInterface::class)->dispatch($event);
 
         return $event->getHeaderContent();
