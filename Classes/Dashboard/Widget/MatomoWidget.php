@@ -99,7 +99,6 @@ final class MatomoWidget implements WidgetInterface, RequestAwareWidgetInterface
             'hasPermission' => StatisticsPermission::isGranted($backendUser, StatisticsPermission::SITE),
         ];
         if ($selection !== null) {
-            $variables['reportUrl'] = $selection->configuration->getReportUrl($selection->period);
             [$module, $page] = self::DETAILS[$report] ?? ['', ''];
             $variables['moduleAccess'] = $module !== '' && $backendUser->check('modules', 'analytics_matomo') && $backendUser->check('modules', $module);
             if ($variables['moduleAccess']) {

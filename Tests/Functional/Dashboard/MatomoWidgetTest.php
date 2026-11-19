@@ -82,7 +82,6 @@ final class MatomoWidgetTest extends FunctionalTestCase
         self::assertStringContainsString('72.0 %', $html);
         self::assertStringContainsString('+6', $html);
         self::assertStringContainsString('Share of visits that left the site after one page.', $html);
-        self::assertStringContainsString('module=CoreHome', $html);
         // Admins choose between both configured sites
         self::assertStringContainsString('<option value="shop"', $html);
     }
@@ -140,6 +139,8 @@ final class MatomoWidgetTest extends FunctionalTestCase
         foreach ($links as $identifier => [$fixture, $route, $report]) {
             $html = $this->render(1, $identifier, $fixture);
             self::assertMatchesRegularExpression('#<a class="widget-cta" href="[^"]*' . preg_quote($route, '#') . '[^"]*' . $report . '"#', $html, $identifier);
+            self::assertSame(1, substr_count($html, 'class="widget-cta"'), $identifier);
+            self::assertStringNotContainsString('module=CoreHome', $html, $identifier);
             self::assertStringNotContainsString($route, $this->render(5, $identifier, $fixture), $identifier);
         }
 
@@ -222,7 +223,6 @@ final class MatomoWidgetTest extends FunctionalTestCase
 
         self::assertSame([], $this->sentRequests);
         self::assertStringContainsString('tx-analytics-matomo-metric--visits', $performance);
-        self::assertStringNotContainsString('module=CoreHome', $performance);
         self::assertStringContainsString('Demo data', $footer);
         self::assertStringContainsString('>About the trial</a>', $topPages);
     }
