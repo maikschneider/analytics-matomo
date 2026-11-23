@@ -131,6 +131,29 @@ final readonly class ImportRepository
     }
 
     /**
+     * Stored range, latest import and truncated days of the connection; null if it has no imported day.
+     */
+    public function overview(int $connection): ?ImportOverview
+    {
+        $queryBuilder = $this->queryBuilder(self::TABLE);
+        $row = $queryBuilder
+            ->selectLiteral(
+                $queryBuilder->expr()->min('day', 'oldest_day'),
+                $queryBuilder->expr()->max('day', 'newest_day'),
+                $queryBuilder->expr()->max('imported_at', 'last_imported_at'),
+                'SUM(CASE WHEN ' . $queryBuilder->quoteIdentifier('summary_hits') . ' > 0 THEN 1 ELSE 0 END) AS ' . $queryBuilder->quoteIdentifier('truncated_days'),
+            )
+            ->from(self::TABLE)
+            ->where($queryBuilder->expr()->eq('connection', $queryBuilder->createNamedParameter($connection, Connection::PARAM_INT)))
+            ->executeQuery()
+            ->fetchAssociative();
+        if ($row === false || $row['oldest_day'] === null) {
+            return null;
+        }
+        return new ImportOverview((int)$row['oldest_day'], (int)$row['newest_day'], (int)$row['last_imported_at'], (int)$row['truncated_days']);
+    }
+
+    /**
      * The newest imported day (Ymd), null if none.
      */
     public function newestDay(int $connection): ?int

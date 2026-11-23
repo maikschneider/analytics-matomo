@@ -116,6 +116,20 @@ final readonly class UrlPageMapper
     }
 
     /**
+     * The stored URLs of the connection are not (all) mapped with the current
+     * configuration of the site yet: remapSite() has work left.
+     */
+    public function isRemapPending(Site $site, int $connection): bool
+    {
+        $state = $this->connectionPool->getConnectionForTable(self::SITE_STATE_TABLE)
+            ->select(['config_hash', 'pending_hash'], self::SITE_STATE_TABLE, ['site' => $site->getIdentifier()])
+            ->fetchAssociative();
+        return $state === false
+            || trim((string)$state['pending_hash']) !== ''
+            || trim((string)$state['config_hash']) !== self::configHash($site, $connection);
+    }
+
+    /**
      * Maps the URLs to the site. A mapping to a page is replaced by another
      * page only, not by "no page" or "not on the site".
      *

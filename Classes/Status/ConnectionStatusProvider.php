@@ -6,7 +6,13 @@ namespace MaikSchneider\AnalyticsMatomo\Status;
 
 use MaikSchneider\AnalyticsMatomo\Configuration\MatomoConfiguration;
 use MaikSchneider\AnalyticsMatomo\Configuration\MatomoConfigurationResolver;
+use MaikSchneider\AnalyticsMatomo\Statistics\Store\ConnectionRepository;
+use MaikSchneider\AnalyticsMatomo\Statistics\Store\Day;
+use MaikSchneider\AnalyticsMatomo\Statistics\Store\ImportRepository;
+use MaikSchneider\AnalyticsMatomo\Statistics\Store\UrlPageMapper;
+use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Reports\Status;
@@ -23,6 +29,10 @@ final readonly class ConnectionStatusProvider implements StatusProviderInterface
         private SiteFinder $siteFinder,
         private MatomoConfigurationResolver $configurationResolver,
         private ConnectionCheck $connectionCheck,
+        private ConnectionRepository $connections,
+        private ImportRepository $imports,
+        private UrlPageMapper $urlPageMapper,
+        private Context $context,
     ) {
     }
 
@@ -64,10 +74,58 @@ final readonly class ConnectionStatusProvider implements StatusProviderInterface
                 $items[] = '<li>' . htmlspecialchars(vsprintf($this->label('status.' . $finding['key']), $finding['arguments'])) . '</li>';
             }
             $value = $result['version'] === '' ? $this->label('status.unreachable') : sprintf($this->label('status.version'), $result['version']);
-            $message = $items === [] ? htmlspecialchars(sprintf($this->label('status.healthy'), $configuration->idSite)) : '<ul>' . implode('', $items) . '</ul>';
+            $message = $items === [] ? htmlspecialchars(sprintf($this->label('status.healthy'), $configuration->idSite)) : '';
+            foreach ($this->pageViewStore($site, $configuration) as $line) {
+                $severity = $severity === null || $line['severity']->value > $severity->value ? $line['severity'] : $severity;
+                $items[] = '<li>' . htmlspecialchars($line['text']) . '</li>';
+            }
+            $message .= $items === [] ? '' : '<ul>' . implode('', $items) . '</ul>';
             $statuses[$identifier] = new Status($title, $value, $message, $severity ?? ContextualFeedbackSeverity::OK);
         }
         return $statuses;
+    }
+
+    /**
+     * Stored range, last import and truncated days of the page view store of
+     * the site's Matomo site; nothing when it has no store. Warns when today
+     * was not imported recently or the site's URLs are being mapped again.
+     *
+     * @return list<array{text: string, severity: ContextualFeedbackSeverity}>
+     */
+    private function pageViewStore(Site $site, MatomoConfiguration $configuration): array
+    {
+        if ($configuration->demo) {
+            return [];
+        }
+        $connection = $this->connections->find($configuration);
+        $overview = $connection === null ? null : $this->imports->overview($connection);
+        if ($connection === null || $overview === null) {
+            return [];
+        }
+
+        $now = $this->context->getPropertyFromAspect('date', 'full');
+        \assert($now instanceof \DateTimeImmutable);
+        $timezone = $now->getTimezone();
+        $lastImport = (new \DateTimeImmutable('@' . $overview->lastImportedAt))->setTimezone($timezone);
+        $today = Day::fromDate($now);
+        $isStale = $this->imports->coverage($connection, $today, $today, $now)->isStale;
+        $lines = [[
+            'text' => sprintf(
+                $this->label('status.pageViewStore'),
+                Day::toDate($overview->oldestDay, $timezone)->format('d.m.Y'),
+                Day::toDate($overview->newestDay, $timezone)->format('d.m.Y'),
+                $lastImport->format(Day::fromDate($lastImport) === $today ? 'H:i' : 'd.m.Y H:i'),
+                $overview->truncatedDays,
+            ),
+            'severity' => $isStale ? ContextualFeedbackSeverity::WARNING : ContextualFeedbackSeverity::OK,
+        ]];
+        if ($isStale) {
+            $lines[] = ['text' => sprintf($this->label('status.pageViewStoreStale'), intdiv(ImportRepository::STALE_AFTER, 3600)), 'severity' => ContextualFeedbackSeverity::WARNING];
+        }
+        if ($this->urlPageMapper->isRemapPending($site, $connection)) {
+            $lines[] = ['text' => $this->label('status.pageViewStoreRemap'), 'severity' => ContextualFeedbackSeverity::WARNING];
+        }
+        return $lines;
     }
 
     private function connection(string $identifier, MatomoConfiguration $configuration): string

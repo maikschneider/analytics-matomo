@@ -195,6 +195,21 @@ final class UrlPageMapperTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function aRemapIsPendingUntilAllStoredUrlsAreMappedWithTheCurrentConfiguration(): void
+    {
+        $this->storeDay(1, 20261120, $this->pages(10));
+        self::assertTrue($this->mapper()->isRemapPending($this->site('main'), 1));
+
+        $this->mapper()->remapSite($this->site('main'), 1, 5);
+        self::assertTrue($this->mapper()->isRemapPending($this->site('main'), 1));
+
+        $this->mapper()->remapSite($this->site('main'), 1, 100);
+        self::assertFalse($this->mapper()->isRemapPending($this->site('main'), 1));
+        self::assertTrue($this->mapper()->isRemapPending($this->withFrench($this->site('main')), 1));
+        self::assertTrue($this->mapper()->isRemapPending($this->site('main'), 2));
+    }
+
+    #[Test]
     public function sumByPageSumsTheUrlsOfAPagePerLanguage(): void
     {
         $uids = $this->storeDay(1, 20261120, [

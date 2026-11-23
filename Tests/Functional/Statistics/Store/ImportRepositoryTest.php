@@ -276,6 +276,28 @@ final class ImportRepositoryTest extends FunctionalTestCase
         self::assertSame([$other[UrlDayRows::hash('https://example.org/old')]], $this->column('tx_analyticsmatomo_url', 'uid', 2));
     }
 
+    #[Test]
+    public function overviewOfAConnectionWithoutImportsIsNull(): void
+    {
+        $this->markImported(2, 20261120, 1000, self::day(1));
+
+        self::assertNull($this->repository()->overview(1));
+    }
+
+    #[Test]
+    public function overviewHasTheStoredRangeLastImportAndTruncatedDays(): void
+    {
+        $this->markImported(1, 20261118, 3000, self::day(10, 2));
+        $this->markImported(1, 20261120, 2000, self::day(10));
+        $this->markImported(1, 20261119, 1000, self::day(10, 1));
+        $this->markImported(2, 20261121, 9000, self::day(10, 1));
+
+        $overview = $this->repository()->overview(1);
+
+        self::assertNotNull($overview);
+        self::assertSame([20261118, 20261120, 3000, 2], [$overview->oldestDay, $overview->newestDay, $overview->lastImportedAt, $overview->truncatedDays]);
+    }
+
     private function markDays(int $connection, int $from, int $to, int $importedAt): void
     {
         for ($date = new \DateTimeImmutable((string)$from); (int)$date->format('Ymd') <= $to; $date = $date->modify('+1 day')) {

@@ -6,13 +6,18 @@ namespace MaikSchneider\AnalyticsMatomo\Tests\Functional\Status;
 
 use GuzzleHttp\Promise\FulfilledPromise;
 use GuzzleHttp\Psr7\Response;
+use MaikSchneider\AnalyticsMatomo\Configuration\MatomoConfiguration;
 use MaikSchneider\AnalyticsMatomo\Matomo\DemoData;
+use MaikSchneider\AnalyticsMatomo\Statistics\Store\ConnectionRepository;
+use MaikSchneider\AnalyticsMatomo\Statistics\Store\ImportRepository;
+use MaikSchneider\AnalyticsMatomo\Statistics\Store\UrlPageMapper;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\RequestInterface;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\DateTimeAspect;
 use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
+use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Reports\Registry\StatusRegistry;
 use TYPO3\CMS\Reports\Status;
@@ -189,6 +194,107 @@ final class ConnectionStatusProviderTest extends FunctionalTestCase
 
         $this->statuses();
         self::assertCount($requests, $this->calls);
+    }
+
+    #[Test]
+    public function noPageViewStoreLineWithoutStoredDays(): void
+    {
+        $this->connection(3);
+
+        foreach ($this->statuses() as $status) {
+            self::assertStringNotContainsString('Page view store', $status->getMessage());
+        }
+    }
+
+    #[Test]
+    public function showsTheStoredRangeLastImportAndTruncatedDaysOfTheConnection(): void
+    {
+        $connection = $this->connection(3);
+        $now = (new \DateTimeImmutable(self::NOW))->getTimestamp();
+        $this->import($connection, 20261030, $now - 86400, summaryHits: 12);
+        $this->import($connection, 20261031, $now - 86400);
+        $this->import($connection, 20261101, $now - 3600, summaryHits: 3);
+        $this->import($connection, 20261102, $now - 1800);
+        $this->mapped('main', $connection);
+
+        $statuses = $this->statuses();
+
+        self::assertSame(ContextualFeedbackSeverity::OK, $statuses['main']->getSeverity());
+        self::assertStringContainsString('Page view store: 30.10.2026–02.11.2026, last import 14:00, 2 truncated days', $statuses['main']->getMessage());
+        self::assertStringContainsString('Reachable', $statuses['main']->getMessage());
+        // The shop reads another Matomo site
+        self::assertStringNotContainsString('Page view store', $statuses['shop']->getMessage());
+    }
+
+    #[Test]
+    public function warnsWhenTodayWasNotImportedRecently(): void
+    {
+        $connection = $this->connection(3);
+        $now = (new \DateTimeImmutable(self::NOW))->getTimestamp();
+        $this->import($connection, 20261101, $now - 86400);
+        $this->import($connection, 20261102, $now - ImportRepository::STALE_AFTER - 60);
+        $this->mapped('main', $connection);
+
+        $main = $this->statuses()['main'];
+
+        self::assertSame(ContextualFeedbackSeverity::WARNING, $main->getSeverity());
+        self::assertStringContainsString('last import 12:29, 0 truncated days', $main->getMessage());
+        self::assertStringContainsString('import-page-views', $main->getMessage());
+    }
+
+    #[Test]
+    public function showsTheDateOfALastImportBeforeToday(): void
+    {
+        $connection = $this->connection(3);
+        $this->import($connection, 20261031, (new \DateTimeImmutable('2026-11-01 01:15:00 UTC'))->getTimestamp());
+        $this->mapped('main', $connection);
+
+        $main = $this->statuses()['main'];
+
+        self::assertSame(ContextualFeedbackSeverity::WARNING, $main->getSeverity());
+        self::assertStringContainsString('Page view store: 31.10.2026–31.10.2026, last import 01.11.2026 01:15', $main->getMessage());
+    }
+
+    #[Test]
+    public function warnsWhileTheUrlsOfTheSiteAreMappedAgain(): void
+    {
+        $connection = $this->connection(3);
+        $this->import($connection, 20261102, (new \DateTimeImmutable(self::NOW))->getTimestamp() - 600);
+
+        $main = $this->statuses()['main'];
+
+        self::assertSame(ContextualFeedbackSeverity::WARNING, $main->getSeverity());
+        self::assertStringContainsString('Page view store', $main->getMessage());
+        self::assertStringContainsString('mapped to the pages again', $main->getMessage());
+
+        $this->mapped('main', $connection);
+        self::assertSame(ContextualFeedbackSeverity::OK, $this->statuses()['main']->getSeverity());
+    }
+
+    private function connection(int $idSite): int
+    {
+        return $this->get(ConnectionRepository::class)->getOrCreate(new MatomoConfiguration('https://matomo.example.com/', $idSite, ''));
+    }
+
+    private function import(int $connection, int $day, int $importedAt, int $summaryHits = 0): void
+    {
+        $this->getConnectionPool()->getConnectionForTable(ImportRepository::TABLE)->insert(ImportRepository::TABLE, [
+            'connection' => $connection,
+            'day' => $day,
+            'imported_at' => $importedAt,
+            'total_hits' => 100,
+            'summary_hits' => $summaryHits,
+            'row_count' => 10,
+        ]);
+    }
+
+    private function mapped(string $identifier, int $connection): void
+    {
+        $site = $this->get(SiteFinder::class)->getSiteByIdentifier($identifier);
+        $this->getConnectionPool()->getConnectionForTable(UrlPageMapper::SITE_STATE_TABLE)->insert(UrlPageMapper::SITE_STATE_TABLE, [
+            'site' => $identifier,
+            'config_hash' => UrlPageMapper::configHash($site, $connection),
+        ]);
     }
 
     /**
