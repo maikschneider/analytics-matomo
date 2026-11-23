@@ -152,6 +152,50 @@ final readonly class UrlDayRepository
     }
 
     /**
+     * Counts summed per page and language of the TYPO3 site over the days
+     * $from to $to (Ymd, both included), by the URL mapping of the site
+     * (UrlPageMapper). URLs that are not on the site or do not route to a
+     * page are left out.
+     *
+     * @return array<int, array<int, array<string, int>>> counts by column of PageMetrics::COUNTS, by language ID, by page ID (default language)
+     */
+    public function sumByPage(string $site, int $connection, int $from, int $to): array
+    {
+        $queryBuilder = $this->queryBuilder(self::TABLE);
+        $queryBuilder->select('p.page_id', 'p.language_id');
+        foreach (PageMetrics::COUNTS as $column) {
+            $queryBuilder->addSelectLiteral($queryBuilder->expr()->sum('d.' . $column, $column));
+        }
+        $result = $queryBuilder->from(self::TABLE, 'd')
+            ->join(
+                'd',
+                UrlPageMapper::TABLE,
+                'p',
+                (string)$queryBuilder->expr()->and(
+                    $queryBuilder->expr()->eq('p.url', $queryBuilder->quoteIdentifier('d.url')),
+                    $queryBuilder->expr()->eq('p.site', $queryBuilder->createNamedParameter($site)),
+                ),
+            )
+            ->where(
+                $queryBuilder->expr()->eq('d.connection', $queryBuilder->createNamedParameter($connection, Connection::PARAM_INT)),
+                $queryBuilder->expr()->gte('d.day', $queryBuilder->createNamedParameter($from, Connection::PARAM_INT)),
+                $queryBuilder->expr()->lte('d.day', $queryBuilder->createNamedParameter($to, Connection::PARAM_INT)),
+                $queryBuilder->expr()->gt('p.page_id', $queryBuilder->createNamedParameter(UrlPageMapper::NO_PAGE, Connection::PARAM_INT)),
+                $queryBuilder->expr()->gte('p.language_id', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
+            )
+            ->groupBy('p.page_id', 'p.language_id')
+            ->executeQuery();
+
+        $sums = [];
+        while ($row = $result->fetchAssociative()) {
+            foreach (PageMetrics::COUNTS as $column) {
+                $sums[(int)$row['page_id']][(int)$row['language_id']][$column] = (int)$row[$column];
+            }
+        }
+        return $sums;
+    }
+
+    /**
      * @param list<int> $urlUids
      * @return array<int, string> display URL by URL uid
      */
