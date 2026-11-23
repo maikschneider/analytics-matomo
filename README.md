@@ -29,7 +29,7 @@ Shows Matomo statistics in the TYPO3 backend: a statistics bar for the current p
 * Uses the URL of the selected language
 * Opt-in per backend group: separate permissions for page and site statistics
 * One HTTP request per page or widget and period, cached for an hour
-* Reuses the Matomo URL and site ID of EXT:matomo_integration, EXT:matomo_widgets or EXT:matomo_tracking
+* Reuses the Matomo URL and site ID of EXT:matomo_integration, EXT:matomo_widgets or EXT:matomo_tracking, or only their site ID with an own URL
 * Demo data mode (`analyticsMatomo.demoData`) to try it out without a Matomo instance
 
 | Statistics bar in the Page module | Dashboard widgets |
@@ -63,6 +63,8 @@ analyticsMatomo:
 ```
 
 Use the token of a Matomo user with view access to this one site.
+
+Several sites can share one settings file with `url` and `tokenAuth` only: the site ID then comes from EXT:matomo_integration, EXT:matomo_widgets or EXT:matomo_tracking of each site, e.g. `matomoTrackingSiteId` in its `config.yaml`.
 
 ## 📙 Documentation
 

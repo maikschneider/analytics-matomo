@@ -95,8 +95,8 @@
 				<target>Matomo-Website-ID</target>
 			</trans-unit>
 			<trans-unit id="settings.idSite.description" resname="settings.idSite.description">
-				<source>ID of this website in Matomo. Required when the Matomo URL is set.</source>
-				<target>ID dieser Website in Matomo. Pflicht, wenn die Matomo-URL gesetzt ist.</target>
+				<source>ID of this website in Matomo. 0 with a Matomo URL: the site ID of EXT:matomo_integration, EXT:matomo_widgets or EXT:matomo_tracking. Without a Matomo URL, see the URL setting.</source>
+				<target>ID dieser Website in Matomo. 0 mit Matomo-URL: die Website-ID aus EXT:matomo_integration, EXT:matomo_widgets oder EXT:matomo_tracking. Ohne Matomo-URL siehe die URL-Einstellung.</target>
 			</trans-unit>
 			<trans-unit id="settings.tokenAuth" resname="settings.tokenAuth">
 				<source>Matomo auth token</source>

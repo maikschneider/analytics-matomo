@@ -89,15 +89,64 @@ final class MatomoConfigurationResolverTest extends UnitTestCase
     }
 
     #[Test]
+    public function ownUrlWithoutSiteIdTakesSiteIdOfMatomoTracking(): void
+    {
+        $site = new Site('main', 1, [
+            'settings' => ['analyticsMatomo' => ['url' => 'https://own.example.com', 'tokenAuth' => 'own-token']],
+            'matomoTrackingSiteId' => '12',
+        ]);
+
+        self::assertEquals(
+            new MatomoConfiguration('https://own.example.com', 12, 'own-token'),
+            $this->subject()->resolve($site)
+        );
+    }
+
+    #[Test]
+    public function ownUrlWithoutSiteIdTakesSiteIdsInFallbackOrder(): void
+    {
+        $configuration = [
+            'settings' => ['analyticsMatomo' => ['url' => 'https://own.example.com', 'idSite' => 0]],
+            'matomoIntegrationSiteId' => '3',
+            'matomoWidgetsUrl' => 'https://widgets.example.com',
+            'matomoWidgetsIdSite' => '4',
+            'matomoWidgetsTokenAuth' => 'widgets-token',
+            'matomoTrackingSiteId' => '12',
+        ];
+
+        self::assertEquals(
+            new MatomoConfiguration('https://own.example.com', 3, ''),
+            $this->subject('https://tracking.example.com/')->resolve(new Site('main', 1, $configuration))
+        );
+        unset($configuration['matomoIntegrationSiteId']);
+        self::assertEquals(
+            new MatomoConfiguration('https://own.example.com', 4, ''),
+            $this->subject('https://tracking.example.com/')->resolve(new Site('main', 1, $configuration))
+        );
+    }
+
+    #[Test]
+    public function ownSiteIdWinsOverSiteIdsOfOtherExtensions(): void
+    {
+        $site = new Site('main', 1, [
+            'settings' => ['analyticsMatomo' => ['url' => 'https://own.example.com', 'idSite' => 7]],
+            'matomoIntegrationSiteId' => '3',
+            'matomoWidgetsIdSite' => '4',
+            'matomoTrackingSiteId' => '12',
+        ]);
+
+        self::assertEquals(new MatomoConfiguration('https://own.example.com', 7, ''), $this->subject()->resolve($site));
+    }
+
+    #[Test]
     public function siteWithoutUrlOrSiteIdHasNoConfiguration(): void
     {
         self::assertNull($this->subject()->resolve(new Site('main', 1, ['matomoIntegrationSiteId' => '3'])));
         self::assertNull($this->subject()->resolve(new Site('main', 1, ['matomoIntegrationUrl' => 'https://integration.example.com'])));
-        // An incomplete own connection must not be completed with the site ID of another Matomo
         self::assertNull($this->subject()->resolve(new Site('main', 1, [
-            'settings' => ['analyticsMatomo' => ['url' => 'https://own.example.com']],
+            'settings' => ['analyticsMatomo' => ['url' => 'https://own.example.com', 'tokenAuth' => 'own-token']],
             'matomoIntegrationUrl' => 'https://integration.example.com',
-            'matomoIntegrationSiteId' => '3',
+            'matomoTrackingSiteId' => '0',
         ])));
     }
 
