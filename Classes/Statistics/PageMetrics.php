@@ -11,7 +11,7 @@ use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
  */
 final readonly class PageMetrics
 {
-    private const COUNTS = ['nb_hits', 'nb_visits', 'sum_time_spent', 'entry_nb_visits', 'entry_bounce_count', 'exit_nb_visits'];
+    public const COUNTS = ['nb_hits', 'nb_visits', 'sum_time_spent', 'entry_nb_visits', 'entry_bounce_count', 'exit_nb_visits'];
 
     public function __construct(
         public int $views = 0,

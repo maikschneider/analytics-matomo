@@ -1,0 +1,62 @@
+[
+	{
+		"label": "/",
+		"nb_visits": 5,
+		"nb_hits": 5,
+		"sum_time_spent": 8,
+		"entry_nb_visits": "5",
+		"entry_bounce_count": "5",
+		"exit_nb_visits": "5",
+		"url": "http://www.virtual-drums.com/",
+		"Actions_PageUrl": "/",
+		"segment": "pageUrl==http%253A%252F%252Fwww.virtual-drums.com%252F"
+	},
+	{
+		"label": "/technology.php",
+		"nb_visits": 1,
+		"nb_hits": 1,
+		"sum_time_spent": 0,
+		"entry_nb_visits": "1",
+		"entry_bounce_count": "1",
+		"exit_nb_visits": "1",
+		"url": "http://www.virtual-drums.com/technology.php",
+		"Actions_PageUrl": "/technology.php",
+		"segment": "pageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Ftechnology.php"
+	},
+	{
+		"label": "/xss3cvar/?xss=cvar",
+		"nb_visits": 1,
+		"nb_hits": 1,
+		"sum_time_spent": 0,
+		"entry_nb_visits": "1",
+		"entry_bounce_count": "1",
+		"exit_nb_visits": "1",
+		"url": "http://www.virtual-drums.com/xss3cvar/?xss=cvar",
+		"Actions_PageUrl": "/xss3cvar/?xss=cvar",
+		"segment": "pageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Fxss3cvar%252F%253Fxss%253Dcvar"
+	},
+	{
+		"label": "/xss3ent/?xss=ent",
+		"nb_visits": 1,
+		"nb_hits": 1,
+		"sum_time_spent": 0,
+		"entry_nb_visits": "1",
+		"entry_bounce_count": "1",
+		"exit_nb_visits": "1",
+		"url": "http://www.virtual-drums.com/xss3ent/?xss=ent",
+		"Actions_PageUrl": "/xss3ent/?xss=ent",
+		"segment": "pageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Fxss3ent%252F%253Fxss%253Dent"
+	},
+	{
+		"label": "/xss3pv/?xss=\"><svg onload=alert(\"PVU3b\")>",
+		"nb_visits": 1,
+		"nb_hits": 1,
+		"sum_time_spent": 0,
+		"entry_nb_visits": "1",
+		"entry_bounce_count": "0",
+		"exit_nb_visits": "1",
+		"url": "http://www.virtual-drums.com/xss3pv/?xss=\"><svg onload=alert(\"PVU3b\")>",
+		"Actions_PageUrl": "/xss3pv/?xss=\"><svg onload=alert(\"PVU3b\")>",
+		"segment": "pageUrl==http%253A%252F%252Fwww.virtual-drums.com%252Fxss3pv%252F%253Fxss%253D%2526quot%253B%2526gt%253B%2526lt%253Bsvg%2Bonload%253Dalert%2528%2526quot%253BPVU3b%2526quot%253B%2529%2526gt%253B"
+	}
+]
