@@ -34,7 +34,8 @@ Site settings
     :type: int
     :default: 0
 
-    ID of the website in Matomo.
+    ID of the website in Matomo. `0`: the site ID of another Matomo extension,
+    see :ref:`reuse`.
 
 ..  confval:: analyticsMatomo.tokenAuth
     :type: string
@@ -130,6 +131,8 @@ access of the site's token and shows:
 Matomo's answers are cached for ten minutes. The token is never shown. Demo
 sites run the same checks against the demo data.
 
+..  _reuse:
+
 Reuse of other Matomo extensions
 ================================
 
@@ -149,6 +152,33 @@ EXT:matomo_tracking         `matomoUrl` (extension configuration)      `matomoTr
 token `matomoWidgetsTokenAuth` is used, but only for the Matomo of
 EXT:matomo_widgets. The token of EXT:matomo_tracking is not reused: it is a
 tracking token.
+
+With :confval:`analyticsMatomo.url` but without
+:confval:`analyticsMatomo.idSite`, the own URL and token are used with the
+first site ID set in the table above, in its order, even if that extension
+has no URL. One settings file can then serve all sites, while the site IDs
+stay in each site's :file:`config.yaml`:
+
+..  code-block:: yaml
+    :caption: config/matomo.settings.yaml
+
+    analyticsMatomo:
+      url: 'https://matomo.example.com/'
+      tokenAuth: '%env(MATOMO_TOKEN)%'
+
+..  code-block:: yaml
+    :caption: config/sites/<site>/settings.yaml
+
+    imports:
+      - { resource: '../../matomo.settings.yaml' }
+
+..  code-block:: yaml
+    :caption: config/sites/<site>/config.yaml
+
+    matomoTrackingSiteId: 12
+
+The site IDs must belong to the Matomo of :confval:`analyticsMatomo.url`. A
+site without any site ID has no statistics.
 
 ..  _access:
 

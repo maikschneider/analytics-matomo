@@ -13,9 +13,10 @@ use TYPO3\CMS\Core\Site\Entity\Site;
  * Reads the Matomo connection of a site from its site settings. Without an own
  * URL, URL and site ID are taken together from the first of EXT:matomo_integration,
  * EXT:matomo_widgets and EXT:matomo_tracking that has a URL, so sites using one of
- * them don't have to configure Matomo twice. The own token is used with any of
- * them; the token of EXT:matomo_widgets only with its own URL, so it is never
- * sent to another server.
+ * them don't have to configure Matomo twice. An own URL without own site ID takes
+ * the first site ID of these extensions, so a shared settings.yaml can hold URL
+ * and token for all sites. The own token is used with any of them; the token of
+ * EXT:matomo_widgets only with its own URL, so it is never sent to another server.
  */
 final readonly class MatomoConfigurationResolver
 {
@@ -33,8 +34,24 @@ final readonly class MatomoConfigurationResolver
         $configuration = $site->getConfiguration();
         $tokenAuth = $this->value($settings->get('analyticsMatomo.tokenAuth'));
 
+        $url = $this->value($settings->get('analyticsMatomo.url'));
+        if ($url !== '') {
+            $siteIds = [
+                $settings->get('analyticsMatomo.idSite'),
+                $configuration['matomoIntegrationSiteId'] ?? null,
+                $configuration['matomoWidgetsIdSite'] ?? null,
+                $configuration['matomoTrackingSiteId'] ?? null,
+            ];
+            foreach ($siteIds as $idSite) {
+                $idSite = (int)$this->value($idSite);
+                if ($idSite > 0) {
+                    return new MatomoConfiguration($url, $idSite, $tokenAuth);
+                }
+            }
+            return null;
+        }
+
         $connections = [
-            [$settings->get('analyticsMatomo.url'), $settings->get('analyticsMatomo.idSite'), null],
             [$configuration['matomoIntegrationUrl'] ?? null, $configuration['matomoIntegrationSiteId'] ?? null, null],
             [$configuration['matomoWidgetsUrl'] ?? null, $configuration['matomoWidgetsIdSite'] ?? null, $configuration['matomoWidgetsTokenAuth'] ?? null],
             [$this->getMatomoTrackingUrl(), $configuration['matomoTrackingSiteId'] ?? null, null],
