@@ -24,6 +24,14 @@ services:
         description: 'Mail the weekly Matomo digest to backend groups that receive it'
         schedulable: true
 
+  MaikSchneider\AnalyticsMatomo\Command\ImportPageViewsCommand:
+    autoconfigure: false
+    tags:
+      - name: console.command
+        command: 'analytics-matomo:import-page-views'
+        description: 'Import the page views per day from Matomo into the page view store'
+        schedulable: true
+
   MaikSchneider\AnalyticsMatomo\Annotation\AnnotationWriter:
     tags:
       - name: messenger.message_handler

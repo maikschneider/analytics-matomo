@@ -1,0 +1,23 @@
+base: 'https://shop.example.org/'
+rootPageId: 10
+dependencies:
+  - maikschneider/analytics-matomo
+languages:
+  -
+    title: English
+    enabled: true
+    languageId: 0
+    base: /
+    locale: en_US.UTF-8
+    navigationTitle: English
+    flag: gb
+  -
+    title: Deutsch
+    enabled: true
+    languageId: 1
+    base: 'https://shop.example.de/'
+    locale: de_DE.UTF-8
+    navigationTitle: Deutsch
+    flag: de
+    fallbackType: fallback
+    fallbacks: '0'
