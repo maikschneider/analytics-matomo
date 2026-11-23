@@ -68,65 +68,130 @@ final class UrlPageMapperTest extends FunctionalTestCase
     }
 
     #[Test]
-    public function refreshSiteMapsAllStoredUrlsOfASiteNewToTheConnection(): void
+    public function anOldSlugKeepsItsPageAndAUrlRoutingToAnotherPageFollowsIt(): void
+    {
+        $uids = $this->storeDay(1, 20261120, ['https://example.com/about' => [5], 'https://example.com/summer-sale' => [1]]);
+        $this->mapper()->mapUrls($this->site('main'), $this->urls($uids));
+        self::assertSame([$uids['https://example.com/about'] => [0, 2], $uids['https://example.com/summer-sale'] => [0, 5]], $this->mappings('main'));
+
+        $pages = $this->getConnectionPool()->getConnectionForTable('pages');
+        $pages->update('pages', ['slug' => '/about-us'], ['uid' => 2]);
+        $pages->update('pages', ['slug' => '/sale'], ['uid' => 5]);
+        $pages->insert('pages', [
+            'uid' => 8, 'pid' => 1, 'title' => 'Summer sale 2027', 'slug' => '/summer-sale', 'doktype' => 1,
+            'perms_userid' => 1, 'perms_groupid' => 1, 'perms_user' => 31, 'perms_group' => 1,
+        ]);
+        // An old day imported again, and a re-map after a new language
+        $this->storeDay(1, 20261119, ['https://example.com/about' => [1], 'https://example.com/summer-sale' => [1]]);
+        $this->mapper()->mapUrls($this->site('main'), $this->urls($uids));
+        $this->mapper()->remapSite($this->withFrench($this->site('main')), 1, 100);
+
+        // /about does not route anymore: it keeps counting for page 2. /summer-sale routes to page 8 now.
+        self::assertSame([$uids['https://example.com/about'] => [0, 2], $uids['https://example.com/summer-sale'] => [0, 8]], $this->mappings('main'));
+    }
+
+    #[Test]
+    public function mapUnmappedUrlsLeavesMappedUrlsAlone(): void
+    {
+        $uids = $this->storeDay(1, 20261120, ['https://example.com/new-page' => [5]]);
+        $this->mapper()->mapUrls($this->site('main'), $this->urls($uids));
+        $this->getConnectionPool()->getConnectionForTable('pages')->insert('pages', [
+            'uid' => 8, 'pid' => 1, 'title' => 'New page', 'slug' => '/new-page', 'doktype' => 1,
+            'perms_userid' => 1, 'perms_groupid' => 1, 'perms_user' => 31, 'perms_group' => 1,
+        ]);
+        $uids += $this->storeDay(1, 20261119, ['https://example.com/about' => [1]]);
+
+        $this->mapper()->mapUnmappedUrls($this->site('main'), $this->urls($uids));
+
+        self::assertSame([$uids['https://example.com/new-page'] => [0, 0], $uids['https://example.com/about'] => [0, 2]], $this->mappings('main'));
+    }
+
+    #[Test]
+    public function remapSiteMapsAllStoredUrlsOfASiteNewToTheConnection(): void
     {
         $uids = $this->storeDay(1, 20261120, ['https://example.com/about' => [5], 'https://shop.example.org/products/' => [3]]);
         $uids += $this->storeDay(1, 20261119, ['https://shop.example.de/produkte/' => [1]]);
         $this->storeDay(2, 20261120, ['https://shop.example.org/imprint' => [1]]);
         $this->mapper()->mapUrls($this->site('main'), $this->urls($uids));
 
-        self::assertTrue($this->mapper()->refreshSite($this->site('shop'), 1));
+        self::assertSame(3, $this->mapper()->remapSite($this->site('shop'), 1, 100));
 
         self::assertSame([
             $uids['https://example.com/about'] => [-1, 0],
             $uids['https://shop.example.org/products/'] => [0, 11],
             $uids['https://shop.example.de/produkte/'] => [1, 11],
         ], $this->mappings('shop'));
-        // Mapped once: the next refresh with the same configuration does nothing
-        self::assertFalse($this->mapper()->refreshSite($this->site('shop'), 1));
+        self::assertSame(['config_hash' => UrlPageMapper::configHash($this->site('shop'), 1), 'pending_hash' => '', 'remap_cursor' => 0], $this->state('shop'));
+        // Mapped once: the next re-map with the same configuration does nothing
+        self::assertSame(0, $this->mapper()->remapSite($this->site('shop'), 1, 100));
     }
 
     #[Test]
-    public function refreshSiteMapsAllStoredUrlsAgainWhenTheSiteConfigurationChanges(): void
+    public function remapSiteMapsAllStoredUrlsAgainWhenTheSiteConfigurationChanges(): void
     {
         $uids = $this->storeDay(1, 20261120, ['https://example.com/fr/about' => [5]]);
-        $this->mapper()->refreshSite($this->site('main'), 1);
+        $this->mapper()->remapSite($this->site('main'), 1, 100);
         self::assertSame([$uids['https://example.com/fr/about'] => [0, 0]], $this->mappings('main'));
-        self::assertFalse($this->mapper()->refreshSite($this->site('main'), 1));
+        self::assertSame(0, $this->mapper()->remapSite($this->site('main'), 1, 100));
 
-        $configuration = $this->site('main')->getConfiguration();
-        $configuration['languages'][] = [
-            'title' => 'Français', 'enabled' => true, 'languageId' => 2, 'base' => '/fr/', 'locale' => 'fr_FR.UTF-8',
-            'fallbackType' => 'fallback', 'fallbacks' => '0',
-        ];
-        $changed = new Site('main', 1, $configuration);
-
-        self::assertTrue($this->mapper()->refreshSite($changed, 1));
+        self::assertSame(1, $this->mapper()->remapSite($this->withFrench($this->site('main')), 1, 100));
         self::assertSame([$uids['https://example.com/fr/about'] => [2, 2]], $this->mappings('main'));
     }
 
     #[Test]
-    public function refreshSiteMapsAllStoredUrlsWhenTheSiteMovesToAnotherConnection(): void
+    public function remapSiteMapsAllStoredUrlsWhenTheSiteMovesToAnotherConnection(): void
     {
-        $this->mapper()->refreshSite($this->site('main'), 1);
+        $this->mapper()->remapSite($this->site('main'), 1, 100);
         $uids = $this->storeDay(2, 20261120, ['https://example.com/about' => [5]]);
 
-        self::assertTrue($this->mapper()->refreshSite($this->site('main'), 2));
+        self::assertSame(1, $this->mapper()->remapSite($this->site('main'), 2, 100));
         self::assertSame([$uids['https://example.com/about'] => [0, 2]], $this->mappings('main'));
     }
 
     #[Test]
-    public function refreshSiteMapsLargeConnectionsInChunks(): void
+    public function remapSiteMapsLargeConnectionsInChunks(): void
     {
-        $counts = [];
-        for ($i = 0; $i < 2100; $i++) {
-            $counts['https://example.com/page-' . $i] = [1];
-        }
-        $this->storeDay(1, 20261120, $counts);
+        $this->storeDay(1, 20261120, $this->pages(2100));
 
-        $this->mapper()->refreshSite($this->site('main'), 1);
+        self::assertSame(2100, $this->mapper()->remapSite($this->site('main'), 1, 5000));
 
         self::assertCount(2100, $this->mappings('main'));
+    }
+
+    #[Test]
+    public function anInterruptedRemapResumesFromItsCursorWithinTheLimit(): void
+    {
+        $uids = $this->storeDay(1, 20261120, $this->pages(2500));
+        $hash = UrlPageMapper::configHash($this->site('main'), 1);
+
+        self::assertSame(1200, $this->mapper()->remapSite($this->site('main'), 1, 1200));
+
+        self::assertCount(1200, $this->mappings('main'));
+        $cursor = $uids['https://example.com/page-1199'];
+        self::assertSame(['config_hash' => '', 'pending_hash' => $hash, 'remap_cursor' => $cursor], $this->state('main'));
+
+        // The mapping of a URL before the cursor is not repeated
+        $this->getConnectionPool()->getConnectionForTable(UrlPageMapper::TABLE)->delete(UrlPageMapper::TABLE, ['site' => 'main', 'url' => $uids['https://example.com/page-0']]);
+        self::assertSame(1000, $this->mapper()->remapSite($this->site('main'), 1, 1000));
+        self::assertCount(2199, $this->mappings('main'));
+        self::assertSame($uids['https://example.com/page-2199'], $this->state('main')['remap_cursor']);
+
+        self::assertSame(300, $this->mapper()->remapSite($this->site('main'), 1, 1000));
+        self::assertSame(['config_hash' => $hash, 'pending_hash' => '', 'remap_cursor' => 0], $this->state('main'));
+        self::assertSame(0, $this->mapper()->remapSite($this->site('main'), 1, 1000));
+    }
+
+    #[Test]
+    public function aConfigurationChangeDuringAPendingRemapRestartsIt(): void
+    {
+        $uids = $this->storeDay(1, 20261120, ['https://example.com/fr/about' => [1]] + $this->pages(10));
+        self::assertSame(5, $this->mapper()->remapSite($this->site('main'), 1, 5));
+
+        $changed = $this->withFrench($this->site('main'));
+        self::assertSame(11, $this->mapper()->remapSite($changed, 1, 100));
+
+        self::assertSame([2, 2], $this->mappings('main')[$uids['https://example.com/fr/about']]);
+        self::assertSame(['config_hash' => UrlPageMapper::configHash($changed, 1), 'pending_hash' => '', 'remap_cursor' => 0], $this->state('main'));
     }
 
     #[Test]
@@ -216,6 +281,40 @@ final class UrlPageMapperTest extends FunctionalTestCase
             $mappings[(int)$row['url']] = [(int)$row['language_id'], (int)$row['page_id']];
         }
         return $mappings;
+    }
+
+    /**
+     * @return array<string, list<int>>
+     */
+    private function pages(int $count): array
+    {
+        $counts = [];
+        for ($i = 0; $i < $count; $i++) {
+            $counts['https://example.com/page-' . $i] = [1];
+        }
+        return $counts;
+    }
+
+    /**
+     * @return array{config_hash: string, pending_hash: string, remap_cursor: int}
+     */
+    private function state(string $site): array
+    {
+        $row = $this->getConnectionPool()->getConnectionForTable(UrlPageMapper::SITE_STATE_TABLE)
+            ->select(['config_hash', 'pending_hash', 'remap_cursor'], UrlPageMapper::SITE_STATE_TABLE, ['site' => $site])
+            ->fetchAssociative();
+        self::assertIsArray($row);
+        return ['config_hash' => trim((string)$row['config_hash']), 'pending_hash' => trim((string)$row['pending_hash']), 'remap_cursor' => (int)$row['remap_cursor']];
+    }
+
+    private function withFrench(Site $site): Site
+    {
+        $configuration = $site->getConfiguration();
+        $configuration['languages'][] = [
+            'title' => 'Français', 'enabled' => true, 'languageId' => 2, 'base' => '/fr/', 'locale' => 'fr_FR.UTF-8',
+            'fallbackType' => 'fallback', 'fallbacks' => '0',
+        ];
+        return new Site($site->getIdentifier(), $site->getRootPageId(), $configuration);
     }
 
     private function site(string $identifier): Site

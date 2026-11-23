@@ -13,10 +13,14 @@ use TYPO3\CMS\Core\Site\Entity\Site;
 /**
  * Maps the stored URLs of a connection to the language and page of a TYPO3
  * site (PageUrlMapper::match()), by last sight: every import maps the URLs of
- * the imported day again, so current URLs follow the current page tree, and
- * URLs not seen anymore keep their last mapping (an old slug keeps counting
- * for its page). All stored URLs are mapped again when the site is new to the
- * connection or its base, languages or base variants changed.
+ * the newest imported day again, so current URLs follow the current page
+ * tree. A mapping to a page is never replaced by "no page" or "not on the
+ * site", only by another page: an old slug keeps counting for its page.
+ * Older days of a backfill map only URLs without mapping.
+ *
+ * All stored URLs are mapped again when the site is new to the connection or
+ * its base, languages or base variants changed (remapSite()), in chunks that
+ * may spread over several runs; the old mappings stay valid meanwhile.
  *
  * Callers must hold the import lock of the connection.
  */
@@ -44,81 +48,133 @@ final readonly class UrlPageMapper
     }
 
     /**
-     * Maps all stored URLs of the connection for the site when the site was
-     * not mapped for this connection yet or its configuration changed.
+     * Maps up to $limit stored URLs of the connection for the site, when the
+     * site was not mapped for this connection yet or its configuration
+     * changed. Resumes where the previous call stopped; a configuration
+     * change meanwhile starts over.
      *
-     * @return bool whether the URLs were mapped
+     * @return int URLs mapped
      */
-    public function refreshSite(Site $site, int $connection): bool
+    public function remapSite(Site $site, int $connection, int $limit): int
     {
         $database = $this->connectionPool->getConnectionForTable(self::SITE_STATE_TABLE);
-        $stored = $database->select(['config_hash'], self::SITE_STATE_TABLE, ['site' => $site->getIdentifier()])->fetchOne();
+        $identifier = ['site' => $site->getIdentifier()];
         $hash = self::configHash($site, $connection);
-        if ($stored === $hash) {
-            return false;
+        $state = $database->select(['config_hash', 'pending_hash', 'remap_cursor'], self::SITE_STATE_TABLE, $identifier)->fetchAssociative();
+        if ($state === false) {
+            $state = ['config_hash' => '', 'pending_hash' => $hash, 'remap_cursor' => 0];
+            try {
+                $database->insert(self::SITE_STATE_TABLE, $identifier + $state);
+            } catch (UniqueConstraintViolationException) {
+                $database->update(self::SITE_STATE_TABLE, ['pending_hash' => $hash, 'remap_cursor' => 0], $identifier);
+            }
+        }
+        $configHash = trim((string)$state['config_hash']);
+        $pendingHash = trim((string)$state['pending_hash']);
+        $cursor = (int)$state['remap_cursor'];
+        if ($pendingHash === '' && $configHash === $hash) {
+            return 0;
+        }
+        if ($pendingHash !== $hash) {
+            // Changed since the last re-map, or during the pending one
+            $cursor = 0;
+            $database->update(self::SITE_STATE_TABLE, ['pending_hash' => $hash, 'remap_cursor' => $cursor], $identifier);
         }
 
         $urlDatabase = $this->connectionPool->getConnectionForTable(UrlDayRepository::URL_TABLE);
-        $last = 0;
-        do {
+        $mapped = 0;
+        while ($mapped < $limit) {
+            $size = min(self::CHUNK_SIZE, $limit - $mapped);
             $queryBuilder = $urlDatabase->createQueryBuilder();
             $queryBuilder->getRestrictions()->removeAll();
             $rows = $queryBuilder->select('uid', 'url')
                 ->from(UrlDayRepository::URL_TABLE)
                 ->where(
                     $queryBuilder->expr()->eq('connection', $queryBuilder->createNamedParameter($connection, Connection::PARAM_INT)),
-                    $queryBuilder->expr()->gt('uid', $queryBuilder->createNamedParameter($last, Connection::PARAM_INT)),
+                    $queryBuilder->expr()->gt('uid', $queryBuilder->createNamedParameter($cursor, Connection::PARAM_INT)),
                 )
                 ->orderBy('uid')
-                ->setMaxResults(self::CHUNK_SIZE)
+                ->setMaxResults($size)
                 ->executeQuery()
                 ->fetchAllAssociative();
-            $urls = [];
-            foreach ($rows as $row) {
-                $urls[(int)$row['uid']] = (string)$row['url'];
+            if ($rows !== []) {
+                $urls = [];
+                foreach ($rows as $row) {
+                    $urls[(int)$row['uid']] = (string)$row['url'];
+                }
+                $this->mapUrls($site, $urls);
+                $mapped += count($urls);
+                $cursor = max(array_keys($urls));
+                $database->update(self::SITE_STATE_TABLE, ['remap_cursor' => $cursor], $identifier);
             }
-            $this->mapUrls($site, $urls);
-            $last = $urls === [] ? $last : max(array_keys($urls));
-        } while (count($rows) === self::CHUNK_SIZE);
-
-        if ($stored === false) {
-            try {
-                $database->insert(self::SITE_STATE_TABLE, ['site' => $site->getIdentifier(), 'config_hash' => $hash]);
-                return true;
-            } catch (UniqueConstraintViolationException) {
+            if (count($rows) < $size) {
+                $database->update(self::SITE_STATE_TABLE, ['config_hash' => $hash, 'pending_hash' => '', 'remap_cursor' => 0], $identifier);
+                break;
             }
         }
-        $database->update(self::SITE_STATE_TABLE, ['config_hash' => $hash], ['site' => $site->getIdentifier()]);
-        return true;
+        return $mapped;
     }
 
     /**
-     * Maps the URLs to the site, replacing their previous mapping.
+     * Maps the URLs to the site. A mapping to a page is replaced by another
+     * page only, not by "no page" or "not on the site".
      *
      * @param array<int, string> $urls display URL by URL uid
      */
     public function mapUrls(Site $site, array $urls): void
     {
+        $this->map($site, $urls, false);
+    }
+
+    /**
+     * Maps the URLs that have no mapping for the site yet.
+     *
+     * @param array<int, string> $urls display URL by URL uid
+     */
+    public function mapUnmappedUrls(Site $site, array $urls): void
+    {
+        $this->map($site, $urls, true);
+    }
+
+    /**
+     * @param array<int, string> $urls display URL by URL uid
+     */
+    private function map(Site $site, array $urls, bool $unmappedOnly): void
+    {
         $database = $this->connectionPool->getConnectionForTable(self::TABLE);
         foreach (array_chunk($urls, self::CHUNK_SIZE, true) as $chunk) {
+            $existing = $this->mappings($database, $site, array_keys($chunk));
             $data = [];
+            $replaced = [];
             foreach ($chunk as $uid => $url) {
+                $old = $existing[$uid] ?? null;
+                if ($old !== null && $unmappedOnly) {
+                    continue;
+                }
                 $match = $this->pageUrlMapper->match($site, $url);
-                $data[] = [
-                    $site->getIdentifier(),
-                    $uid,
-                    $match?->language->getLanguageId() ?? self::NOT_ON_SITE,
-                    $match->pageId ?? self::NO_PAGE,
-                ];
+                $new = [$match?->language->getLanguageId() ?? self::NOT_ON_SITE, $match->pageId ?? self::NO_PAGE];
+                if ($old !== null) {
+                    // The last valid mapping stays: "not on the site" has no page either
+                    if ($old === $new || ($old[1] !== self::NO_PAGE && $new[1] === self::NO_PAGE)) {
+                        continue;
+                    }
+                    $replaced[] = $uid;
+                }
+                $data[] = [$site->getIdentifier(), $uid, ...$new];
             }
-            $database->transactional(static function (Connection $database) use ($site, $chunk, $data): void {
-                $queryBuilder = $database->createQueryBuilder();
-                $queryBuilder->delete(self::TABLE)
-                    ->where(
-                        $queryBuilder->expr()->eq('site', $queryBuilder->createNamedParameter($site->getIdentifier())),
-                        $queryBuilder->expr()->in('url', $queryBuilder->createNamedParameter(array_keys($chunk), Connection::PARAM_INT_ARRAY)),
-                    )
-                    ->executeStatement();
+            if ($data === []) {
+                continue;
+            }
+            $database->transactional(static function (Connection $database) use ($site, $replaced, $data): void {
+                if ($replaced !== []) {
+                    $queryBuilder = $database->createQueryBuilder();
+                    $queryBuilder->delete(self::TABLE)
+                        ->where(
+                            $queryBuilder->expr()->eq('site', $queryBuilder->createNamedParameter($site->getIdentifier())),
+                            $queryBuilder->expr()->in('url', $queryBuilder->createNamedParameter($replaced, Connection::PARAM_INT_ARRAY)),
+                        )
+                        ->executeStatement();
+                }
                 $database->bulkInsert(
                     self::TABLE,
                     $data,
@@ -127,6 +183,28 @@ final readonly class UrlPageMapper
                 );
             });
         }
+    }
+
+    /**
+     * @param list<int> $urlUids
+     * @return array<int, array{int, int}> language and page by URL uid
+     */
+    private function mappings(Connection $database, Site $site, array $urlUids): array
+    {
+        $queryBuilder = $database->createQueryBuilder();
+        $queryBuilder->getRestrictions()->removeAll();
+        $result = $queryBuilder->select('url', 'language_id', 'page_id')
+            ->from(self::TABLE)
+            ->where(
+                $queryBuilder->expr()->eq('site', $queryBuilder->createNamedParameter($site->getIdentifier())),
+                $queryBuilder->expr()->in('url', $queryBuilder->createNamedParameter($urlUids, Connection::PARAM_INT_ARRAY)),
+            )
+            ->executeQuery();
+        $mappings = [];
+        while ($row = $result->fetchAssociative()) {
+            $mappings[(int)$row['url']] = [(int)$row['language_id'], (int)$row['page_id']];
+        }
+        return $mappings;
     }
 
     /**

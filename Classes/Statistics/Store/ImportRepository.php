@@ -131,6 +131,20 @@ final readonly class ImportRepository
     }
 
     /**
+     * The newest imported day (Ymd), null if none.
+     */
+    public function newestDay(int $connection): ?int
+    {
+        $queryBuilder = $this->queryBuilder(self::TABLE);
+        $day = $queryBuilder->selectLiteral($queryBuilder->expr()->max('day'))
+            ->from(self::TABLE)
+            ->where($queryBuilder->expr()->eq('connection', $queryBuilder->createNamedParameter($connection, Connection::PARAM_INT)))
+            ->executeQuery()
+            ->fetchOne();
+        return $day === null || $day === false ? null : (int)$day;
+    }
+
+    /**
      * Days of the range without import, newest first.
      *
      * @return list<int>

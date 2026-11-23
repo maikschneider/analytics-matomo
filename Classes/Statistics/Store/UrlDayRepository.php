@@ -180,8 +180,8 @@ final readonly class UrlDayRepository
                 $queryBuilder->expr()->eq('d.connection', $queryBuilder->createNamedParameter($connection, Connection::PARAM_INT)),
                 $queryBuilder->expr()->gte('d.day', $queryBuilder->createNamedParameter($from, Connection::PARAM_INT)),
                 $queryBuilder->expr()->lte('d.day', $queryBuilder->createNamedParameter($to, Connection::PARAM_INT)),
+                // URLs not on the site (language_id -1) have no page either
                 $queryBuilder->expr()->gt('p.page_id', $queryBuilder->createNamedParameter(UrlPageMapper::NO_PAGE, Connection::PARAM_INT)),
-                $queryBuilder->expr()->gte('p.language_id', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
             )
             ->groupBy('p.page_id', 'p.language_id')
             ->executeQuery();

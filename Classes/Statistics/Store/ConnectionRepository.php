@@ -56,7 +56,10 @@ final readonly class ConnectionRepository
         }
     }
 
-    private static function identifier(MatomoConfiguration $configuration): string
+    /**
+     * Identifies the Matomo site of the configuration, whether its connection exists or not.
+     */
+    public static function identifier(MatomoConfiguration $configuration): string
     {
         return hash('sha256', self::url($configuration) . "\n" . $configuration->idSite);
     }

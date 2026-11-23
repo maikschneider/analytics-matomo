@@ -10,23 +10,16 @@ namespace MaikSchneider\AnalyticsMatomo\Statistics\Store;
 final readonly class ImportResult
 {
     /**
-     * @param int $connection uid of the connection
      * @param int $requests Matomo requests sent, failed ones included
      * @param list<int> $importedDays Ymd, newest first
      * @param array<int, string> $failedDays error message by day (Ymd), newest first
      * @param int $remainingDays days to import that were left for a later run, as the request budget ran out
      */
     public function __construct(
-        public int $connection,
         public int $requests,
         public array $importedDays,
         public array $failedDays,
         public int $remainingDays,
     ) {
-    }
-
-    public function hasFailures(): bool
-    {
-        return $this->failedDays !== [];
     }
 }

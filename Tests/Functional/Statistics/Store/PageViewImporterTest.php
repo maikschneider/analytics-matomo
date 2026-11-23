@@ -18,6 +18,8 @@ use MaikSchneider\AnalyticsMatomo\Statistics\Store\UrlDayRepository;
 use MaikSchneider\AnalyticsMatomo\Statistics\Store\UrlPageMapper;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\RequestInterface;
+use Psr\Log\AbstractLogger;
+use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\DateTimeAspect;
@@ -83,11 +85,11 @@ final class PageViewImporterTest extends FunctionalTestCase
             'method' => 'Actions.getPageUrls', 'period' => 'day', 'date' => '2026-11-23', 'flat' => '1', 'format_metrics' => '0',
             'filter_limit' => '-1', 'showColumns' => implode(',', PageMetrics::COUNTS), 'idSite' => '3',
         ], $this->parameters[0]);
-        self::assertSame([20261119, 20261120, 20261121, 20261122, 20261123], $this->importedDays($result->connection));
+        self::assertSame([20261119, 20261120, 20261121, 20261122, 20261123], $this->importedDays($this->connection()));
         // The summary row counts for the day total
         self::assertSame(26, (int)$this->getConnectionPool()->getConnectionForTable(ImportRepository::TABLE)
-            ->select(['total_hits'], ImportRepository::TABLE, ['connection' => $result->connection, 'day' => 20261123])->fetchOne());
-        self::assertSame(23 + 22 + 21 + 20 + 19, $this->repository()->sumByPage('main', $result->connection, 20261101, 20261130)[2][0]['nb_hits'] ?? null);
+            ->select(['total_hits'], ImportRepository::TABLE, ['connection' => $this->connection(), 'day' => 20261123])->fetchOne());
+        self::assertSame(23 + 22 + 21 + 20 + 19, $this->repository()->sumByPage('main', $this->connection(), 20261101, 20261130)[2][0]['nb_hits'] ?? null);
     }
 
     #[Test]
@@ -95,8 +97,8 @@ final class PageViewImporterTest extends FunctionalTestCase
     {
         $result = $this->import(sites: [$this->site('main'), $this->site('shop')], retentionDays: 2);
 
-        self::assertSame([2 => [0 => 45]], array_map(static fn (array $languages): array => array_map(static fn (array $counts): int => $counts['nb_hits'], $languages), $this->repository()->sumByPage('main', $result->connection, 20261101, 20261130)));
-        self::assertSame(2, $this->repository()->sumByPage('shop', $result->connection, 20261101, 20261130)[11][0]['nb_hits'] ?? null);
+        self::assertSame([2 => [0 => 45]], array_map(static fn (array $languages): array => array_map(static fn (array $counts): int => $counts['nb_hits'], $languages), $this->repository()->sumByPage('main', $this->connection(), 20261101, 20261130)));
+        self::assertSame(2, $this->repository()->sumByPage('shop', $this->connection(), 20261101, 20261130)[11][0]['nb_hits'] ?? null);
     }
 
     #[Test]
@@ -105,10 +107,15 @@ final class PageViewImporterTest extends FunctionalTestCase
         $this->import(retentionDays: 2);
         $this->requested = [];
 
-        $result = $this->import(sites: [$this->site('main'), $this->site('shop')], budget: 0, retentionDays: 2);
+        $sites = [$this->site('main'), $this->site('shop')];
+        $this->import(sites: $sites, budget: 0, retentionDays: 2);
+        self::assertSame([], $this->repository()->sumByPage('shop', $this->connection(), 20261101, 20261130));
+
+        // Both sites are new to the connection: the import mapped the URLs of its days only
+        self::assertSame(4, $this->importer()->remapSites($sites, $this->configuration(), 100));
 
         self::assertSame([], $this->requested);
-        self::assertSame(2, $this->repository()->sumByPage('shop', $result->connection, 20261101, 20261130)[11][0]['nb_hits'] ?? null);
+        self::assertSame(2, $this->repository()->sumByPage('shop', $this->connection(), 20261101, 20261130)[11][0]['nb_hits'] ?? null);
     }
 
     #[Test]
@@ -120,10 +127,12 @@ final class PageViewImporterTest extends FunctionalTestCase
         $this->setNow('2026-11-24 03:00:00');
 
         $result = $this->import(retentionDays: 5);
+        self::assertSame([20261119, 20261120, 20261121, 20261122, 20261123, 20261124], $this->importedDays($this->connection()));
+        $this->importer()->purgeExpiredDays($this->configuration(), 5);
 
         self::assertSame(['2026-11-24', '2026-11-23'], $this->requested);
-        self::assertSame([20261120, 20261121, 20261122, 20261123, 20261124], $this->importedDays($result->connection));
-        self::assertSame([], $this->repository()->sumByPage('main', $result->connection, 20261119, 20261119));
+        self::assertSame([20261120, 20261121, 20261122, 20261123, 20261124], $this->importedDays($this->connection()));
+        self::assertSame([], $this->repository()->sumByPage('main', $this->connection(), 20261119, 20261119));
     }
 
     #[Test]
@@ -178,9 +187,8 @@ final class PageViewImporterTest extends FunctionalTestCase
         self::assertSame(['2026-11-23', '2026-11-22', '2026-11-21', '2026-11-20'], $this->requested);
         self::assertSame([20261123, 20261121, 20261120], $result->importedDays);
         self::assertSame([20261122 => 'Matomo API error: Archiving timed out'], $result->failedDays);
-        self::assertTrue($result->hasFailures());
         self::assertSame(4, $result->requests);
-        self::assertSame([20261120, 20261121, 20261123], $this->importedDays($result->connection));
+        self::assertSame([20261120, 20261121, 20261123], $this->importedDays($this->connection()));
     }
 
     #[Test]
@@ -191,7 +199,68 @@ final class PageViewImporterTest extends FunctionalTestCase
         $result = $this->import(retentionDays: 1);
 
         self::assertSame([20261123], array_keys($result->failedDays));
-        self::assertSame([], $this->importedDays($result->connection));
+        self::assertSame([], $this->importedDays($this->connection()));
+    }
+
+    #[Test]
+    public function aDayWhoseUrlsCannotBeMappedIsNotImportedAndTheNextDayIsTried(): void
+    {
+        $configuration = $this->site('main')->getConfiguration();
+        $configuration['routeEnhancers'] = ['Broken' => ['type' => 'DoesNotExist']];
+        $logger = new class() extends AbstractLogger {
+            /** @var list<array{string, array<mixed>}> */
+            public array $records = [];
+
+            public function log($level, string|\Stringable $message, array $context = []): void
+            {
+                $this->records[] = [(string)$message, $context];
+            }
+        };
+
+        $result = $this->importer($logger)->importConnection([new Site('main', 1, $configuration)], $this->configuration(), 50, 30, 2);
+
+        self::assertSame([], $result->importedDays);
+        self::assertSame([20261123, 20261122], array_keys($result->failedDays));
+        self::assertStringContainsString('DoesNotExist', $result->failedDays[20261123]);
+        self::assertSame(2, $result->requests);
+        self::assertSame([], $this->importedDays($this->connection()));
+        self::assertSame(0, $this->getConnectionPool()->getConnectionForTable(UrlDayRepository::TABLE)->count('*', UrlDayRepository::TABLE, []));
+        self::assertCount(2, $logger->records);
+        self::assertSame(['day', 'idSite', 'message'], array_keys($logger->records[0][1]));
+    }
+
+    #[Test]
+    public function daysOlderThanTheNewestImportedDayMapOnlyUrlsWithoutMapping(): void
+    {
+        $sites = [$this->site('main'), $this->site('shop')];
+        $this->import(sites: $sites, budget: 1, retentionDays: 3);
+        $about = $this->urlUid('https://example.com/about');
+        $products = $this->urlUid('https://shop.example.org/products/');
+        $mappings = $this->getConnectionPool()->getConnectionForTable(UrlPageMapper::TABLE);
+        // As if /about did not route when it was mapped, and /products/ was not mapped for main
+        $mappings->update(UrlPageMapper::TABLE, ['page_id' => 0], ['site' => 'main', 'url' => $about]);
+        $mappings->delete(UrlPageMapper::TABLE, ['site' => 'main', 'url' => $products]);
+
+        $this->import(sites: $sites, retentionDays: 3, exclude: [20261123]);
+
+        self::assertSame(['2026-11-23', '2026-11-22', '2026-11-21'], $this->requested);
+        self::assertSame([0, 0], $this->mapping('main', $about));
+        self::assertSame([-1, 0], $this->mapping('main', $products));
+
+        // The newest day maps all its URLs
+        $this->import(sites: $sites, retentionDays: 3);
+        self::assertSame([0, 2], $this->mapping('main', $about));
+    }
+
+    #[Test]
+    public function remapSitesSharesItsLimitBetweenTheSites(): void
+    {
+        $this->import(retentionDays: 1);
+        $sites = [$this->site('main'), $this->site('shop')];
+
+        self::assertSame(3, $this->importer()->remapSites($sites, $this->configuration(), 3));
+        self::assertSame(1, $this->importer()->remapSites($sites, $this->configuration(), 3));
+        self::assertSame(0, $this->importer()->remapSites($sites, $this->configuration(), 3));
     }
 
     #[Test]
@@ -211,13 +280,39 @@ final class PageViewImporterTest extends FunctionalTestCase
     {
         return $this->importer()->importConnection(
             $sites ?? [$this->site('main')],
-            new MatomoConfiguration('https://matomo.example.com/', 3, 'secret-token'),
+            $this->configuration(),
             $budget,
             30,
             $retentionDays,
             $range,
             $exclude,
         );
+    }
+
+    private function configuration(): MatomoConfiguration
+    {
+        return new MatomoConfiguration('https://matomo.example.com/', 3, 'secret-token');
+    }
+
+    private function connection(): int
+    {
+        return (int)(new ConnectionRepository($this->getConnectionPool()))->find($this->configuration());
+    }
+
+    private function urlUid(string $url): int
+    {
+        return (int)$this->getConnectionPool()->getConnectionForTable(UrlDayRepository::URL_TABLE)
+            ->select(['uid'], UrlDayRepository::URL_TABLE, ['url' => $url])->fetchOne();
+    }
+
+    /**
+     * @return array{int, int}|null language and page
+     */
+    private function mapping(string $site, int $url): ?array
+    {
+        $row = $this->getConnectionPool()->getConnectionForTable(UrlPageMapper::TABLE)
+            ->select(['language_id', 'page_id'], UrlPageMapper::TABLE, ['site' => $site, 'url' => $url])->fetchAssociative();
+        return $row === false ? null : [(int)$row['language_id'], (int)$row['page_id']];
     }
 
     /**
@@ -240,7 +335,7 @@ final class PageViewImporterTest extends FunctionalTestCase
         return $this->get(SiteFinder::class)->getSiteByIdentifier($identifier);
     }
 
-    private function importer(): PageViewImporter
+    private function importer(?LoggerInterface $logger = null): PageViewImporter
     {
         $pool = $this->getConnectionPool();
         return new PageViewImporter(
@@ -251,7 +346,7 @@ final class PageViewImporterTest extends FunctionalTestCase
             new UrlDayRepository($pool),
             new ImportRepository($pool),
             new UrlPageMapper($this->get(PageUrlMapper::class), $pool),
-            new NullLogger(),
+            $logger ?? new NullLogger(),
         );
     }
 

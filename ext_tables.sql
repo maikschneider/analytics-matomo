@@ -75,11 +75,14 @@ CREATE TABLE tx_analyticsmatomo_url_page (
 );
 
 #
-# Hash of each site's base, languages and base variants; a change re-maps all URLs of the site
+# Hash of each site's base, languages and base variants; a change re-maps all URLs of the site,
+# in chunks over several runs: pending_hash is the hash being mapped, remap_cursor the last URL uid mapped
 #
 CREATE TABLE tx_analyticsmatomo_site_state (
 	site varchar(255) DEFAULT '' NOT NULL,
 	config_hash char(40) DEFAULT '' NOT NULL,
+	pending_hash char(40) DEFAULT '' NOT NULL,
+	remap_cursor int(11) unsigned DEFAULT '0' NOT NULL,
 
 	PRIMARY KEY (site)
 );

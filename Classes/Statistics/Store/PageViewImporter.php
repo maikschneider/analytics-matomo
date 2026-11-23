@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace MaikSchneider\AnalyticsMatomo\Statistics\Store;
 
 use MaikSchneider\AnalyticsMatomo\Configuration\MatomoConfiguration;
-use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoClient;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageMetrics;
 use Psr\Log\LoggerInterface;
@@ -19,6 +18,9 @@ use TYPO3\CMS\Core\Site\Entity\Site;
  * newest day first: the days that are not final yet (today, and yesterday
  * until it is), then the days missing back to the retention limit. Each
  * day costs one request; a day that fails is recorded and skipped.
+ *
+ * Maintenance runs once per connection and run, after its imports:
+ * purgeExpiredDays() and remapSites().
  *
  * Callers must hold the import lock of the connection.
  */
@@ -40,38 +42,29 @@ final readonly class PageViewImporter
      * @param list<Site> $sites the TYPO3 sites of the connection; the URLs are mapped to the pages of each
      * @param int $budget Matomo requests this run may send (one per day)
      * @param int $timeout seconds per request
-     * @param int $retentionDays days kept, today included; older days are deleted
+     * @param int $retentionDays days kept, today included
      * @param array{from: int, to: int}|null $range days (Ymd) to import again, imported or not, instead of the days due; limited to the retention
      * @param list<int> $exclude days (Ymd) not to import in this run, e.g. imported by an earlier pass of the same run
      * @throws \InvalidArgumentException for demo configurations and configurations with a segment: the store holds the data of a whole Matomo site
      */
     public function importConnection(array $sites, MatomoConfiguration $configuration, int $budget, int $timeout, int $retentionDays, ?array $range = null, array $exclude = []): ImportResult
     {
-        if ($configuration->demo || $configuration->segment !== '') {
-            throw new \InvalidArgumentException('Demo configurations and configurations with a segment are not stored', 1794500010);
-        }
-        if ($retentionDays < 1) {
-            throw new \InvalidArgumentException('The retention must be at least one day, got ' . $retentionDays, 1794500011);
-        }
         /** @var \DateTimeImmutable $now */
         $now = $this->context->getPropertyFromAspect('date', 'full');
         $timezone = $now->getTimezone();
-        $today = Day::toDate(Day::fromDate($now), $timezone);
-        $oldestDay = Day::fromDate($today->modify('-' . ($retentionDays - 1) . ' days'));
-        $connection = $this->connections->getOrCreate($configuration);
-
-        foreach ($sites as $site) {
-            $this->urlPageMapper->refreshSite($site, $connection);
-        }
+        $today = Day::fromDate($now);
+        $oldestDay = $this->oldestDay($now, $retentionDays);
+        $connection = $this->connection($configuration);
 
         $days = $range === null
-            ? [...$this->imports->notFinalDays($connection, $now), ...$this->imports->missingDays($connection, $oldestDay, Day::fromDate($today))]
-            : Day::range(max($range['from'], $oldestDay), min($range['to'], Day::fromDate($today)));
+            ? [...$this->imports->notFinalDays($connection, $now), ...$this->imports->missingDays($connection, $oldestDay, $today)]
+            : Day::range(max($range['from'], $oldestDay), min($range['to'], $today));
         $days = array_values(array_diff(array_unique($days), $exclude));
         // Yesterday may be beyond a retention of one day
         $days = array_values(array_filter($days, static fn (int $day): bool => $day >= $oldestDay));
         rsort($days);
 
+        $newestDay = $this->imports->newestDay($connection) ?? 0;
         $requests = 0;
         $imported = [];
         $failed = [];
@@ -79,9 +72,10 @@ final readonly class PageViewImporter
             $day = array_shift($days);
             $requests++;
             try {
-                $this->importDay($sites, $configuration, $connection, $day, Day::toDate($day, $timezone), $now, $timeout);
+                $this->importDay($sites, $configuration, $connection, $day, Day::toDate($day, $timezone), $now, $timeout, $day >= $newestDay);
                 $imported[] = $day;
-            } catch (MatomoApiException $exception) {
+                $newestDay = max($newestDay, $day);
+            } catch (\Throwable $exception) {
                 $failed[$day] = $exception->getMessage();
                 $this->logger->warning('Page views of {day} not imported from Matomo site {idSite}: {message}', [
                     'day' => $day,
@@ -91,16 +85,72 @@ final readonly class PageViewImporter
             }
         }
 
-        $this->imports->purgeBefore($connection, $oldestDay);
-
-        return new ImportResult($connection, $requests, $imported, $failed, count($days));
+        return new ImportResult($requests, $imported, $failed, count($days));
     }
 
     /**
-     * @param list<Site> $sites
-     * @throws MatomoApiException
+     * Deletes the days of the connection beyond the retention, and the URLs
+     * no day points to anymore.
+     *
+     * @param int $retentionDays days kept, today included
      */
-    private function importDay(array $sites, MatomoConfiguration $configuration, int $connection, int $day, \DateTimeImmutable $date, \DateTimeImmutable $now, int $timeout): void
+    public function purgeExpiredDays(MatomoConfiguration $configuration, int $retentionDays): void
+    {
+        /** @var \DateTimeImmutable $now */
+        $now = $this->context->getPropertyFromAspect('date', 'full');
+        $oldestDay = $this->oldestDay($now, $retentionDays);
+        $this->imports->purgeBefore($this->connection($configuration), $oldestDay);
+    }
+
+    /**
+     * Maps the stored URLs of the connection again for the sites that are
+     * new to it or whose configuration changed, up to $limit URLs in all;
+     * a re-map that does not fit goes on in the next run.
+     *
+     * @param list<Site> $sites
+     * @return int URLs mapped
+     */
+    public function remapSites(array $sites, MatomoConfiguration $configuration, int $limit): int
+    {
+        $connection = $this->connection($configuration);
+        $mapped = 0;
+        foreach ($sites as $site) {
+            $mapped += $this->urlPageMapper->remapSite($site, $connection, $limit - $mapped);
+        }
+        return $mapped;
+    }
+
+    /**
+     * @throws \InvalidArgumentException
+     */
+    private function connection(MatomoConfiguration $configuration): int
+    {
+        if ($configuration->demo || $configuration->segment !== '') {
+            throw new \InvalidArgumentException('Demo configurations and configurations with a segment are not stored', 1794500010);
+        }
+        return $this->connections->getOrCreate($configuration);
+    }
+
+    /**
+     * @return int Ymd
+     */
+    private function oldestDay(\DateTimeImmutable $now, int $retentionDays): int
+    {
+        if ($retentionDays < 1) {
+            throw new \InvalidArgumentException('The retention must be at least one day, got ' . $retentionDays, 1794500011);
+        }
+        $today = Day::toDate(Day::fromDate($now), $now->getTimezone());
+        return Day::fromDate($today->modify('-' . ($retentionDays - 1) . ' days'));
+    }
+
+    /**
+     * Stores the day. Its URLs are mapped before the day is marked imported,
+     * so a failing mapping leaves the day due for the next run.
+     *
+     * @param list<Site> $sites
+     * @param bool $mapAll map all URLs of the day (the newest day: last sight), or only those without mapping (an older day)
+     */
+    private function importDay(array $sites, MatomoConfiguration $configuration, int $connection, int $day, \DateTimeImmutable $date, \DateTimeImmutable $now, int $timeout, bool $mapAll): void
     {
         $result = $this->client->bulkRequest($configuration, [[
             'method' => 'Actions.getPageUrls',
@@ -116,17 +166,21 @@ final readonly class PageViewImporter
         $urlDay = UrlDayRows::fromReport($result[0] ?? null);
 
         $uids = $this->urlDays->addUrls($connection, $day, $urlDay);
-        $this->connectionPool->getConnectionForTable(UrlDayRepository::TABLE)->transactional(function (Connection $database) use ($connection, $day, $urlDay, $uids, $now): void {
-            $this->urlDays->replaceDayFacts($database, $connection, $day, $urlDay, $uids);
-            $this->imports->markImported($database, $connection, $day, $now->getTimestamp(), $urlDay);
-        });
-
         $urls = [];
         foreach ($uids as $hash => $uid) {
             $urls[$uid] = $urlDay->rows[$hash]->url;
         }
         foreach ($sites as $site) {
-            $this->urlPageMapper->mapUrls($site, $urls);
+            if ($mapAll) {
+                $this->urlPageMapper->mapUrls($site, $urls);
+            } else {
+                $this->urlPageMapper->mapUnmappedUrls($site, $urls);
+            }
         }
+
+        $this->connectionPool->getConnectionForTable(UrlDayRepository::TABLE)->transactional(function (Connection $database) use ($connection, $day, $urlDay, $uids, $now): void {
+            $this->urlDays->replaceDayFacts($database, $connection, $day, $urlDay, $uids);
+            $this->imports->markImported($database, $connection, $day, $now->getTimestamp(), $urlDay);
+        });
     }
 }

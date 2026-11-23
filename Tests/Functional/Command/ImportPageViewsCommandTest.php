@@ -163,6 +163,90 @@ final class ImportPageViewsCommandTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function anUnknownSiteIsRejected(): void
+    {
+        $command = $this->command();
+
+        self::assertSame(Command::INVALID, $command->execute(['--site' => 'nope']));
+
+        self::assertStringContainsString('Unknown site nope', $command->getDisplay());
+        self::assertSame(0, $this->connectionCount());
+        self::assertSame([], $this->requested);
+    }
+
+    #[Test]
+    public function aSiteOptionCreatesTheConnectionOfThatSiteOnly(): void
+    {
+        $command = $this->command();
+
+        self::assertSame(Command::SUCCESS, $command->execute(['--site' => 'shop', '--retention-days' => '1']), $command->getDisplay());
+
+        self::assertSame(['7 2026-11-23'], $this->requested);
+        self::assertSame(1, $this->connectionCount());
+        self::assertStringNotContainsString('main', $command->getDisplay());
+    }
+
+    #[Test]
+    public function theSiteWhoseConfigurationIsUsedIsShownButNotItsToken(): void
+    {
+        $command = $this->command();
+
+        $command->execute(['--retention-days' => '1']);
+
+        self::assertStringContainsString('blog, main: Matomo site 3 of https://matomo.example.com, configuration of site blog', $command->getDisplay());
+        self::assertStringContainsString('shop: Matomo site 7 of https://matomo.example.com, configuration of site shop', $command->getDisplay());
+        self::assertStringNotContainsString('-token', $command->getDisplay());
+    }
+
+    #[Test]
+    public function noRequestIsSentWithoutRequestBudget(): void
+    {
+        $command = $this->command();
+
+        self::assertSame(Command::SUCCESS, $command->execute(['--max-requests' => '0', '--retention-days' => '3']), $command->getDisplay());
+
+        self::assertSame([], $this->requested);
+        self::assertStringContainsString('shop: 0 days imported, 3 days left', $command->getDisplay());
+    }
+
+    #[Test]
+    public function toWithoutFromImportsThatDayOnly(): void
+    {
+        $command = $this->command();
+
+        self::assertSame(Command::SUCCESS, $command->execute(['--to' => '2026-11-20', '--retention-days' => '10']), $command->getDisplay());
+
+        self::assertSame(['3 2026-11-20', '7 2026-11-20'], $this->requested);
+    }
+
+    #[Test]
+    public function daysBeyondTheRetentionArePurged(): void
+    {
+        $this->command()->execute(['--retention-days' => '3']);
+        $this->get(Context::class)->setAspect('date', new DateTimeAspect(new \DateTimeImmutable('2026-11-25 14:30:00')));
+
+        $this->command()->execute(['--max-requests' => '0', '--retention-days' => '3']);
+
+        self::assertSame([20261123], $this->importedDays($this->connection(7)));
+    }
+
+    #[Test]
+    public function theRemapLimitIsSharedByAllSites(): void
+    {
+        $command = $this->command();
+
+        self::assertSame(Command::SUCCESS, $command->execute(['--retention-days' => '1', '--max-remap' => '4']), $command->getDisplay());
+
+        // Each connection has three URLs: blog is re-mapped, main once, shop is due next run
+        self::assertSame(['', 0], $this->remapState('blog'));
+        self::assertSame($this->firstUrl($this->connection(3)), $this->remapState('main')[1]);
+        self::assertNotSame('', $this->remapState('main')[0]);
+        self::assertSame(0, $this->remapState('shop')[1]);
+        self::assertNotSame('', $this->remapState('shop')[0]);
+        self::assertSame(Command::INVALID, $this->command()->execute(['--max-remap' => '-1']));
+    }
+
+    #[Test]
     public function invalidOptionsAreRejected(): void
     {
         $command = $this->command();
@@ -171,6 +255,38 @@ final class ImportPageViewsCommandTest extends FunctionalTestCase
         self::assertSame(Command::INVALID, $this->command()->execute(['--from' => '2026-11-22', '--to' => '2026-11-20']));
         self::assertSame(Command::INVALID, $this->command()->execute(['--retention-days' => '0']));
         self::assertSame([], $this->requested);
+    }
+
+    private function connectionCount(): int
+    {
+        return $this->getConnectionPool()->getConnectionForTable('tx_analyticsmatomo_connection')->count('*', 'tx_analyticsmatomo_connection', []);
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function importedDays(int $connection): array
+    {
+        return array_map(intval(...), $this->getConnectionPool()->getConnectionForTable('tx_analyticsmatomo_import')
+            ->select(['day'], 'tx_analyticsmatomo_import', ['connection' => $connection], [], ['day' => 'ASC'])
+            ->fetchFirstColumn());
+    }
+
+    /**
+     * @return array{string, int} pending hash and cursor
+     */
+    private function remapState(string $site): array
+    {
+        $row = $this->getConnectionPool()->getConnectionForTable(UrlPageMapper::SITE_STATE_TABLE)
+            ->select(['pending_hash', 'remap_cursor'], UrlPageMapper::SITE_STATE_TABLE, ['site' => $site])->fetchAssociative();
+        self::assertIsArray($row);
+        return [trim((string)$row['pending_hash']), (int)$row['remap_cursor']];
+    }
+
+    private function firstUrl(int $connection): int
+    {
+        return (int)$this->getConnectionPool()->getConnectionForTable(UrlDayRepository::URL_TABLE)
+            ->select(['uid'], UrlDayRepository::URL_TABLE, ['connection' => $connection], [], ['uid' => 'ASC'], 1)->fetchOne();
     }
 
     private function connection(int $idSite): int
