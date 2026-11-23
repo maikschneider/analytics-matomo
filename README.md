@@ -64,6 +64,8 @@ analyticsMatomo:
 
 Use the token of a Matomo user with view access to this one site.
 
+Several sites can share one settings file with `url` and `tokenAuth` only: the site ID then comes from EXT:matomo_integration, EXT:matomo_widgets or EXT:matomo_tracking of each site, e.g. `matomoTrackingSiteId` in its `config.yaml`.
+
 ## 📙 Documentation
 
 [docs.typo3.org](https://docs.typo3.org/p/maikschneider/analytics-matomo/main/en-us/)

@@ -178,7 +178,9 @@ stay in each site's :file:`config.yaml`:
     matomoTrackingSiteId: 12
 
 The site IDs must belong to the Matomo of :confval:`analyticsMatomo.url`. A
-site without any site ID has no statistics.
+site without any site ID has no statistics. A shared token needs view access
+to the Matomo sites of all these TYPO3 sites, so each of them can read the
+statistics of the others with it; use a token per site where that matters.
 
 ..  _access:
 

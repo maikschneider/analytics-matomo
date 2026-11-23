@@ -73,7 +73,7 @@
 				<source>Matomo site ID</source>
 			</trans-unit>
 			<trans-unit id="settings.idSite.description" resname="settings.idSite.description">
-				<source>ID of this website in Matomo. 0: the site ID of EXT:matomo_integration, EXT:matomo_widgets or EXT:matomo_tracking.</source>
+				<source>ID of this website in Matomo. 0 with a Matomo URL: the site ID of EXT:matomo_integration, EXT:matomo_widgets or EXT:matomo_tracking. Without a Matomo URL, see the URL setting.</source>
 			</trans-unit>
 			<trans-unit id="settings.tokenAuth" resname="settings.tokenAuth">
 				<source>Matomo auth token</source>
