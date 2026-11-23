@@ -12,6 +12,9 @@ use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 /**
  * Which days of a connection are imported, when, and with which report totals.
  * Days are integers (Ymd) in the timezone of the clock passed in.
+ *
+ * Callers that write (markImported(), purgeBefore()) must hold the import lock
+ * of the connection: the writes are not safe against a concurrent import.
  */
 final readonly class ImportRepository
 {
@@ -36,13 +39,18 @@ final readonly class ImportRepository
     ) {
     }
 
-    public function markImported(int $connection, int $day, int $importedAt, UrlDay $urlDay): void
+    /**
+     * Runs on the given database connection, so that it can share the
+     * transaction that replaces the counts of the day (UrlDayRepository::replaceDayFacts()).
+     */
+    public function markImported(Connection $database, int $connection, int $day, int $importedAt, UrlDay $urlDay): void
     {
-        $database = $this->connectionPool->getConnectionForTable(self::TABLE);
         $values = ['imported_at' => $importedAt, 'total_hits' => $urlDay->totalHits, 'summary_hits' => $urlDay->summaryHits, 'row_count' => count($urlDay->rows)];
         $identifier = ['connection' => $connection, 'day' => $day];
         $types = array_fill(0, 6, Connection::PARAM_INT);
-        // MySQL counts unchanged rows as not affected; the insert then fails on the primary key
+        // MySQL counts unchanged rows as not affected; the insert then fails on
+        // the primary key, which does not abort a transaction there. Other
+        // platforms count matched rows, so under the import lock they do not get here.
         if ($database->update(self::TABLE, $values, $identifier, $types) > 0) {
             return;
         }
@@ -59,6 +67,9 @@ final readonly class ImportRepository
      */
     public function coverage(int $connection, int $from, int $to, \DateTimeImmutable $now): Coverage
     {
+        if ($from > $to) {
+            throw new \InvalidArgumentException('The range ends (' . $to . ') before it starts (' . $from . ')', 1794500004);
+        }
         $queryBuilder = $this->queryBuilder(self::TABLE);
         $oldestDay = $queryBuilder->selectLiteral($queryBuilder->expr()->min('day'))
             ->from(self::TABLE)

@@ -20,9 +20,4 @@ final readonly class UrlDay
         public int $summaryHits,
     ) {
     }
-
-    public function isTruncated(): bool
-    {
-        return $this->summaryHits > 0;
-    }
 }

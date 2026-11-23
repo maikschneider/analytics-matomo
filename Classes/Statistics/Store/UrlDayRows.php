@@ -50,11 +50,10 @@ final class UrlDayRows
                 $summaryHits += $counts['nb_hits'];
                 continue;
             }
-            $key = self::key($url);
-            if ($key === null) {
+            $hash = self::hash($url);
+            if ($hash === null) {
                 continue;
             }
-            $hash = sha1($key);
             if (!isset($rows[$hash])) {
                 $rows[$hash] = ['url' => $url, 'counts' => $counts];
                 $displayHits[$hash] = $counts['nb_hits'];

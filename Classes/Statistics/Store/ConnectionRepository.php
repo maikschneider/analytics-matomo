@@ -10,8 +10,9 @@ use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /**
- * One connection per Matomo site (URL + site ID). Token and segment are not
- * part of it: the stored data is the site's, access is checked when it is read.
+ * One connection per Matomo site (URL without trailing slash + site ID). Token
+ * and segment are not part of it: the stored data is the site's, access is
+ * checked when it is read.
  */
 final readonly class ConnectionRepository
 {
@@ -37,6 +38,8 @@ final readonly class ConnectionRepository
 
     /**
      * Inserts the connection; returns the existing one if another process inserted it first.
+     *
+     * @internal use getOrCreate(); public to test the race with another process
      */
     public function create(MatomoConfiguration $configuration): int
     {
@@ -44,7 +47,7 @@ final readonly class ConnectionRepository
         try {
             $connection->insert(
                 self::TABLE,
-                ['identifier' => self::identifier($configuration), 'url' => $configuration->url, 'id_site' => $configuration->idSite],
+                ['identifier' => self::identifier($configuration), 'url' => self::url($configuration), 'id_site' => $configuration->idSite],
                 [Connection::PARAM_STR, Connection::PARAM_STR, Connection::PARAM_INT],
             );
             return (int)$connection->lastInsertId();
@@ -55,6 +58,11 @@ final readonly class ConnectionRepository
 
     private static function identifier(MatomoConfiguration $configuration): string
     {
-        return hash('sha256', $configuration->url . "\n" . $configuration->idSite);
+        return hash('sha256', self::url($configuration) . "\n" . $configuration->idSite);
+    }
+
+    private static function url(MatomoConfiguration $configuration): string
+    {
+        return rtrim($configuration->url, '/');
     }
 }

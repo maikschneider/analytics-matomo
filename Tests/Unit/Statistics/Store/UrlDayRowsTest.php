@@ -24,15 +24,14 @@ final class UrlDayRowsTest extends UnitTestCase
 
         self::assertSame(9, $urlDay->totalHits);
         self::assertSame(0, $urlDay->summaryHits);
-        self::assertFalse($urlDay->isTruncated());
         // Five rows, all different paths
         self::assertCount(5, $urlDay->rows);
-        $home = $urlDay->rows[sha1('www.virtual-drums.com/')];
+        $home = $urlDay->rows[UrlDayRows::hash('https://www.virtual-drums.com/')];
         // Counts answered as strings become integers
         self::assertSame(['nb_hits' => 5, 'nb_visits' => 5, 'sum_time_spent' => 8, 'entry_nb_visits' => 5, 'entry_bounce_count' => 5, 'exit_nb_visits' => 5], $home->counts);
         self::assertSame('http://www.virtual-drums.com/', $home->url);
         // The query is reduced to the page ID: the XSS probe is stored by its path
-        self::assertSame('http://www.virtual-drums.com/xss3cvar/?xss=cvar', $urlDay->rows[sha1('www.virtual-drums.com/xss3cvar/')]->url);
+        self::assertSame('http://www.virtual-drums.com/xss3cvar/?xss=cvar', $urlDay->rows[UrlDayRows::hash('https://www.virtual-drums.com/xss3cvar/')]->url);
     }
 
     #[Test]
@@ -49,11 +48,11 @@ final class UrlDayRowsTest extends UnitTestCase
         self::assertSame(['example.org/news', 'example.org/index.php?id=5', 'example.org/index.php?id=6'], array_map(static fn (string $hash): string => self::keyOf($hash, [
             'example.org/news', 'example.org/index.php?id=5', 'example.org/index.php?id=6',
         ]), array_keys($urlDay->rows)));
-        $news = $urlDay->rows[sha1('example.org/news')];
+        $news = $urlDay->rows[UrlDayRows::hash('https://example.org/news')];
         self::assertSame(['nb_hits' => 8, 'nb_visits' => 6, 'sum_time_spent' => 30, 'entry_nb_visits' => 4, 'entry_bounce_count' => 3, 'exit_nb_visits' => 4], $news->counts);
         // The busiest variant is shown, with its scheme and query
         self::assertSame('https://example.org/news?utm_source=mail', $news->url);
-        self::assertSame('https://example.org/index.php?id=5&cHash=abc', $urlDay->rows[sha1('example.org/index.php?id=5')]->url);
+        self::assertSame('https://example.org/index.php?id=5&cHash=abc', $urlDay->rows[UrlDayRows::hash('https://example.org/index.php?id=5')]->url);
         self::assertSame(12, $urlDay->totalHits);
     }
 
@@ -65,8 +64,8 @@ final class UrlDayRowsTest extends UnitTestCase
             self::row('https://example.org/a', 2),
         ]);
 
-        self::assertSame('http://example.org/a', $urlDay->rows[sha1('example.org/a')]->url);
-        self::assertSame(4, $urlDay->rows[sha1('example.org/a')]->counts['nb_hits']);
+        self::assertSame('http://example.org/a', $urlDay->rows[UrlDayRows::hash('https://example.org/a')]->url);
+        self::assertSame(4, $urlDay->rows[UrlDayRows::hash('https://example.org/a')]->counts['nb_hits']);
     }
 
     #[Test]
@@ -80,8 +79,7 @@ final class UrlDayRowsTest extends UnitTestCase
 
         self::assertSame(20, $urlDay->totalHits);
         self::assertSame(10, $urlDay->summaryHits);
-        self::assertTrue($urlDay->isTruncated());
-        self::assertSame([sha1('example.org/')], array_keys($urlDay->rows));
+        self::assertSame([UrlDayRows::hash('https://example.org/')], array_keys($urlDay->rows));
     }
 
     #[Test]
@@ -96,7 +94,7 @@ final class UrlDayRowsTest extends UnitTestCase
 
         self::assertSame(8, $urlDay->totalHits);
         self::assertSame(0, $urlDay->summaryHits);
-        self::assertSame([sha1('example.org/')], array_keys($urlDay->rows));
+        self::assertSame([UrlDayRows::hash('https://example.org/')], array_keys($urlDay->rows));
     }
 
     #[Test]
@@ -107,8 +105,8 @@ final class UrlDayRowsTest extends UnitTestCase
             self::row('https://intranet/page', 1),
         ]);
 
-        self::assertSame('http://intranet/page', $urlDay->rows[sha1('intranet/page')]->url);
-        self::assertSame(4, $urlDay->rows[sha1('intranet/page')]->counts['nb_hits']);
+        self::assertSame('http://intranet/page', $urlDay->rows[UrlDayRows::hash('https://intranet/page')]->url);
+        self::assertSame(4, $urlDay->rows[UrlDayRows::hash('https://intranet/page')]->counts['nb_hits']);
     }
 
     #[Test]
@@ -120,9 +118,9 @@ final class UrlDayRowsTest extends UnitTestCase
             self::row('https://example.org/caf%C3%A9/men%C3%BC?ref=1', 2),
         ]);
 
-        self::assertSame([sha1('example.org/café/menü')], array_keys($urlDay->rows));
+        self::assertSame([UrlDayRows::hash('https://example.org/café/menü')], array_keys($urlDay->rows));
         // The original encoding stays a valid link
-        self::assertSame('https://example.org/caf%C3%A9/men%C3%BC?ref=1', $urlDay->rows[sha1('example.org/café/menü')]->url);
+        self::assertSame('https://example.org/caf%C3%A9/men%C3%BC?ref=1', $urlDay->rows[UrlDayRows::hash('https://example.org/café/menü')]->url);
     }
 
     #[Test]
@@ -136,6 +134,14 @@ final class UrlDayRowsTest extends UnitTestCase
     }
 
     #[Test]
+    public function hashIsTheSameForEveryVariantOfAUrl(): void
+    {
+        self::assertSame(sha1('www.example.org/path?id=5'), UrlDayRows::hash('https://www.example.org//path?id=5&L=1'));
+        self::assertSame(UrlDayRows::hash('https://www.example.org/path?id=5'), UrlDayRows::hash('http://www.example.org/path?id=5&utm_source=x'));
+        self::assertNull(UrlDayRows::hash('Others'));
+    }
+
+    #[Test]
     public function emptyDayHasNoRows(): void
     {
         self::assertEquals(new UrlDay([], 0, 0), UrlDayRows::fromReport([]));
@@ -144,7 +150,7 @@ final class UrlDayRowsTest extends UnitTestCase
     #[Test]
     public function rowExposesItsCountsInTheOrderOfPageMetrics(): void
     {
-        $row = UrlDayRows::fromReport([self::row('https://example.org/', 1, 2, 3, 4, 5, 6)])->rows[sha1('example.org/')];
+        $row = UrlDayRows::fromReport([self::row('https://example.org/', 1, 2, 3, 4, 5, 6)])->rows[UrlDayRows::hash('https://example.org/')];
 
         self::assertInstanceOf(UrlDayRow::class, $row);
         self::assertSame(PageMetrics::COUNTS, array_keys($row->counts));
@@ -198,7 +204,7 @@ final class UrlDayRowsTest extends UnitTestCase
     private static function keyOf(string $hash, array $keys): string
     {
         foreach ($keys as $key) {
-            if (sha1($key) === $hash) {
+            if (UrlDayRows::hash('https://' . $key) === $hash) {
                 return $key;
             }
         }

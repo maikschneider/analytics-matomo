@@ -9,7 +9,9 @@ use MaikSchneider\AnalyticsMatomo\Statistics\Store\ImportRepository;
 use MaikSchneider\AnalyticsMatomo\Statistics\Store\UrlDay;
 use MaikSchneider\AnalyticsMatomo\Statistics\Store\UrlDayRepository;
 use MaikSchneider\AnalyticsMatomo\Statistics\Store\UrlDayRows;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 final class ImportRepositoryTest extends FunctionalTestCase
@@ -20,21 +22,56 @@ final class ImportRepositoryTest extends FunctionalTestCase
     protected array $testExtensionsToLoad = ['maikschneider/analytics-matomo'];
 
     #[Test]
-    public function markImportedStoresTheDayAndReplacesIt(): void
+    public function markImportedStoresTheDay(): void
     {
-        $repository = $this->repository();
+        $this->markImported(1, 20261120, 1000, self::day(10, 0, 2));
 
-        $repository->markImported(1, 20261120, 1000, self::day(10, 0, 2));
-        $repository->markImported(1, 20261120, 2000, self::day(12, 3, 3));
-        // Unchanged values must not insert a second row (MySQL reports no affected rows)
-        $repository->markImported(1, 20261120, 2000, self::day(12, 3, 3));
+        self::assertSame([['connection' => 1, 'day' => 20261120, 'imported_at' => 1000, 'total_hits' => 10, 'summary_hits' => 0, 'row_count' => 2]], $this->importRows());
+    }
 
-        $rows = $this->getConnectionPool()->getConnectionForTable('tx_analyticsmatomo_import')->select(['*'], 'tx_analyticsmatomo_import')->fetchAllAssociative();
-        self::assertCount(1, $rows);
-        self::assertSame(
-            ['connection' => 1, 'day' => 20261120, 'imported_at' => 2000, 'total_hits' => 15, 'summary_hits' => 3, 'row_count' => 3],
-            array_map(intval(...), $rows[0]),
-        );
+    #[Test]
+    public function markImportedUpdatesAnImportedDay(): void
+    {
+        $this->markImported(1, 20261120, 1000, self::day(10, 0, 2));
+
+        $this->markImported(1, 20261120, 2000, self::day(12, 3, 3));
+
+        self::assertSame([['connection' => 1, 'day' => 20261120, 'imported_at' => 2000, 'total_hits' => 15, 'summary_hits' => 3, 'row_count' => 3]], $this->importRows());
+    }
+
+    #[Test]
+    public function markImportedWithUnchangedValuesKeepsTheDay(): void
+    {
+        $this->markImported(1, 20261120, 2000, self::day(12, 3, 3));
+
+        // MySQL reports no affected rows: the insert that follows hits the primary key
+        $database = $this->getConnectionPool()->getConnectionForTable(ImportRepository::TABLE);
+        $database->transactional(fn (Connection $database) => $this->repository()->markImported($database, 1, 20261120, 2000, self::day(12, 3, 3)));
+
+        self::assertSame([['connection' => 1, 'day' => 20261120, 'imported_at' => 2000, 'total_hits' => 15, 'summary_hits' => 3, 'row_count' => 3]], $this->importRows());
+    }
+
+    #[Test]
+    public function markImportedRunsInTheTransactionOfTheCaller(): void
+    {
+        try {
+            $this->getConnectionPool()->getConnectionForTable(ImportRepository::TABLE)->transactional(function (Connection $database): never {
+                $this->repository()->markImported($database, 1, 20261120, 1000, self::day(1));
+                throw new \RuntimeException('Import failed', 1);
+            });
+        } catch (\RuntimeException) {
+        }
+
+        self::assertSame([], $this->importRows());
+    }
+
+    #[Test]
+    public function coverageRejectsARangeEndingBeforeItStarts(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionCode(1794500004);
+
+        $this->repository()->coverage(1, 20261123, 20261122, self::now());
     }
 
     #[Test]
@@ -50,8 +87,8 @@ final class ImportRepositoryTest extends FunctionalTestCase
     {
         $repository = $this->repository();
         $this->markDays(1, 20261110, 20261123, self::timestamp('2026-11-23 14:00:00'));
-        $repository->markImported(1, 20261116, self::timestamp('2026-11-17 03:00:00'), self::day(10, 4, 2));
-        $repository->markImported(1, 20261122, self::timestamp('2026-11-23 02:10:00'), self::day(7, 0, 1));
+        $this->markImported(1, 20261116, self::timestamp('2026-11-17 03:00:00'), self::day(10, 4, 2));
+        $this->markImported(1, 20261122, self::timestamp('2026-11-23 02:10:00'), self::day(7, 0, 1));
         $this->markDays(2, 20261101, 20261123, self::timestamp('2026-11-23 14:00:00'));
 
         $coverage = $repository->coverage(1, 20261116, 20261122, self::now());
@@ -139,14 +176,14 @@ final class ImportRepositoryTest extends FunctionalTestCase
         // Nothing imported yet
         self::assertSame([20261123, 20261122], $repository->notFinalDays(1, self::now()));
 
-        $repository->markImported(1, 20261123, self::timestamp('2026-11-23 14:00:00'), self::day(1));
-        $repository->markImported(1, 20261122, self::timestamp('2026-11-23 01:59:59'), self::day(1));
-        $repository->markImported(1, 20261121, self::timestamp('2026-11-21 23:00:00'), self::day(1));
+        $this->markImported(1, 20261123, self::timestamp('2026-11-23 14:00:00'), self::day(1));
+        $this->markImported(1, 20261122, self::timestamp('2026-11-23 01:59:59'), self::day(1));
+        $this->markImported(1, 20261121, self::timestamp('2026-11-21 23:00:00'), self::day(1));
         // Today is never final; yesterday was imported before 02:00. Older days
         // (20261121, imported before its end) are left to missingDays() and --from/--to
         self::assertSame([20261123, 20261122], $repository->notFinalDays(1, self::now()));
 
-        $repository->markImported(1, 20261122, self::timestamp('2026-11-23 02:00:00'), self::day(1));
+        $this->markImported(1, 20261122, self::timestamp('2026-11-23 02:00:00'), self::day(1));
         self::assertSame([20261123], $repository->notFinalDays(1, self::now()));
         // Another connection
         self::assertSame([20261123, 20261122], $repository->notFinalDays(2, self::now()));
@@ -158,10 +195,41 @@ final class ImportRepositoryTest extends FunctionalTestCase
         $repository = $this->repository();
         // 00:30 in Berlin is the day before in UTC
         $now = new \DateTimeImmutable('2026-11-23 00:30:00', new \DateTimeZone('Europe/Berlin'));
-        $repository->markImported(1, 20261122, $now->getTimestamp(), self::day(1));
+        $this->markImported(1, 20261122, $now->getTimestamp(), self::day(1));
 
         self::assertSame([20261123, 20261122], $repository->notFinalDays(1, $now));
         self::assertSame([20261122, 20261121], $repository->notFinalDays(1, $now->setTimezone(new \DateTimeZone('UTC'))));
+    }
+
+    /**
+     * @return iterable<string, array{string, int, int, string}>
+     */
+    public static function daylightSavingTimeChanges(): iterable
+    {
+        // Yesterday is final two hours after its end, in seconds, not on the wall clock
+        yield 'spring, before the change' => ['2026-03-29 01:30', 20260329, 20260328, '2026-03-29 01:00:00'];
+        yield 'spring, after the change' => ['2026-03-29 23:30', 20260329, 20260328, '2026-03-29 01:00:00'];
+        yield 'spring, day after the 23 hour day' => ['2026-03-30 01:30', 20260330, 20260329, '2026-03-30 00:00:00'];
+        yield 'autumn, before the change' => ['2026-10-25 01:30', 20261025, 20261024, '2026-10-25 00:00:00'];
+        yield 'autumn, after the change' => ['2026-10-25 23:30', 20261025, 20261024, '2026-10-25 00:00:00'];
+        yield 'autumn, day after the 25 hour day' => ['2026-10-26 01:30', 20261026, 20261025, '2026-10-26 01:00:00'];
+    }
+
+    #[Test]
+    #[DataProvider('daylightSavingTimeChanges')]
+    public function notFinalDaysAcrossDaylightSavingTimeChanges(string $now, int $today, int $yesterday, string $finalFromUtc): void
+    {
+        $repository = $this->repository();
+        $now = new \DateTimeImmutable($now, new \DateTimeZone('Europe/Berlin'));
+        $finalFrom = (new \DateTimeImmutable($finalFromUtc, new \DateTimeZone('UTC')))->getTimestamp();
+        self::assertSame([$today, $yesterday], $repository->notFinalDays(1, $now));
+
+        $this->markImported(1, $today, $now->getTimestamp(), self::day(1));
+        $this->markImported(1, $yesterday, $finalFrom - 1, self::day(1));
+        self::assertSame([$today, $yesterday], $repository->notFinalDays(1, $now));
+
+        $this->markImported(1, $yesterday, $finalFrom, self::day(1));
+        self::assertSame([$today], $repository->notFinalDays(1, $now));
     }
 
     #[Test]
@@ -180,14 +248,13 @@ final class ImportRepositoryTest extends FunctionalTestCase
     #[Test]
     public function purgeBeforeDeletesOldDaysAndOrphanedUrls(): void
     {
-        $urlDays = new UrlDayRepository($this->getConnectionPool());
         $repository = $this->repository();
-        $old = $urlDays->replaceDay(1, 20261001, self::urls(['https://example.org/old', 'https://example.org/']));
-        $kept = $urlDays->replaceDay(1, 20261120, self::urls(['https://example.org/', 'https://example.org/new']));
-        $other = $urlDays->replaceDay(2, 20261001, self::urls(['https://example.org/old']));
-        $repository->markImported(1, 20261001, 1000, self::day(1));
-        $repository->markImported(1, 20261120, 1000, self::day(1));
-        $repository->markImported(2, 20261001, 1000, self::day(1));
+        $old = $this->replaceDay(1, 20261001, self::urls(['https://example.org/old', 'https://example.org/']));
+        $kept = $this->replaceDay(1, 20261120, self::urls(['https://example.org/', 'https://example.org/new']));
+        $other = $this->replaceDay(2, 20261001, self::urls(['https://example.org/old']));
+        $this->markImported(1, 20261001, 1000, self::day(1));
+        $this->markImported(1, 20261120, 1000, self::day(1));
+        $this->markImported(2, 20261001, 1000, self::day(1));
         $mapping = $this->getConnectionPool()->getConnectionForTable('tx_analyticsmatomo_url_page');
         foreach (array_unique([...array_values($old), ...array_values($kept), ...array_values($other)]) as $url) {
             foreach (['main', 'shop'] as $site) {
@@ -199,21 +266,50 @@ final class ImportRepositoryTest extends FunctionalTestCase
 
         self::assertSame([20261120], $this->column('tx_analyticsmatomo_import', 'day', 1));
         self::assertSame([20261120], array_values(array_unique($this->column('tx_analyticsmatomo_url_day', 'day', 1))));
-        $urls = [$kept[sha1('example.org/')], $kept[sha1('example.org/new')]];
+        $urls = [$kept[UrlDayRows::hash('https://example.org/')], $kept[UrlDayRows::hash('https://example.org/new')]];
         sort($urls);
         self::assertSame($urls, $this->column('tx_analyticsmatomo_url', 'uid', 1));
-        self::assertNotContains($old[sha1('example.org/old')], $this->column('tx_analyticsmatomo_url_page', 'url'));
+        self::assertNotContains($old[UrlDayRows::hash('https://example.org/old')], $this->column('tx_analyticsmatomo_url_page', 'url'));
         self::assertCount(6, $this->column('tx_analyticsmatomo_url_page', 'url'));
         // Other connections keep their days
         self::assertSame([20261001], $this->column('tx_analyticsmatomo_import', 'day', 2));
-        self::assertSame([$other[sha1('example.org/old')]], $this->column('tx_analyticsmatomo_url', 'uid', 2));
+        self::assertSame([$other[UrlDayRows::hash('https://example.org/old')]], $this->column('tx_analyticsmatomo_url', 'uid', 2));
     }
 
     private function markDays(int $connection, int $from, int $to, int $importedAt): void
     {
         for ($date = new \DateTimeImmutable((string)$from); (int)$date->format('Ymd') <= $to; $date = $date->modify('+1 day')) {
-            $this->repository()->markImported($connection, (int)$date->format('Ymd'), $importedAt, self::day(1));
+            $this->markImported($connection, (int)$date->format('Ymd'), $importedAt, self::day(1));
         }
+    }
+
+    /**
+     * @return array<string, int> uid by URL hash
+     */
+    private function replaceDay(int $connection, int $day, UrlDay $urlDay): array
+    {
+        $urlDays = new UrlDayRepository($this->getConnectionPool());
+        $uids = $urlDays->addUrls($connection, $day, $urlDay);
+        $this->getConnectionPool()->getConnectionForTable(UrlDayRepository::TABLE)->transactional(
+            static fn (Connection $database) => $urlDays->replaceDayFacts($database, $connection, $day, $urlDay, $uids),
+        );
+        return $uids;
+    }
+
+    private function markImported(int $connection, int $day, int $importedAt, UrlDay $urlDay): void
+    {
+        $this->repository()->markImported($this->getConnectionPool()->getConnectionForTable(ImportRepository::TABLE), $connection, $day, $importedAt, $urlDay);
+    }
+
+    /**
+     * @return list<array<string, int>>
+     */
+    private function importRows(): array
+    {
+        return array_map(
+            static fn (array $row): array => array_map(intval(...), $row),
+            $this->getConnectionPool()->getConnectionForTable(ImportRepository::TABLE)->select(['*'], ImportRepository::TABLE)->fetchAllAssociative(),
+        );
     }
 
     /**

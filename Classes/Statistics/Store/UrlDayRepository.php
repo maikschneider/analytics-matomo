@@ -12,6 +12,11 @@ use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
 /**
  * Counts per URL and day of a connection, and the URL dictionary they point to.
+ *
+ * Callers that write (addUrls(), replaceDayFacts()) must hold the import lock
+ * of the connection: the writes are not safe against a concurrent import.
+ * An import of a day runs addUrls() in autocommit, then replaceDayFacts() and
+ * ImportRepository::markImported() in one transaction.
  */
 final readonly class UrlDayRepository
 {
@@ -25,32 +30,98 @@ final readonly class UrlDayRepository
     }
 
     /**
-     * Replaces the counts of the day in one transaction; URLs new to the
-     * connection are added to the dictionary. The display URL of known URLs
-     * follows the newest imported day, so a backfill of older days does not
-     * bring back an outdated variant.
+     * Adds the URLs of the day that are new to the connection to the
+     * dictionary, in autocommit: call it before the transaction of
+     * replaceDayFacts(). Adding is idempotent; URLs no day points to are
+     * removed by ImportRepository::purgeBefore(). The display URL of known
+     * URLs follows the newest imported day, so a backfill of older days does
+     * not bring back an outdated variant.
      *
      * @param int $day Ymd
      * @return array<string, int> uid of each URL of the day, by URL hash
      */
-    public function replaceDay(int $connection, int $day, UrlDay $urlDay): array
+    public function addUrls(int $connection, int $day, UrlDay $urlDay): array
     {
-        return $this->connectionPool->getConnectionForTable(self::TABLE)->transactional(function (Connection $database) use ($connection, $day, $urlDay): array {
-            $isNewestDay = $day >= $this->newestDay($connection);
-            $database->delete(self::TABLE, ['connection' => $connection, 'day' => $day], [Connection::PARAM_INT, Connection::PARAM_INT]);
-            $uids = $this->addUrls($connection, $urlDay, $isNewestDay);
+        $database = $this->connectionPool->getConnectionForTable(self::URL_TABLE);
+        $hashes = array_map(strval(...), array_keys($urlDay->rows));
+        $known = $this->findUrls($connection, $hashes);
 
-            $columns = ['connection', 'day', 'url', ...PageMetrics::COUNTS];
-            $types = array_fill(0, count($columns), Connection::PARAM_INT);
-            foreach (array_chunk($urlDay->rows, self::CHUNK_SIZE, true) as $chunk) {
-                $data = [];
-                foreach ($chunk as $hash => $row) {
-                    $data[] = [$connection, $day, $uids[$hash], ...array_values($row->counts)];
+        if ($day >= $this->newestDay($connection)) {
+            foreach ($known as $hash => $url) {
+                if ($url['url'] !== $urlDay->rows[$hash]->url) {
+                    $database->update(self::URL_TABLE, ['url' => $urlDay->rows[$hash]->url], ['uid' => $url['uid']], [Connection::PARAM_STR, Connection::PARAM_INT]);
                 }
-                $database->bulkInsert(self::TABLE, $data, $columns, $types);
             }
-            return $uids;
-        });
+        }
+
+        $missing = array_values(array_diff($hashes, array_keys($known)));
+        if ($missing !== []) {
+            $this->insertUrls($connection, array_combine($missing, array_map(static fn (string $hash): string => $urlDay->rows[$hash]->url, $missing)));
+            $known += $this->findUrls($connection, $missing);
+        }
+
+        $uids = [];
+        foreach ($hashes as $hash) {
+            if (!isset($known[$hash])) {
+                throw new \RuntimeException('URL ' . $urlDay->rows[$hash]->url . ' could not be added to the page view store', 1794500003);
+            }
+            $uids[$hash] = $known[$hash]['uid'];
+        }
+        return $uids;
+    }
+
+    /**
+     * Inserts the URLs into the dictionary, skipping those another process
+     * inserted meanwhile. Runs in autocommit.
+     *
+     * @internal use addUrls(); public to test the race with another process
+     * @param array<string, string> $urls display URL by URL hash
+     */
+    public function insertUrls(int $connection, array $urls): void
+    {
+        $database = $this->connectionPool->getConnectionForTable(self::URL_TABLE);
+        $types = [Connection::PARAM_INT, Connection::PARAM_STR, Connection::PARAM_STR];
+        foreach (array_chunk($urls, self::CHUNK_SIZE, true) as $chunk) {
+            $data = [];
+            foreach ($chunk as $hash => $url) {
+                $data[] = [$connection, (string)$hash, $url];
+            }
+            try {
+                $database->bulkInsert(self::URL_TABLE, $data, ['connection', 'url_hash', 'url'], $types);
+            } catch (UniqueConstraintViolationException) {
+                // The statement failed as a whole: insert one by one
+                foreach ($data as [$connectionUid, $hash, $url]) {
+                    try {
+                        $database->insert(self::URL_TABLE, ['connection' => $connectionUid, 'url_hash' => $hash, 'url' => $url], $types);
+                    } catch (UniqueConstraintViolationException) {
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Replaces the counts of the day. Runs on the given database connection,
+     * inside the caller's transaction, which also marks the day imported
+     * (ImportRepository::markImported()).
+     *
+     * @param int $day Ymd
+     * @param array<string, int> $urlUids uid of each URL of the day, by URL hash, as returned by addUrls()
+     */
+    public function replaceDayFacts(Connection $database, int $connection, int $day, UrlDay $urlDay, array $urlUids): void
+    {
+        $database->delete(self::TABLE, ['connection' => $connection, 'day' => $day], [Connection::PARAM_INT, Connection::PARAM_INT]);
+
+        $columns = ['connection', 'day', 'url', ...PageMetrics::COUNTS];
+        $types = array_fill(0, count($columns), Connection::PARAM_INT);
+        foreach (array_chunk($urlDay->rows, self::CHUNK_SIZE, true) as $chunk) {
+            $data = [];
+            foreach ($chunk as $hash => $row) {
+                $uid = $urlUids[$hash] ?? throw new \InvalidArgumentException('URL ' . $row->url . ' has no uid; add it with addUrls() first', 1794500005);
+                $data[] = [$connection, $day, $uid, ...array_values($row->counts)];
+            }
+            $database->bulkInsert(self::TABLE, $data, $columns, $types);
+        }
     }
 
     /**
@@ -98,61 +169,6 @@ final readonly class UrlDayRepository
             }
         }
         return $urls;
-    }
-
-    /**
-     * @return array<string, int> uid by URL hash
-     */
-    private function addUrls(int $connection, UrlDay $urlDay, bool $updateDisplayUrls): array
-    {
-        $database = $this->connectionPool->getConnectionForTable(self::URL_TABLE);
-        $hashes = array_map(strval(...), array_keys($urlDay->rows));
-        $known = $this->findUrls($connection, $hashes);
-
-        if ($updateDisplayUrls) {
-            foreach ($known as $hash => $url) {
-                if ($url['url'] !== $urlDay->rows[$hash]->url) {
-                    $database->update(self::URL_TABLE, ['url' => $urlDay->rows[$hash]->url], ['uid' => $url['uid']], [Connection::PARAM_STR, Connection::PARAM_INT]);
-                }
-            }
-        }
-
-        $missing = array_values(array_diff($hashes, array_keys($known)));
-        if ($missing !== []) {
-            foreach (array_chunk($missing, self::CHUNK_SIZE) as $chunk) {
-                $data = array_map(static fn (string $hash): array => [$connection, $hash, $urlDay->rows[$hash]->url], $chunk);
-                try {
-                    $database->bulkInsert(self::URL_TABLE, $data, ['connection', 'url_hash', 'url'], [Connection::PARAM_INT, Connection::PARAM_STR, Connection::PARAM_STR]);
-                } catch (UniqueConstraintViolationException) {
-                    // Another process added some of them meanwhile; the statement failed as a whole
-                    $this->insertEach($connection, $data);
-                }
-            }
-            $known += $this->findUrls($connection, $missing);
-        }
-
-        $uids = [];
-        foreach ($hashes as $hash) {
-            if (!isset($known[$hash])) {
-                throw new \RuntimeException('URL ' . $urlDay->rows[$hash]->url . ' could not be added to the page view store', 1794500003);
-            }
-            $uids[$hash] = $known[$hash]['uid'];
-        }
-        return $uids;
-    }
-
-    /**
-     * @param list<array{int, string, string}> $data
-     */
-    private function insertEach(int $connection, array $data): void
-    {
-        $database = $this->connectionPool->getConnectionForTable(self::URL_TABLE);
-        foreach ($data as [$connectionUid, $hash, $url]) {
-            try {
-                $database->insert(self::URL_TABLE, ['connection' => $connectionUid, 'url_hash' => $hash, 'url' => $url], [Connection::PARAM_INT, Connection::PARAM_STR, Connection::PARAM_STR]);
-            } catch (UniqueConstraintViolationException) {
-            }
-        }
     }
 
     /**

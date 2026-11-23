@@ -51,6 +51,21 @@ final class ConnectionRepositoryTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function trailingSlashOfTheMatomoUrlDoesNotMakeAnotherConnection(): void
+    {
+        $repository = $this->repository();
+
+        $uid = $repository->getOrCreate(new MatomoConfiguration('https://matomo.example.org/', 3, 'token'));
+
+        self::assertSame($uid, $repository->getOrCreate(new MatomoConfiguration('https://matomo.example.org', 3, 'token')));
+        self::assertSame($uid, $repository->find(new MatomoConfiguration('https://matomo.example.org//', 3, 'token')));
+        $rows = $this->getConnectionPool()->getConnectionForTable('tx_analyticsmatomo_connection')->select(['*'], 'tx_analyticsmatomo_connection')->fetchAllAssociative();
+        self::assertCount(1, $rows);
+        self::assertSame(hash('sha256', "https://matomo.example.org\n3"), $rows[0]['identifier']);
+        self::assertSame('https://matomo.example.org', $rows[0]['url']);
+    }
+
+    #[Test]
     public function otherSiteIdOrUrlMakesAnotherConnection(): void
     {
         $repository = $this->repository();
