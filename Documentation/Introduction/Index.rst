@@ -228,6 +228,12 @@ access from the Page module, so a slow or unreachable Matomo never slows down
 the module. Pages without a frontend URL (folders, sys folders, links) get no
 bar.
 
+One request asks Matomo for every day of both periods and adds the days up;
+rates are derived from the summed counts, as Matomo does for a range. Day
+archives usually exist already, while range archives are built on request and
+can exceed the 10-second timeout on large instances with browser-triggered
+archiving. The :guilabel:`Site performance` widget works the same way.
+
 Views in the page tree
 ======================
 

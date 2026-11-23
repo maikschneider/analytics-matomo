@@ -634,13 +634,23 @@ final readonly class DemoData
         $percent = trim($path, '/') !== '' && $this->between('unvisited' . $url, 0, 6) === 0 ? 0 : $this->between('popularity' . $url, 30, 100) * $this->scale($site);
         // A weekly momentum per page, so pages rise and fall between periods
         $hits = $this->sum($dates, fn (string $date): int => intdiv($this->between($url . $date, $min, $max) * $percent * $this->between('momentum' . $url . (new \DateTimeImmutable($date))->format('oW'), 60, 150) + 500000, 1000000));
+        $bounceRate = $this->between('bounce' . $url, 20, 70) / 100;
+        $averageTime = $this->between('time' . $url, 20, 180);
+        $exitRate = $this->between('exit' . $url, 15, 60) / 100;
+        $visits = intdiv($hits * $this->between('visits' . $url, 70, 95), 100);
+        $entries = intdiv($visits * $this->between('entryVisits' . $url, 30, 60), 100);
         return [
             'label' => $path,
             'url' => $url,
+            'nb_visits' => $visits,
             'nb_hits' => $hits,
-            'bounce_rate' => $this->between('bounce' . $url, 20, 70) / 100,
-            'avg_time_on_page' => $this->between('time' . $url, 20, 180),
-            'exit_rate' => $this->between('exit' . $url, 15, 60) / 100,
+            'sum_time_spent' => $hits * $averageTime,
+            'entry_nb_visits' => $entries,
+            'entry_bounce_count' => (int)round($entries * $bounceRate),
+            'exit_nb_visits' => (int)round($visits * $exitRate),
+            'bounce_rate' => $bounceRate,
+            'avg_time_on_page' => $averageTime,
+            'exit_rate' => $exitRate,
         ];
     }
 

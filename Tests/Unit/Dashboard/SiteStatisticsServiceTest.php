@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MaikSchneider\AnalyticsMatomo\Tests\Unit\Dashboard;
 
 use MaikSchneider\AnalyticsMatomo\Configuration\MatomoConfiguration;
+use MaikSchneider\AnalyticsMatomo\Dashboard\SiteMetrics;
 use MaikSchneider\AnalyticsMatomo\Dashboard\SiteStatisticsService;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoClient;
@@ -35,22 +36,22 @@ final class SiteStatisticsServiceTest extends UnitTestCase
     {
         $performance = $this->subject('SitePerformance')->getPerformance($this->configuration(), $this->period());
 
+        // Matomo answered the same periods as range with these (rounded) values
         self::assertSame(29, $performance->current->visits);
         self::assertSame(43, $performance->current->pageViews);
-        self::assertSame(0.72, $performance->current->bounceRate);
+        self::assertSame(0.72, round($performance->current->bounceRate, 2));
         self::assertSame(3, $performance->current->averageTimeOnSite);
+        self::assertSame(29, $performance->previous->visits);
         self::assertSame(37, $performance->previous->pageViews);
-        self::assertSame(0.79, $performance->previous->bounceRate);
+        self::assertSame(0.79, round($performance->previous->bounceRate, 2));
+        self::assertSame(2, $performance->previous->averageTimeOnSite);
         self::assertSame(['2026-10-27', '2026-10-28', '2026-10-29', '2026-10-30', '2026-10-31', '2026-11-01', '2026-11-02'], array_keys($performance->daily));
         self::assertSame(8, $performance->daily['2026-10-30']->visits);
         self::assertSame(10, $performance->daily['2026-10-30']->pageViews);
+        self::assertSame(0.75, $performance->daily['2026-10-30']->bounceRate);
         self::assertSame([
-            'method=VisitsSummary.get&format_metrics=0&period=range&date=2026-10-27%2C2026-11-02&idSite=3',
-            'method=VisitsSummary.get&format_metrics=0&period=range&date=2026-10-20%2C2026-10-26&idSite=3',
-            'method=Actions.get&format_metrics=0&showColumns=nb_pageviews&period=range&date=2026-10-27%2C2026-11-02&idSite=3',
-            'method=Actions.get&format_metrics=0&showColumns=nb_pageviews&period=range&date=2026-10-20%2C2026-10-26&idSite=3',
-            'method=VisitsSummary.get&format_metrics=0&period=day&date=2026-10-27%2C2026-11-02&idSite=3',
-            'method=Actions.get&format_metrics=0&showColumns=nb_pageviews&period=day&date=2026-10-27%2C2026-11-02&idSite=3',
+            'method=VisitsSummary.get&format_metrics=0&period=day&date=2026-10-20%2C2026-11-02&idSite=3',
+            'method=Actions.get&format_metrics=0&showColumns=nb_pageviews&period=day&date=2026-10-20%2C2026-11-02&idSite=3',
         ], $this->sentBody['urls']);
     }
 
@@ -59,9 +60,9 @@ final class SiteStatisticsServiceTest extends UnitTestCase
     {
         $performance = $this->subject('EmptySitePerformance')->getPerformance($this->configuration(), Period::lastDays(7, new \DateTimeImmutable('2001-01-07')));
 
-        self::assertSame(0, $performance->current->visits);
-        self::assertSame(0, $performance->current->pageViews);
-        self::assertSame(0, $performance->daily['2001-01-03']->visits);
+        self::assertEquals(new SiteMetrics(), $performance->current);
+        self::assertEquals(new SiteMetrics(), $performance->previous);
+        self::assertEquals(new SiteMetrics(), $performance->daily['2001-01-03']);
     }
 
     #[Test]

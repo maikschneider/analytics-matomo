@@ -77,6 +77,14 @@ final readonly class Period
         return new self(self::CUSTOM, $to->modify('-' . ($this->days - 1) . ' days'), $to);
     }
 
+    /**
+     * The previous period and this one as one span, to fetch both with one `period=day` request.
+     */
+    public function withPrevious(): self
+    {
+        return new self(self::CUSTOM, $this->previous()->from, $this->to);
+    }
+
     public function toMatomoDate(): string
     {
         return $this->from->format('Y-m-d') . ',' . $this->to->format('Y-m-d');

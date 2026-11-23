@@ -79,7 +79,7 @@ final class MatomoWidgetTest extends FunctionalTestCase
         $html = $this->render(1, 'analyticsMatomoPerformance', 'SitePerformance');
 
         self::assertStringContainsString('tx-analytics-matomo-metric--visits', $html);
-        self::assertStringContainsString('72.0 %', $html);
+        self::assertStringContainsString('72.4 %', $html);
         self::assertStringContainsString('+6', $html);
         self::assertStringContainsString('Share of visits that left the site after one page.', $html);
         // Admins choose between both configured sites
