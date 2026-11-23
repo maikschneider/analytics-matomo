@@ -40,3 +40,4 @@ Shows Matomo statistics of the current page directly in the TYPO3 Page module.
     Introduction/Index
     Installation/Index
     Configuration/Index
+    LargeInstances/Index

@@ -127,6 +127,9 @@ access of the site's token and shows:
     visits of today in the reports than in the raw log (info). The last one is a
     heuristic for lagging archiving; the exact archiving state needs a
     superuser token.
+*   with the :ref:`page view store <large-instances>`: its stored range, last
+    import and truncated days; a warning when today was not imported in the
+    last two hours or the site's URLs are being mapped again
 
 Matomo's answers are cached for ten minutes. The token is never shown. Demo
 sites run the same checks against the demo data.
