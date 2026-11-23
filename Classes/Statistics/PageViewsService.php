@@ -96,15 +96,14 @@ final readonly class PageViewsService
             return $cached['views'];
         }
         try {
-            $requests = [];
-            foreach ([$period, $period->previous()] as $range) {
-                foreach ($urls as $url) {
-                    $requests[] = ['method' => 'Actions.getPageUrl', 'pageUrl' => $url, 'period' => 'range', 'date' => $range->toMatomoDate(), 'format_metrics' => 0];
-                }
+            $requests = array_map(static fn (string $url): array => [
+                'method' => 'Actions.getPageUrl', 'pageUrl' => $url, 'period' => 'day', 'date' => $period->withPrevious()->toMatomoDate(), 'format_metrics' => 0,
+            ], array_values($urls));
+            $views = ['current' => 0, 'previous' => 0];
+            foreach ($this->client->bulkRequest($configuration, $requests) as $days) {
+                $views['current'] += PageMetrics::fromDays($days, $period->dates())->views;
+                $views['previous'] += PageMetrics::fromDays($days, $period->previous()->dates())->views;
             }
-            $results = $this->client->bulkRequest($configuration, $requests);
-            $hits = array_map(fn (mixed $result): int => (int)($this->rows($result)[0]['nb_hits'] ?? 0), $results);
-            $views = ['current' => (int)array_sum(array_slice($hits, 0, count($urls))), 'previous' => (int)array_sum(array_slice($hits, count($urls)))];
         } catch (MatomoApiException $exception) {
             $this->logger->warning('Loading Matomo page views fallback failed: {message}', ['message' => $exception->getMessage()]);
             $this->cache->set($key, ['views' => null], self::FAILURE_LIFETIME);

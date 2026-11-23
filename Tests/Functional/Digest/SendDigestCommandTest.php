@@ -40,7 +40,8 @@ final class SendDigestCommandTest extends FunctionalTestCase
         /** @var \DateTimeImmutable $now */
         $now = $this->get(Context::class)->getPropertyFromAspect('date', 'full');
         $yesterday = $now->modify('-1 day')->format('Y-m-d');
-        $GLOBALS['TYPO3_CONF_VARS']['HTTP']['handler']['matomo'] = fn (callable $handler): \Closure => function (RequestInterface $request) use ($yesterday): FulfilledPromise {
+        $previousWeek = $now->modify('-8 days')->format('Y-m-d');
+        $GLOBALS['TYPO3_CONF_VARS']['HTTP']['handler']['matomo'] = fn (callable $handler): \Closure => function (RequestInterface $request) use ($yesterday, $previousWeek): FulfilledPromise {
             parse_str((string)$request->getBody(), $body);
             $results = [];
             foreach (is_array($body['urls'] ?? null) ? $body['urls'] : [] as $url) {
@@ -48,9 +49,14 @@ final class SendDigestCommandTest extends FunctionalTestCase
                 $this->sites[] = is_string($parameters['idSite'] ?? null) ? $parameters['idSite'] : '';
                 $date = is_string($parameters['date'] ?? null) ? $parameters['date'] : '';
                 $current = str_ends_with($date, $yesterday);
+                $day = ($parameters['period'] ?? '') === 'day';
                 $results[] = match (true) {
-                    ($parameters['period'] ?? '') === 'day' => [],
-                    ($parameters['method'] ?? '') === 'VisitsSummary.get' => ['nb_visits' => $current ? 120 : 100, 'bounce_rate' => '40%', 'avg_time_on_site' => 95],
+                    $day && ($parameters['method'] ?? '') === 'VisitsSummary.get' => [
+                        $previousWeek => ['nb_visits' => 100, 'bounce_count' => 40, 'sum_visit_length' => 9500],
+                        $yesterday => ['nb_visits' => 120, 'bounce_count' => 48, 'sum_visit_length' => 11400],
+                    ],
+                    $day && ($parameters['method'] ?? '') === 'Actions.get' => [$previousWeek => 250, $yesterday => 300],
+                    $day => [],
                     ($parameters['method'] ?? '') === 'Actions.get' => ['nb_pageviews' => $current ? 300 : 250],
                     ($parameters['method'] ?? '') === 'Actions.getPageUrls' => $current ? [
                         ['label' => '/about', 'url' => 'https://example.com/about', 'nb_hits' => 50],

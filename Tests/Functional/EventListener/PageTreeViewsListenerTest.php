@@ -66,7 +66,10 @@ final class PageTreeViewsListenerTest extends FunctionalTestCase
                 /** @var array<string, string> $parameters */
                 $this->calls[] = $parameters;
                 if ($parameters['method'] === 'Actions.getPageUrl') {
-                    $results[] = $this->fallbackAvailable ? [['nb_hits' => 5]] : ['result' => 'error', 'message' => 'Report unavailable'];
+                    self::assertSame(['day', '2026-09-04,2026-11-02'], [$parameters['period'], $parameters['date']]);
+                    $results[] = $this->fallbackAvailable
+                        ? ['2026-09-10' => [['nb_hits' => 5]], '2026-10-04' => [['nb_hits' => 2]], '2026-11-02' => [['nb_hits' => 3]], '2026-11-01' => []]
+                        : ['result' => 'error', 'message' => 'Report unavailable'];
                     continue;
                 }
                 self::assertSame('Actions.getPageUrls', $parameters['method']);

@@ -31,26 +31,21 @@ final readonly class SiteStatisticsService
     public function getPerformance(MatomoConfiguration $configuration, Period $period): SitePerformance
     {
         return $this->cache->remember($this->key('performance', $configuration, $period), function () use ($configuration, $period): SitePerformance {
-            $visits = ['method' => 'VisitsSummary.get', 'format_metrics' => 0];
-            $pageViews = ['method' => 'Actions.get', 'format_metrics' => 0, 'showColumns' => 'nb_pageviews'];
-            [$current, $previous, $currentViews, $previousViews, $dailyVisits, $dailyViews] = $this->client->bulkRequest($configuration, [
-                $visits + $this->range($period),
-                $visits + $this->range($period->previous()),
-                $pageViews + $this->range($period),
-                $pageViews + $this->range($period->previous()),
-                $visits + $this->days($period),
-                $pageViews + $this->days($period),
+            // Day archives usually exist, range archives are built on request and are slow on large instances
+            [$visits, $pageViews] = $this->client->bulkRequest($configuration, [
+                ['method' => 'VisitsSummary.get', 'format_metrics' => 0] + $this->days($period->withPrevious()),
+                ['method' => 'Actions.get', 'format_metrics' => 0, 'showColumns' => 'nb_pageviews'] + $this->days($period->withPrevious()),
             ]);
-            $dailyVisits = $this->dailyMap($dailyVisits);
-            $dailyViews = $this->dailyMap($dailyViews);
+            $visits = $this->dailyMap($visits);
+            $pageViews = $this->dailyMap($pageViews);
 
             $daily = [];
             foreach ($period->dates() as $date) {
-                $daily[$date] = $this->siteMetrics($dailyVisits[$date] ?? [], $dailyViews[$date] ?? []);
+                $daily[$date] = $this->siteMetrics($visits, $pageViews, [$date]);
             }
             return new SitePerformance(
-                $this->siteMetrics($current, $currentViews),
-                $this->siteMetrics($previous, $previousViews),
+                $this->siteMetrics($visits, $pageViews, $period->dates()),
+                $this->siteMetrics($visits, $pageViews, $period->previous()->dates()),
                 $daily,
             );
         });
@@ -125,16 +120,28 @@ final readonly class SiteStatisticsService
     }
 
     /**
+     * Sums the counts of the given days and derives the rates from the sums, as Matomo does for a range.
+     *
+     * @param array<string, mixed> $visits VisitsSummary.get by date
+     * @param array<string, mixed> $pageViews Actions.get nb_pageviews by date
+     * @param list<string> $dates
      * @throws MatomoApiException
      */
-    private function siteMetrics(mixed $visits, mixed $pageViews): SiteMetrics
+    private function siteMetrics(array $visits, array $pageViews, array $dates): SiteMetrics
     {
-        $row = $this->row($visits);
+        $visitCount = $bounces = $visitLength = $views = 0;
+        foreach ($dates as $date) {
+            $row = $this->row($visits[$date] ?? []);
+            $visitCount += (int)($row['nb_visits'] ?? 0);
+            $bounces += (int)($row['bounce_count'] ?? 0);
+            $visitLength += (int)($row['sum_visit_length'] ?? 0);
+            $views += $this->metric($pageViews[$date] ?? [], 'nb_pageviews');
+        }
         return new SiteMetrics(
-            visits: (int)($row['nb_visits'] ?? 0),
-            pageViews: $this->metric($pageViews, 'nb_pageviews'),
-            bounceRate: (float)($row['bounce_rate'] ?? 0),
-            averageTimeOnSite: (int)($row['avg_time_on_site'] ?? 0),
+            visits: $visitCount,
+            pageViews: $views,
+            bounceRate: $visitCount > 0 ? $bounces / $visitCount : 0.0,
+            averageTimeOnSite: $visitCount > 0 ? (int)round($visitLength / $visitCount) : 0,
         );
     }
 

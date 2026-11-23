@@ -11,7 +11,7 @@ use TYPO3\CMS\Core\Context\Context;
 
 /**
  * Fetches the numbers of one page for the last N days, the N days before and
- * each single day, in one bulk request. Results are cached per page, period and day.
+ * each single day from one day-by-day request. Results are cached per page, period and day.
  */
 final readonly class PageStatisticsService
 {
@@ -42,30 +42,23 @@ final readonly class PageStatisticsService
      */
     private function fetch(MatomoConfiguration $configuration, string $pageUrl, Period $period): PageStatistics
     {
-        $request = [
+        [$days] = $this->client->bulkRequest($configuration, [[
             'method' => 'Actions.getPageUrl',
             'pageUrl' => $pageUrl,
             'format_metrics' => 0,
-        ];
-        [$current, $previous, $daily] = $this->client->bulkRequest($configuration, [
-            $request + ['period' => 'range', 'date' => $period->toMatomoDate()],
-            $request + ['period' => 'range', 'date' => $period->previous()->toMatomoDate()],
-            $request + ['period' => 'day', 'date' => $period->toMatomoDate()],
-        ]);
+            'period' => 'day',
+            'date' => $period->withPrevious()->toMatomoDate(),
+        ]]);
 
-        // Matomo answers a day range with a map of date => rows
-        if (!is_array($daily) || ($daily !== [] && array_is_list($daily))) {
-            throw new MatomoApiException('Matomo answered with an unexpected daily result', 1793960007);
-        }
-        $dailyMetrics = [];
+        $daily = [];
         foreach ($period->dates() as $date) {
-            $dailyMetrics[$date] = PageMetrics::fromApiResult($daily[$date] ?? []);
+            $daily[$date] = PageMetrics::fromDays($days, [$date]);
         }
 
         return new PageStatistics(
-            PageMetrics::fromApiResult($current),
-            PageMetrics::fromApiResult($previous),
-            $dailyMetrics,
+            PageMetrics::fromDays($days, $period->dates()),
+            PageMetrics::fromDays($days, $period->previous()->dates()),
+            $daily,
         );
     }
 }

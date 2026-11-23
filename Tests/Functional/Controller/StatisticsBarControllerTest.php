@@ -10,6 +10,8 @@ use MaikSchneider\AnalyticsMatomo\Controller\StatisticsBarController;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Context\DateTimeAspect;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
@@ -44,11 +46,13 @@ final class StatisticsBarControllerTest extends FunctionalTestCase
         parent::setUp();
         $this->importCSVDataSet(__DIR__ . '/../Fixtures/Database.csv');
 
-        $this->matomoResponse = (string)json_encode([
-            [['nb_hits' => 1234, 'bounce_rate' => 0.84, 'avg_time_on_page' => 95, 'exit_rate' => 0.5]],
-            [['nb_hits' => 1000, 'bounce_rate' => 0.8, 'avg_time_on_page' => 100, 'exit_rate' => 0.5]],
-            [],
-        ]);
+        $this->get(Context::class)->setAspect('date', new DateTimeAspect(new \DateTimeImmutable('2026-11-06 14:30:00')));
+
+        $this->matomoResponse = (string)json_encode([[
+            '2026-10-20' => [['nb_hits' => 1000, 'nb_visits' => 1000, 'sum_time_spent' => 100000, 'entry_nb_visits' => 100, 'entry_bounce_count' => 80, 'exit_nb_visits' => 500]],
+            '2026-11-05' => [],
+            '2026-11-06' => [['nb_hits' => 1234, 'nb_visits' => 1000, 'sum_time_spent' => 117230, 'entry_nb_visits' => 100, 'entry_bounce_count' => 84, 'exit_nb_visits' => 500]],
+        ]]);
         $GLOBALS['TYPO3_CONF_VARS']['HTTP']['handler']['matomo'] = fn (callable $handler): \Closure => function (RequestInterface $request): FulfilledPromise {
             $this->sentRequests[] = $request;
             return new FulfilledPromise(new Response($this->matomoStatus, [], $this->matomoResponse));
