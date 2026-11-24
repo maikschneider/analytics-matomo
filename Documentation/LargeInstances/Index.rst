@@ -100,10 +100,15 @@ same time.
 ..  confval:: --retention-days
     :name: import-page-views-retention-days
     :type: int
-    :default: 400
+    :default: 365
 
-    Days kept per Matomo site, today included. 400 days keep the previous
+    Days kept per Matomo site, today included. 365 days keep the previous
     period of "last 90 days" and "last month" complete.
+
+    Keep it within the report retention of Matomo. When Matomo deletes old
+    reports (:guilabel:`Privacy > Anonymize data > Delete old aggregated report
+    data`, `delete_reports_older_than`), it answers older days with an empty
+    report, and the store would show them as days without views.
 
 ..  confval:: --max-remap
     :name: import-page-views-max-remap
@@ -144,7 +149,7 @@ Backfill
 
 The first runs fill the store back to :confval:`--retention-days
 <import-page-views-retention-days>`. It takes about the request time of one
-day times the number of days: with 7 seconds per day, 400 days take about 47
+day times the number of days: with 7 seconds per day, 365 days take about 43
 minutes of Matomo time. With :confval:`--max-requests
 <import-page-views-max-requests>` 50 and an hourly task, that is spread over
 eight runs, while today stays current from the first run on.
@@ -165,7 +170,7 @@ Table                                  Size (data and indexes)
 
 As a rule of thumb, plan about **40 MB per 1,000 URLs per day and year** of
 retention, URL dictionary included. A site with 8,500 URLs per day needs about
-380 MB for 400 days.
+340 MB for 365 days.
 
 Retention
 =========

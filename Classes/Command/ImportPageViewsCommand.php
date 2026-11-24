@@ -69,7 +69,7 @@ final class ImportPageViewsCommand extends Command
         $this->addOption('site', null, InputOption::VALUE_REQUIRED, 'Import only the Matomo site of this TYPO3 site identifier')
             ->addOption('max-requests', null, InputOption::VALUE_REQUIRED, 'Matomo requests (one per day) of this run across all Matomo sites; today and yesterday of every Matomo site come first, a backfill spreads over runs', '50')
             ->addOption('timeout', null, InputOption::VALUE_REQUIRED, 'Seconds per request', '120')
-            ->addOption('retention-days', null, InputOption::VALUE_REQUIRED, 'Days kept per Matomo site, today included; older days are deleted', '400')
+            ->addOption('retention-days', null, InputOption::VALUE_REQUIRED, 'Days kept per Matomo site, today included; older days are deleted. At most the report retention of Matomo (delete_reports_older_than)', '365')
             ->addOption('from', null, InputOption::VALUE_REQUIRED, 'Import the days from this day (Y-m-d) again, e.g. after Matomo reprocessed its logs; without --to up to today')
             ->addOption('to', null, InputOption::VALUE_REQUIRED, 'Import the days up to this day (Y-m-d) again; without --from this day only')
             ->addOption('max-remap', null, InputOption::VALUE_REQUIRED, 'Stored URLs of this run across all sites mapped again to the pages of a TYPO3 site that is new to its Matomo site or whose base or languages changed; a re-map spreads over runs', '20000');
