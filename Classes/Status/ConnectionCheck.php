@@ -7,6 +7,7 @@ namespace MaikSchneider\AnalyticsMatomo\Status;
 use MaikSchneider\AnalyticsMatomo\Configuration\MatomoConfiguration;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoClient;
+use MaikSchneider\AnalyticsMatomo\Matomo\SiteTimezone;
 use MaikSchneider\AnalyticsMatomo\Statistics\StatisticsCache;
 use Psr\Log\LoggerInterface;
 use TYPO3\CMS\Core\Context\Context;
@@ -44,18 +45,18 @@ final readonly class ConnectionCheck
     /**
      * @param list<int> $expectedSiteIds Matomo sites of all TYPO3 sites using the same URL and token
      * @param int $maxHoursWithoutVisits 0 to skip the check
-     * @return array{version: string, findings: list<array{severity: ContextualFeedbackSeverity, key: string, arguments: list<int|string>}>}
+     * @return array{version: string, timezone: ?\DateTimeZone, findings: list<array{severity: ContextualFeedbackSeverity, key: string, arguments: list<int|string>}>}
      */
     public function check(Site $site, MatomoConfiguration $configuration, array $expectedSiteIds, int $maxHoursWithoutVisits): array
     {
         $answers = $this->cache->remember(['status', $configuration->getCacheIdentifier()], fn (): array => $this->fetch($configuration), self::LIFETIME);
         if (isset($answers['error'])) {
-            return ['version' => '', 'findings' => [$this->finding(ContextualFeedbackSeverity::ERROR, 'connection', (string)$answers['error'])]];
+            return ['version' => '', 'timezone' => null, 'findings' => [$this->finding(ContextualFeedbackSeverity::ERROR, 'connection', (string)$answers['error'])]];
         }
         $version = (string)($answers['version']['value'] ?? '');
         foreach (array_diff_key($answers, ['superuser' => true, 'today' => true]) as $answer) {
             if ($this->isError($answer)) {
-                return ['version' => $version, 'findings' => [$this->finding(ContextualFeedbackSeverity::ERROR, 'siteAccess', $configuration->idSite, (string)$answer['message'])]];
+                return ['version' => $version, 'timezone' => null, 'findings' => [$this->finding(ContextualFeedbackSeverity::ERROR, 'siteAccess', $configuration->idSite, (string)$answer['message'])]];
             }
         }
 
@@ -109,7 +110,7 @@ final readonly class ConnectionCheck
             $findings[] = $this->finding(ContextualFeedbackSeverity::INFO, 'archiveLag', $archived, $raw);
         }
 
-        return ['version' => $version, 'findings' => $findings];
+        return ['version' => $version, 'timezone' => $this->timezone($answers['site']), 'findings' => $findings];
     }
 
     /**
@@ -142,15 +143,7 @@ final readonly class ConnectionCheck
 
     private function timezone(mixed $site): ?\DateTimeZone
     {
-        if (!is_array($site) || $this->isError($site) || !is_string($site['timezone'] ?? null)) {
-            return null;
-        }
-        try {
-            return new \DateTimeZone($site['timezone']);
-        } catch (\Exception) {
-            // Matomo also allows offsets like "UTC+2", which PHP doesn't know by name
-            return null;
-        }
+        return $this->isError($site) ? null : SiteTimezone::fromSite($site);
     }
 
     /**

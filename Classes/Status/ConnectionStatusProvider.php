@@ -75,7 +75,7 @@ final readonly class ConnectionStatusProvider implements StatusProviderInterface
             }
             $value = $result['version'] === '' ? $this->label('status.unreachable') : sprintf($this->label('status.version'), $result['version']);
             $message = $items === [] ? htmlspecialchars(sprintf($this->label('status.healthy'), $configuration->idSite)) : '';
-            foreach ($this->pageViewStore($site, $configuration) as $line) {
+            foreach ($this->pageViewStore($site, $configuration, $result['timezone']) as $line) {
                 $severity = $severity === null || $line['severity']->value > $severity->value ? $line['severity'] : $severity;
                 $items[] = '<li>' . htmlspecialchars($line['text']) . '</li>';
             }
@@ -90,9 +90,10 @@ final readonly class ConnectionStatusProvider implements StatusProviderInterface
      * the site's Matomo site; nothing when it has no store. Warns when today
      * was not imported recently or the site's URLs are being mapped again.
      *
+     * @param ?\DateTimeZone $siteTimezone of the Matomo site, null if unknown
      * @return list<array{text: string, severity: ContextualFeedbackSeverity}>
      */
-    private function pageViewStore(Site $site, MatomoConfiguration $configuration): array
+    private function pageViewStore(Site $site, MatomoConfiguration $configuration, ?\DateTimeZone $siteTimezone): array
     {
         if ($configuration->demo) {
             return [];
@@ -107,14 +108,16 @@ final readonly class ConnectionStatusProvider implements StatusProviderInterface
         \assert($now instanceof \DateTimeImmutable);
         $timezone = $now->getTimezone();
         $lastImport = (new \DateTimeImmutable('@' . $overview->lastImportedAt))->setTimezone($timezone);
-        $today = Day::fromDate($now);
-        $isStale = $this->imports->coverage($connection, $today, $today, $now)->isStale;
+        // The stored days are the Matomo site's
+        $siteNow = $siteTimezone === null ? $now : $now->setTimezone($siteTimezone);
+        $today = Day::fromDate($siteNow);
+        $isStale = $this->imports->coverage($connection, $today, $today, $siteNow)->isStale;
         $lines = [[
             'text' => sprintf(
                 $this->label('status.pageViewStore'),
                 Day::toDate($overview->oldestDay, $timezone)->format('d.m.Y'),
                 Day::toDate($overview->newestDay, $timezone)->format('d.m.Y'),
-                $lastImport->format(Day::fromDate($lastImport) === $today ? 'H:i' : 'd.m.Y H:i'),
+                $lastImport->format(Day::fromDate($lastImport) === Day::fromDate($now) ? 'H:i' : 'd.m.Y H:i'),
                 $overview->truncatedDays,
             ),
             'severity' => $isStale ? ContextualFeedbackSeverity::WARNING : ContextualFeedbackSeverity::OK,

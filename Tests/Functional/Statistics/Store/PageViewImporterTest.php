@@ -10,6 +10,7 @@ use MaikSchneider\AnalyticsMatomo\Configuration\MatomoConfiguration;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoClient;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageMetrics;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageUrlMapper;
+use MaikSchneider\AnalyticsMatomo\Statistics\StatisticsCache;
 use MaikSchneider\AnalyticsMatomo\Statistics\Store\ConnectionRepository;
 use MaikSchneider\AnalyticsMatomo\Statistics\Store\ImportRepository;
 use MaikSchneider\AnalyticsMatomo\Statistics\Store\ImportResult;
@@ -46,6 +47,10 @@ final class PageViewImporterTest extends FunctionalTestCase
     /** @var array<string, string> error message by date */
     private array $failing = [];
 
+    private string $timezone = 'UTC';
+
+    private ?string $report = null;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -57,6 +62,14 @@ final class PageViewImporterTest extends FunctionalTestCase
             foreach (is_array($body['urls'] ?? null) ? $body['urls'] : [] as $url) {
                 parse_str((string)$url, $parameters);
                 /** @var array<string, string> $parameters */
+                if ($parameters['method'] === 'SitesManager.getSiteFromId') {
+                    $results[] = ['idsite' => (int)$parameters['idSite'], 'timezone' => $this->timezone];
+                    continue;
+                }
+                if ($this->report !== null) {
+                    $results[] = json_decode($this->report, true);
+                    continue;
+                }
                 $this->parameters[] = $parameters;
                 $date = $parameters['date'];
                 $this->requested[] = $date;
@@ -136,6 +149,22 @@ final class PageViewImporterTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function daysAreTheMatomoSitesAndEndAtMidnightInItsTimeZone(): void
+    {
+        $this->timezone = 'America/New_York';
+        // 21:30 on the 23rd in New York
+        $this->setNow('2026-11-24 02:30:00 UTC');
+        $this->import(retentionDays: 2);
+        self::assertSame(['2026-11-23', '2026-11-22'], $this->requested);
+
+        // 02:30 on the 24th in New York: the 23rd ended half an hour ago, it is not final yet
+        $this->requested = [];
+        $this->setNow('2026-11-24 07:30:00 UTC');
+        $this->import(retentionDays: 2);
+        self::assertSame(['2026-11-24', '2026-11-23'], $this->requested);
+    }
+
+    #[Test]
     public function theBudgetStopsTheRunAtTheNewestDays(): void
     {
         $result = $this->import(budget: 2, retentionDays: 5);
@@ -194,7 +223,7 @@ final class PageViewImporterTest extends FunctionalTestCase
     #[Test]
     public function anUnexpectedReportFailsTheDay(): void
     {
-        $GLOBALS['TYPO3_CONF_VARS']['HTTP']['handler']['matomo'] = fn (callable $handler): \Closure => static fn (RequestInterface $request): FulfilledPromise => new FulfilledPromise(new Response(200, [], '[{"value": 3}]'));
+        $this->report = '{"value": 3}';
 
         $result = $this->import(retentionDays: 1);
 
@@ -340,6 +369,7 @@ final class PageViewImporterTest extends FunctionalTestCase
         $pool = $this->getConnectionPool();
         return new PageViewImporter(
             $this->get(MatomoClient::class),
+            $this->get(StatisticsCache::class),
             $this->get(Context::class),
             $pool,
             new ConnectionRepository($pool),

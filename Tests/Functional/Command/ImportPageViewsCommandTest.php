@@ -52,6 +52,10 @@ final class ImportPageViewsCommandTest extends FunctionalTestCase
             foreach (is_array($body['urls'] ?? null) ? $body['urls'] : [] as $url) {
                 parse_str((string)$url, $parameters);
                 /** @var array<string, string> $parameters */
+                if ($parameters['method'] === 'SitesManager.getSiteFromId') {
+                    $results[] = ['idsite' => (int)$parameters['idSite'], 'timezone' => 'UTC'];
+                    continue;
+                }
                 $key = $parameters['idSite'] . ' ' . $parameters['date'];
                 $this->requested[] = $key;
                 $results[] = isset($this->failing[$key]) ? ['result' => 'error', 'message' => $this->failing[$key]] : [

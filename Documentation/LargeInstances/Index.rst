@@ -66,7 +66,8 @@ cron job:
     0 * * * * /path/to/project/vendor/bin/typo3 analytics-matomo:import-page-views
 
 Each run imports today and, until it is final, yesterday of every Matomo site
-first. A day is final once it was imported at least two hours after its end,
+first. Days are the Matomo site's, from midnight to midnight in its time zone.
+A day is final once it was imported at least two hours after its end,
 when Matomo has archived its last visits; final days are not imported again.
 The remaining requests of the run go to the missing days, newest first, one
 Matomo site after the other.

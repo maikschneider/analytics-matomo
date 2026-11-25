@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace MaikSchneider\AnalyticsMatomo\Statistics\Store;
 
 use MaikSchneider\AnalyticsMatomo\Configuration\MatomoConfiguration;
+use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoClient;
+use MaikSchneider\AnalyticsMatomo\Matomo\SiteTimezone;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageMetrics;
+use MaikSchneider\AnalyticsMatomo\Statistics\StatisticsCache;
 use Psr\Log\LoggerInterface;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Database\Connection;
@@ -26,8 +29,11 @@ use TYPO3\CMS\Core\Site\Entity\Site;
  */
 final readonly class PageViewImporter
 {
+    private const TIMEZONE_LIFETIME = 3600;
+
     public function __construct(
         private MatomoClient $client,
+        private StatisticsCache $cache,
         private Context $context,
         private ConnectionPool $connectionPool,
         private ConnectionRepository $connections,
@@ -49,12 +55,11 @@ final readonly class PageViewImporter
      */
     public function importConnection(array $sites, MatomoConfiguration $configuration, int $budget, int $timeout, int $retentionDays, ?array $range = null, array $exclude = []): ImportResult
     {
-        /** @var \DateTimeImmutable $now */
-        $now = $this->context->getPropertyFromAspect('date', 'full');
+        $connection = $this->connection($configuration);
+        $now = $this->now($configuration);
         $timezone = $now->getTimezone();
         $today = Day::fromDate($now);
         $oldestDay = $this->oldestDay($now, $retentionDays);
-        $connection = $this->connection($configuration);
 
         $days = $range === null
             ? [...$this->imports->notFinalDays($connection, $now), ...$this->imports->missingDays($connection, $oldestDay, $today)]
@@ -96,10 +101,8 @@ final readonly class PageViewImporter
      */
     public function purgeExpiredDays(MatomoConfiguration $configuration, int $retentionDays): void
     {
-        /** @var \DateTimeImmutable $now */
-        $now = $this->context->getPropertyFromAspect('date', 'full');
-        $oldestDay = $this->oldestDay($now, $retentionDays);
-        $this->imports->purgeBefore($this->connection($configuration), $oldestDay);
+        $connection = $this->connection($configuration);
+        $this->imports->purgeBefore($connection, $this->oldestDay($this->now($configuration), $retentionDays));
     }
 
     /**
@@ -129,6 +132,25 @@ final readonly class PageViewImporter
             throw new \InvalidArgumentException('Demo configurations and configurations with a segment are not stored', 1794500010);
         }
         return $this->connections->getOrCreate($configuration);
+    }
+
+    /**
+     * Now in the time zone of the Matomo site: Matomo's report of a day runs
+     * from midnight to midnight there, so it decides which day is today and
+     * when a day has ended.
+     *
+     * @throws MatomoApiException
+     */
+    private function now(MatomoConfiguration $configuration): \DateTimeImmutable
+    {
+        /** @var \DateTimeImmutable $now */
+        $now = $this->context->getPropertyFromAspect('date', 'full');
+        $timezone = $this->cache->remember(['siteTimezone', $configuration->getCacheIdentifier()], function () use ($configuration): string {
+            $site = $this->client->bulkRequest($configuration, [['method' => 'SitesManager.getSiteFromId']])[0] ?? null;
+            return SiteTimezone::fromSite($site)?->getName()
+                ?? throw new MatomoApiException('Matomo site ' . $configuration->idSite . ' has no time zone PHP understands', 1794500012);
+        }, self::TIMEZONE_LIFETIME);
+        return $now->setTimezone(new \DateTimeZone($timezone));
     }
 
     /**

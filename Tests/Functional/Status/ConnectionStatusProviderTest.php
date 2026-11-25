@@ -243,6 +243,21 @@ final class ConnectionStatusProviderTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function todayIsTheMatomoSitesToday(): void
+    {
+        // 03:30 on the 3rd in Auckland, where the import stored that day already
+        $this->answers[3]['SitesManager.getSiteFromId']['timezone'] = 'Pacific/Auckland';
+        $connection = $this->connection(3);
+        $this->import($connection, 20261103, (new \DateTimeImmutable(self::NOW))->getTimestamp() - 600);
+        $this->mapped('main', $connection);
+
+        $main = $this->statuses()['main'];
+
+        self::assertSame(ContextualFeedbackSeverity::OK, $main->getSeverity());
+        self::assertStringContainsString('Page view store: 03.11.2026–03.11.2026, last import 14:20', $main->getMessage());
+    }
+
+    #[Test]
     public function showsTheDateOfALastImportBeforeToday(): void
     {
         $connection = $this->connection(3);
