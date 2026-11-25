@@ -27,9 +27,10 @@ use TYPO3\CMS\Core\Site\SiteFinder;
  * Matomo site (connection) of the configured TYPO3 sites.
  *
  * The request budget is shared by all connections: first every connection
- * gets its two newest due days (today and, until final, yesterday), then the
- * rest of the budget goes to the backfill, connection by connection. So a
- * long backfill of one Matomo site never keeps another one from being current.
+ * gets up to two of its days that are not final (today, yesterday until it
+ * is, a day imported before its end), then the rest of the budget goes to the
+ * backfill, connection by connection. So a long backfill of one Matomo site
+ * never keeps another one from being current.
  * After the imports each connection purges the days beyond the retention and
  * goes on with pending re-maps of its sites, within the shared --max-remap.
  *
@@ -129,7 +130,7 @@ final class ImportPageViewsCommand extends Command
 
             foreach (array_keys($lockers) as $connection) {
                 $this->guarded($groups[$connection]['configuration'], $connection, $errors, function () use ($groups, $connection, &$budget, &$results, $timeout, $retentionDays, $range): void {
-                    $result = $this->importer->importConnection($groups[$connection]['sites'], $groups[$connection]['configuration'], min($budget, self::FIRST_PASS_DAYS), $timeout, $retentionDays, $range);
+                    $result = $this->importer->importConnection($groups[$connection]['sites'], $groups[$connection]['configuration'], min($budget, self::FIRST_PASS_DAYS), $timeout, $retentionDays, $range, notFinalOnly: true);
                     $budget -= $result->requests;
                     $results[$connection][] = $result;
                 });

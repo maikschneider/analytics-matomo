@@ -52,9 +52,10 @@ final readonly class PageViewImporter
      * @param int $retentionDays days kept, today included
      * @param array{from: int, to: int}|null $range days (Ymd) to import again, imported or not, instead of the days due; limited to the retention
      * @param list<int> $exclude days (Ymd) not to import in this run, e.g. imported by an earlier pass of the same run
+     * @param bool $notFinalOnly import only the days that are not final (today, yesterday until it is, days imported before their end), so that every connection gets them before any backfill
      * @throws \InvalidArgumentException for demo configurations and configurations with a segment: the store holds the data of a whole Matomo site
      */
-    public function importConnection(array $sites, MatomoConfiguration $configuration, int $budget, int $timeout, int $retentionDays, ?array $range = null, array $exclude = []): ImportResult
+    public function importConnection(array $sites, MatomoConfiguration $configuration, int $budget, int $timeout, int $retentionDays, ?array $range = null, array $exclude = [], bool $notFinalOnly = false): ImportResult
     {
         $connection = $this->connection($configuration);
         $now = $this->now($configuration);
@@ -62,20 +63,22 @@ final readonly class PageViewImporter
         $today = Day::fromDate($now);
         $oldestDay = $this->oldestDay($now, $retentionDays);
 
+        $notFinal = $this->imports->notFinalDays($connection, $now);
         $days = $range === null
-            ? [...$this->imports->notFinalDays($connection, $now), ...$this->imports->missingDays($connection, $oldestDay, $today)]
+            ? [...$notFinal, ...$this->imports->missingDays($connection, $oldestDay, $today)]
             : Day::range(max($range['from'], $oldestDay), min($range['to'], $today));
         $days = array_values(array_diff(array_unique($days), $exclude));
         // Yesterday may be beyond a retention of one day
         $days = array_values(array_filter($days, static fn (int $day): bool => $day >= $oldestDay));
         rsort($days);
+        $due = $notFinalOnly ? array_values(array_intersect($days, $notFinal)) : $days;
 
         $newestDay = $this->imports->newestDay($connection) ?? 0;
         $requests = 0;
         $imported = [];
         $failed = [];
-        while ($days !== [] && $requests < $budget) {
-            $day = array_shift($days);
+        while ($due !== [] && $requests < $budget) {
+            $day = array_shift($due);
             $requests++;
             try {
                 $this->importDay($sites, $configuration, $connection, $day, Day::toDate($day, $timezone), $now, $timeout, $day >= $newestDay);
@@ -91,7 +94,7 @@ final readonly class PageViewImporter
             }
         }
 
-        return new ImportResult($requests, $imported, $failed, count($days));
+        return new ImportResult($requests, $imported, $failed, count($days) - $requests);
     }
 
     /**

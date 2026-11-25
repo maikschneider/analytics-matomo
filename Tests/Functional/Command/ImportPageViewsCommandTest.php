@@ -103,10 +103,10 @@ final class ImportPageViewsCommandTest extends FunctionalTestCase
         self::assertStringContainsString('shop: 2 days imported, 8 days left', $command->getDisplay());
 
         $this->requested = [];
-        $this->command()->execute(['--max-requests' => '3', '--retention-days' => '10']);
+        $this->command()->execute(['--max-requests' => '2', '--retention-days' => '10']);
 
-        // Today is imported again, yesterday is final
-        self::assertSame(['3 2026-11-23', '3 2026-11-20', '7 2026-11-23'], $this->requested);
+        // Today is imported again, yesterday is final: no backfill before the other connection's today
+        self::assertSame(['3 2026-11-23', '7 2026-11-23'], $this->requested);
     }
 
     #[Test]
