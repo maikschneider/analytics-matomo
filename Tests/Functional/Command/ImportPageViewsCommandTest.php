@@ -107,6 +107,16 @@ final class ImportPageViewsCommandTest extends FunctionalTestCase
 
         // Today is imported again, yesterday is final: no backfill before the other connection's today
         self::assertSame(['3 2026-11-23', '7 2026-11-23'], $this->requested);
+
+        // An older, partially imported day must not take the second connection's request either
+        $this->getConnectionPool()->getConnectionForTable('tx_analyticsmatomo_import')->update(
+            'tx_analyticsmatomo_import',
+            ['imported_at' => (new \DateTimeImmutable('2026-11-21 12:00:00'))->getTimestamp()],
+            ['connection' => $this->connection(3), 'day' => 20261121],
+        );
+        $this->requested = [];
+        $this->command()->execute(['--max-requests' => '2', '--retention-days' => '10']);
+        self::assertSame(['3 2026-11-23', '7 2026-11-23'], $this->requested);
     }
 
     #[Test]

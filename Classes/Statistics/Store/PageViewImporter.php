@@ -52,7 +52,7 @@ final readonly class PageViewImporter
      * @param int $retentionDays days kept, today included
      * @param array{from: int, to: int}|null $range days (Ymd) to import again, imported or not, instead of the days due; limited to the retention
      * @param list<int> $exclude days (Ymd) not to import in this run, e.g. imported by an earlier pass of the same run
-     * @param bool $notFinalOnly import only the days that are not final (today, yesterday until it is, days imported before their end), so that every connection gets them before any backfill
+     * @param bool $notFinalOnly import only today and yesterday until final, so that every connection gets them before any backfill
      * @throws \InvalidArgumentException for demo configurations and configurations with a segment: the store holds the data of a whole Matomo site
      */
     public function importConnection(array $sites, MatomoConfiguration $configuration, int $budget, int $timeout, int $retentionDays, ?array $range = null, array $exclude = [], bool $notFinalOnly = false): ImportResult
@@ -71,7 +71,8 @@ final readonly class PageViewImporter
         // Yesterday may be beyond a retention of one day
         $days = array_values(array_filter($days, static fn (int $day): bool => $day >= $oldestDay));
         rsort($days);
-        $due = $notFinalOnly ? array_values(array_intersect($days, $notFinal)) : $days;
+        $current = array_filter($notFinal, static fn (int $day): bool => $day >= Day::fromDate($now->modify('-1 day')));
+        $due = $notFinalOnly ? array_values(array_intersect($days, $current)) : $days;
 
         $newestDay = $this->imports->newestDay($connection) ?? 0;
         $requests = 0;
