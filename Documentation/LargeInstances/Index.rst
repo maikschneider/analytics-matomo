@@ -69,6 +69,8 @@ Each run imports today and, until it is final, yesterday of every Matomo site
 first. Days are the Matomo site's, from midnight to midnight in its time zone.
 A day is final once it was imported at least two hours after its end,
 when Matomo has archived its last visits; final days are not imported again.
+A day imported before it was final, for example because the task stopped for
+a while, is imported again by the next run.
 The remaining requests of the run go to the missing days, newest first, one
 Matomo site after the other.
 

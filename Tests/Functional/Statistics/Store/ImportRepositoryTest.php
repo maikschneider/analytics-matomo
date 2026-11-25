@@ -170,7 +170,7 @@ final class ImportRepositoryTest extends FunctionalTestCase
     }
 
     #[Test]
-    public function notFinalDaysAreTodayAndYesterdayUntilImportedTwoHoursAfterTheirEnd(): void
+    public function notFinalDaysAreTodayAndDaysImportedLessThanTwoHoursAfterTheirEnd(): void
     {
         $repository = $this->repository();
         // Nothing imported yet
@@ -179,12 +179,15 @@ final class ImportRepositoryTest extends FunctionalTestCase
         $this->markImported(1, 20261123, self::timestamp('2026-11-23 14:00:00'), self::day(1));
         $this->markImported(1, 20261122, self::timestamp('2026-11-23 01:59:59'), self::day(1));
         $this->markImported(1, 20261121, self::timestamp('2026-11-21 23:00:00'), self::day(1));
-        // Today is never final; yesterday was imported before 02:00. Older days
-        // (20261121, imported before its end) are left to missingDays() and --from/--to
-        self::assertSame([20261123, 20261122], $repository->notFinalDays(1, self::now()));
+        $this->markImported(1, 20261120, self::timestamp('2026-11-21 02:00:00'), self::day(1));
+        // A day after today, e.g. stored before the Matomo site's time zone changed
+        $this->markImported(1, 20261124, self::timestamp('2026-11-23 14:00:00'), self::day(1));
+        // Today is never final; yesterday was imported before 02:00, 20261121
+        // before its end (the import stopped for a while)
+        self::assertSame([20261123, 20261122, 20261121], $repository->notFinalDays(1, self::now()));
 
         $this->markImported(1, 20261122, self::timestamp('2026-11-23 02:00:00'), self::day(1));
-        self::assertSame([20261123], $repository->notFinalDays(1, self::now()));
+        self::assertSame([20261123, 20261121], $repository->notFinalDays(1, self::now()));
         // Another connection
         self::assertSame([20261123, 20261122], $repository->notFinalDays(2, self::now()));
     }

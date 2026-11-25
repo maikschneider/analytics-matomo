@@ -165,6 +165,19 @@ final class PageViewImporterTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function aDayImportedBeforeItEndedIsImportedAgainAfterAnOutage(): void
+    {
+        $this->import(retentionDays: 5);
+        $this->requested = [];
+        // No run since the 23rd, 14:30: the 23rd is incomplete
+        $this->setNow('2026-11-26 03:00:00');
+
+        $this->import(retentionDays: 5);
+
+        self::assertSame(['2026-11-26', '2026-11-25', '2026-11-24', '2026-11-23'], $this->requested);
+    }
+
+    #[Test]
     public function theBudgetStopsTheRunAtTheNewestDays(): void
     {
         $result = $this->import(budget: 2, retentionDays: 5);

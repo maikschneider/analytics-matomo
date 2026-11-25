@@ -18,9 +18,10 @@ use TYPO3\CMS\Core\Site\Entity\Site;
 
 /**
  * Imports Matomo's page report per day of one connection into the store,
- * newest day first: the days that are not final yet (today, and yesterday
- * until it is), then the days missing back to the retention limit. Each
- * day costs one request; a day that fails is recorded and skipped.
+ * newest day first: the days that are not final yet (today, yesterday until
+ * it is, and older days imported before their end), then the days missing back
+ * to the retention limit. Each day costs one request; a day that fails is
+ * recorded and skipped.
  *
  * Maintenance runs once per connection and run, after its imports:
  * purgeExpiredDays() and remapSites().

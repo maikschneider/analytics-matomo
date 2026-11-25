@@ -102,32 +102,35 @@ final readonly class ImportRepository
     }
 
     /**
-     * Today and yesterday, unless imported at least FINAL_AFTER seconds after
-     * the end of the day (today never is). Newest first.
+     * Today, yesterday and every imported day up to today that was not
+     * imported at least FINAL_AFTER seconds after its end (today never is),
+     * e.g. after the import stopped for a while. Newest first.
      *
      * @return list<int>
      */
     public function notFinalDays(int $connection, \DateTimeImmutable $now): array
     {
         $today = Day::toDate(Day::fromDate($now), $now->getTimezone());
-        $candidates = [Day::fromDate($today), Day::fromDate($today->modify('-1 day'))];
-        $importedAt = [];
+        $importedAt = [Day::fromDate($today) => 0, Day::fromDate($today->modify('-1 day')) => 0];
         $queryBuilder = $this->queryBuilder(self::TABLE);
         $result = $queryBuilder->select('day', 'imported_at')
             ->from(self::TABLE)
             ->where(
                 $queryBuilder->expr()->eq('connection', $queryBuilder->createNamedParameter($connection, Connection::PARAM_INT)),
-                $queryBuilder->expr()->in('day', $queryBuilder->createNamedParameter($candidates, Connection::PARAM_INT_ARRAY)),
+                $queryBuilder->expr()->lte('day', $queryBuilder->createNamedParameter(Day::fromDate($today), Connection::PARAM_INT)),
             )
             ->executeQuery();
         while ($row = $result->fetchAssociative()) {
             $importedAt[(int)$row['day']] = (int)$row['imported_at'];
         }
 
-        return array_values(array_filter(
-            $candidates,
-            static fn (int $day): bool => ($importedAt[$day] ?? 0) < Day::toDate($day, $now->getTimezone())->modify('+1 day')->getTimestamp() + self::FINAL_AFTER,
+        $days = array_keys(array_filter(
+            $importedAt,
+            static fn (int $at, int $day): bool => $at < Day::toDate($day, $now->getTimezone())->modify('+1 day')->getTimestamp() + self::FINAL_AFTER,
+            ARRAY_FILTER_USE_BOTH,
         ));
+        rsort($days);
+        return $days;
     }
 
     /**
