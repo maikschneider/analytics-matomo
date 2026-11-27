@@ -11,11 +11,11 @@ use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 /**
  * Report pages per section. A report may have its own title and columns (label keys of locallang_mod.xlf),
  * hide rows below a minimum, set a default sort column, explain an empty result (label key) and name the row
- * attribute with the country code whose flag precedes the label.
+ * attribute with the country code whose flag precedes the label, and come from the page view store (PageViewStore).
  * Optional pages are only offered when the site's Matomo has their first report; pages with a permission
  * only to users with that custom option, pages with an extension only when it is installed.
  *
- * @phpstan-type Definition array{module: string, action: string, params?: array<string, int|string>, rows?: string, title?: string, columns?: array<string, array{0: string, 1: string, 2?: string}>, minimum?: array{string, int}, sort?: string, empty?: string, truncated?: bool, flag?: string}
+ * @phpstan-type Definition array{module: string, action: string, params?: array<string, int|string>, rows?: string, title?: string, columns?: array<string, array{0: string, 1: string, 2?: string}>, minimum?: array{string, int}, sort?: string, empty?: string, truncated?: bool, flag?: string, store?: bool}
  */
 final readonly class ReportCatalog
 {
@@ -56,7 +56,7 @@ final readonly class ReportCatalog
             ]],
         ],
         'behaviour' => [
-            'pages' => ['reports' => [['module' => 'Actions', 'action' => 'getPageUrls', 'params' => ['flat' => 1], 'rows' => 'url']]],
+            'pages' => ['reports' => [['module' => 'Actions', 'action' => 'getPageUrls', 'params' => ['flat' => 1], 'rows' => 'url', 'store' => true]]],
             // Compared in TrendingService; Matomo has no processed report for it
             'trending' => ['reports' => []],
             // Joined with the page tree in ContentReviewService; an admin task, so behind its own option

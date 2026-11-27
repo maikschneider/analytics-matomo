@@ -9,6 +9,7 @@ use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoClient;
 use MaikSchneider\AnalyticsMatomo\Statistics\Period;
 use MaikSchneider\AnalyticsMatomo\Statistics\StatisticsCache;
+use MaikSchneider\AnalyticsMatomo\Statistics\Store\PageViewStore;
 
 /**
  * Site-wide numbers for the dashboard widgets: one bulk request per widget,
@@ -22,6 +23,7 @@ final readonly class SiteStatisticsService
     public function __construct(
         private MatomoClient $client,
         private StatisticsCache $cache,
+        private PageViewStore $store,
     ) {
     }
 
@@ -79,7 +81,8 @@ final readonly class SiteStatisticsService
     }
 
     /**
-     * Most viewed page URLs of the Matomo site, which may also contain URLs of other domains.
+     * Most viewed page URLs of the Matomo site, which may also contain URLs of other domains;
+     * from the page view store when it holds both periods.
      *
      * @return list<TopPage>
      * @throws MatomoApiException
@@ -87,6 +90,18 @@ final readonly class SiteStatisticsService
     public function getTopPages(MatomoConfiguration $configuration, Period $period): array
     {
         return $this->cache->remember($this->key('topPages', $configuration, $period), function () use ($configuration, $period): array {
+            $source = $this->store->source($configuration, null, $period, $period->previous());
+            if ($source !== null && $source->isComplete) {
+                $rows = array_values(array_filter($this->store->urlRows($source, $period, self::TOP_PAGES_LIMIT), static fn (array $row): bool => isset($row['url'])));
+                $previous = $this->store->rowsOfUrls($source, $period->previous(), array_column($rows, 'url'));
+                $totalViews = $source->of($period)['coverage']->totalHits;
+                $pages = [];
+                foreach ($rows as $index => $row) {
+                    $views = (int)$row['nb_hits'];
+                    $pages[] = new TopPage((string)$row['url'], $views, (int)$previous[$index]['nb_hits'], $totalViews > 0 ? $views / $totalViews : 0.0);
+                }
+                return $pages;
+            }
             $pageUrls = [
                 'method' => 'Actions.getPageUrls',
                 'format_metrics' => 0,

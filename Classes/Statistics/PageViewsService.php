@@ -7,17 +7,20 @@ namespace MaikSchneider\AnalyticsMatomo\Statistics;
 use MaikSchneider\AnalyticsMatomo\Configuration\MatomoConfigurationResolver;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoClient;
+use MaikSchneider\AnalyticsMatomo\Statistics\Store\PageViewSource;
+use MaikSchneider\AnalyticsMatomo\Statistics\Store\PageViewStore;
 use Psr\Log\LoggerInterface;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Site\Entity\Site;
 
 /**
  * Page views of every page of a site in the last 30 days and the 30 days before, by page and
- * language, from one cached bulk request per site. The page tree loads level by level, so the
+ * language, from the page view store when it holds both periods, else from one cached bulk
+ * request per site. The page tree loads level by level, so the
  * whole report is fetched once instead of per loaded page. An unreachable Matomo is not asked
  * again for five minutes, so a broken connection does not slow down every tree request.
  *
- * @phpstan-type Views array{current: array<int, array<int, int>>, previous: array<int, array<int, int>>, currentTruncated: bool, previousTruncated: bool, total: int}
+ * @phpstan-type Views array{source: ?PageViewSource, current: array<int, array<int, int>>, previous: array<int, array<int, int>>, currentTruncated: bool, previousTruncated: bool, total: int}
  */
 final readonly class PageViewsService
 {
@@ -31,6 +34,7 @@ final readonly class PageViewsService
         private MatomoConfigurationResolver $configurationResolver,
         private Context $context,
         private LoggerInterface $logger,
+        private PageViewStore $store,
     ) {
     }
 
@@ -53,14 +57,21 @@ final readonly class PageViewsService
             return $cached['views'];
         }
         try {
-            $request = ['method' => 'Actions.getPageUrls', 'period' => 'range', 'flat' => 1, 'format_metrics' => 0, 'filter_limit' => -1, 'showColumns' => 'nb_hits'];
-            [$current, $previous] = $this->client->bulkRequest($configuration, [
-                $request + ['date' => $period->toMatomoDate()],
-                $request + ['date' => $period->previous()->toMatomoDate()],
-            ]);
-            $currentReport = $this->mapper->mapReport($site, $this->rows($current));
-            $previousReport = $this->mapper->mapReport($site, $this->rows($previous));
+            $source = $this->store->source($configuration, $site, $period, $period->previous());
+            if ($source !== null && $source->isComplete) {
+                $currentReport = $this->store->pageReport($source, $site, $period);
+                $previousReport = $this->store->pageReport($source, $site, $period->previous());
+            } else {
+                $request = ['method' => 'Actions.getPageUrls', 'period' => 'range', 'flat' => 1, 'format_metrics' => 0, 'filter_limit' => -1, 'showColumns' => 'nb_hits'];
+                [$current, $previous] = $this->client->bulkRequest($configuration, [
+                    $request + ['date' => $period->toMatomoDate()],
+                    $request + ['date' => $period->previous()->toMatomoDate()],
+                ]);
+                $currentReport = $this->mapper->mapReport($site, $this->rows($current));
+                $previousReport = $this->mapper->mapReport($site, $this->rows($previous));
+            }
             $views = [
+                'source' => $source,
                 'current' => $this->byPage($currentReport),
                 'previous' => $this->byPage($previousReport),
                 'currentTruncated' => $currentReport->isTruncated,

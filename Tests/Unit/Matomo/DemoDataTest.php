@@ -12,6 +12,7 @@ use MaikSchneider\AnalyticsMatomo\Matomo\MatomoClient;
 use MaikSchneider\AnalyticsMatomo\Module\TrendingService;
 use MaikSchneider\AnalyticsMatomo\Redirect\NotFoundService;
 use MaikSchneider\AnalyticsMatomo\Statistics\Period;
+use MaikSchneider\AnalyticsMatomo\Tests\Unit\EmptyPageViewStoreTrait;
 use MaikSchneider\AnalyticsMatomo\Tests\Unit\InMemoryCacheTrait;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Http\RequestFactory;
@@ -19,6 +20,7 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 final class DemoDataTest extends UnitTestCase
 {
+    use EmptyPageViewStoreTrait;
     use InMemoryCacheTrait;
 
     protected bool $resetSingletonInstances = true;
@@ -238,10 +240,9 @@ final class DemoDataTest extends UnitTestCase
     #[Test]
     public function servesEveryDashboardReport(): void
     {
-        $service = new SiteStatisticsService(
-            new MatomoClient($this->createMock(RequestFactory::class)),
-            $this->createStatisticsCache(),
-        );
+        $client = new MatomoClient($this->createMock(RequestFactory::class));
+        $cache = $this->createStatisticsCache();
+        $service = new SiteStatisticsService($client, $cache, $this->createEmptyPageViewStore($client, $cache));
 
         $performance = $service->getPerformance($this->configuration, $this->period);
         self::assertGreaterThan(0, $performance->current->visits);

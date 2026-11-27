@@ -171,6 +171,21 @@ final readonly class ImportRepository
     }
 
     /**
+     * Days of the range whose report Matomo truncated (summary rows), newest first.
+     *
+     * @return list<int>
+     */
+    public function truncatedDays(int $connection, int $from, int $to): array
+    {
+        $queryBuilder = $this->rangeQuery($connection, $from, $to);
+        return array_map(intval(...), $queryBuilder->select('day')
+            ->andWhere($queryBuilder->expr()->gt('summary_hits', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)))
+            ->orderBy('day', 'DESC')
+            ->executeQuery()
+            ->fetchFirstColumn());
+    }
+
+    /**
      * Days of the range without import, newest first.
      *
      * @return list<int>

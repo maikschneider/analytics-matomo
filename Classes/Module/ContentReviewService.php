@@ -11,6 +11,8 @@ use MaikSchneider\AnalyticsMatomo\Statistics\PageRecordResolver;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageUrlMapper;
 use MaikSchneider\AnalyticsMatomo\Statistics\Period;
 use MaikSchneider\AnalyticsMatomo\Statistics\StatisticsCache;
+use MaikSchneider\AnalyticsMatomo\Statistics\Store\PageViewSource;
+use MaikSchneider\AnalyticsMatomo\Statistics\Store\PageViewStore;
 use MaikSchneider\AnalyticsMatomo\Statistics\VisiblePages;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Routing\RouterInterface;
@@ -43,12 +45,13 @@ final readonly class ContentReviewService
         private PageRecordResolver $pageRecordResolver,
         private Context $context,
         private VisiblePages $visiblePages,
+        private PageViewStore $store,
     ) {
     }
 
     /**
      * @param int $pageId first page of the subtree, the root page for the whole site
-     * @return array{period: Period, trackedSince: \DateTimeImmutable|null, truncated: bool, withoutViews: list<array<string, mixed>>, old: list<array<string, mixed>>}
+     * @return array{source: ?PageViewSource, period: Period, trackedSince: \DateTimeImmutable|null, truncated: bool, withoutViews: list<array<string, mixed>>, old: list<array<string, mixed>>}
      * @throws MatomoApiException
      */
     public function getReview(Site $site, MatomoConfiguration $configuration, int $pageId): array
@@ -56,18 +59,25 @@ final readonly class ContentReviewService
         /** @var \DateTimeImmutable $now */
         $now = $this->context->getPropertyFromAspect('date', 'full');
         $period = Period::fromPreset((string)self::DAYS, $now);
-        $matomo = $this->cache->remember(['contentReview', $configuration->getCacheIdentifier(), $period->toMatomoDate()], function () use ($configuration, $period): array {
-            [$rows, $site] = $this->client->bulkRequest($configuration, [
-                ['method' => 'Actions.getPageUrls', 'period' => 'range', 'date' => $period->toMatomoDate(), 'flat' => 1, 'format_metrics' => 0, 'filter_limit' => -1, 'showColumns' => 'nb_hits'],
-                ['method' => 'SitesManager.getSiteFromId'],
-            ]);
-            if (!is_array($rows) || !array_is_list($rows) || !is_array($site)) {
-                throw new MatomoApiException('Matomo answered with an unexpected page report', 1794090001);
-            }
-            return ['rows' => array_values(array_filter($rows, is_array(...))), 'trackedSince' => (string)($site['ts_created'] ?? '')];
-        });
-        $trackedSince = $matomo['trackedSince'] === '' ? null : new \DateTimeImmutable(substr($matomo['trackedSince'], 0, 10));
-        $report = $this->mapper->mapReport($site, $matomo['rows']);
+        $source = $this->store->source($configuration, $site, $period);
+        if ($source !== null && $source->isComplete) {
+            $report = $this->store->pageReport($source, $site, $period);
+            $createdAt = (string)($this->store->matomoSite($configuration)['ts_created'] ?? '');
+        } else {
+            $matomo = $this->cache->remember(['contentReview', $configuration->getCacheIdentifier(), $period->toMatomoDate()], function () use ($configuration, $period): array {
+                [$rows, $site] = $this->client->bulkRequest($configuration, [
+                    ['method' => 'Actions.getPageUrls', 'period' => 'range', 'date' => $period->toMatomoDate(), 'flat' => 1, 'format_metrics' => 0, 'filter_limit' => -1, 'showColumns' => 'nb_hits'],
+                    ['method' => 'SitesManager.getSiteFromId'],
+                ]);
+                if (!is_array($rows) || !array_is_list($rows) || !is_array($site)) {
+                    throw new MatomoApiException('Matomo answered with an unexpected page report', 1794090001);
+                }
+                return ['rows' => array_values(array_filter($rows, is_array(...))), 'trackedSince' => (string)($site['ts_created'] ?? '')];
+            });
+            $report = $this->mapper->mapReport($site, $matomo['rows']);
+            $createdAt = $matomo['trackedSince'];
+        }
+        $trackedSince = $createdAt === '' ? null : new \DateTimeImmutable(substr($createdAt, 0, 10));
         $provable = $trackedSince !== null && $trackedSince <= $period->from;
 
         $withoutViews = $old = [];
@@ -95,6 +105,6 @@ final readonly class ContentReviewService
         // Longest unchanged first
         usort($withoutViews, static fn (array $a, array $b): int => ($a['last_changed'] ?? 0) <=> ($b['last_changed'] ?? 0));
 
-        return ['period' => $period, 'trackedSince' => $trackedSince, 'truncated' => $report->isTruncated, 'withoutViews' => $withoutViews, 'old' => $old];
+        return ['source' => $source, 'period' => $period, 'trackedSince' => $trackedSince, 'truncated' => $report->isTruncated, 'withoutViews' => $withoutViews, 'old' => $old];
     }
 }

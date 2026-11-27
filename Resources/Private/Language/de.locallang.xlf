@@ -380,6 +380,8 @@
 			<trans-unit id="status.pageViewStore" resname="status.pageViewStore"><source>Page view store: %1$s–%2$s, last import %3$s, %4$d truncated days</source><target>Seitenaufruf-Speicher: %1$s–%2$s, letzter Import %3$s, %4$d gekürzte Tage</target></trans-unit>
 			<trans-unit id="status.pageViewStoreStale" resname="status.pageViewStoreStale"><source>Today's page views were not imported within the last %d hours. Does the scheduler run analytics-matomo:import-page-views?</source><target>Die Seitenaufrufe von heute wurden in den letzten %d Stunden nicht importiert. Führt der Scheduler analytics-matomo:import-page-views aus?</target></trans-unit>
 			<trans-unit id="status.pageViewStoreRemap" resname="status.pageViewStoreRemap"><source>The stored URLs are being mapped to the pages again after a change of the site configuration; page views per page are incomplete until the next imports have caught up.</source><target>Die gespeicherten URLs werden nach einer Änderung der Site-Konfiguration erneut den Seiten zugeordnet; die Seitenaufrufe pro Seite sind unvollständig, bis die nächsten Importe aufgeholt haben.</target></trans-unit>
+			<trans-unit id="source.store" resname="source.store"><source>Page views from the page view store, last import %s</source><target>Seitenaufrufe aus dem Seitenaufruf-Speicher, letzter Import %s</target></trans-unit>
+			<trans-unit id="source.incomplete" resname="source.incomplete"><source>Page views directly from Matomo: the page view store (%1$s–%2$s) does not hold this period completely yet.</source><target>Seitenaufrufe direkt von Matomo: Der Seitenaufruf-Speicher (%1$s–%2$s) enthält diesen Zeitraum noch nicht vollständig.</target></trans-unit>
 		</body>
 	</file>
 </xliff>

@@ -11,6 +11,7 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 final class PageViewsServiceTest extends UnitTestCase
 {
     private const VIEWS = [
+        'source' => null,
         'current' => [2 => [0 => 4, 1 => 6], 7 => [0 => 10]],
         'previous' => [2 => [0 => 3]],
         'currentTruncated' => false,

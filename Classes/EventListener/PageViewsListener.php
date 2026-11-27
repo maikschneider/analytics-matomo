@@ -158,13 +158,17 @@ final class PageViewsListener
         }
         $trend = $current !== null && $previous !== null ? TrendingService::trend($previous, $current, $views['total']) : null;
         $formatter = new MetricFormatter();
+        $title = sprintf($this->getLanguageService()->sL(self::LABELS . 'pageViews.title'), $formatter->format($current, 'number'), PageViewsService::DAYS, $formatter->format($previous, 'number'));
+        if ($views['source'] !== null && $views['source']->isComplete) {
+            $title .= "\n" . sprintf($this->getLanguageService()->sL(self::LABELS . 'source.store'), $views['source']->lastImport->format('d.m.Y H:i'));
+        }
         return $this->badges[$pageId] = [
             'text' => $formatter->format($current, 'number') . match ($trend) {
                 'up' => ' ↑',
                 'down' => ' ↓',
                 default => '',
             },
-            'title' => sprintf($this->getLanguageService()->sL(self::LABELS . 'pageViews.title'), $formatter->format($current, 'number'), PageViewsService::DAYS, $formatter->format($previous, 'number')),
+            'title' => $title,
         ];
     }
 
