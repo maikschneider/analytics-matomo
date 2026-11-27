@@ -11,6 +11,7 @@ use MaikSchneider\AnalyticsMatomo\Statistics\Store\ImportRepository;
 use MaikSchneider\AnalyticsMatomo\Statistics\Store\UrlDayRepository;
 use MaikSchneider\AnalyticsMatomo\Statistics\Store\UrlDayRows;
 use MaikSchneider\AnalyticsMatomo\Statistics\Store\UrlPageMapper;
+use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Site\Entity\Site;
 
@@ -22,10 +23,12 @@ trait PageViewStoreTrait
     /**
      * @param array<string, list<array<string, mixed>>> $days rows of Matomo's flat page report of a day (period=day), by day (Y-m-d)
      * @param list<Site> $sites the TYPO3 sites whose pages the URLs are mapped to
+     * @param ?int $importedAt import time of the days; now by default
      * @return int the connection
      */
-    private function fillPageViewStore(MatomoConfiguration $configuration, array $days, array $sites, int $importedAt = 1793000000): int
+    private function fillPageViewStore(MatomoConfiguration $configuration, array $days, array $sites, ?int $importedAt = null): int
     {
+        $importedAt ??= (int)$this->get(Context::class)->getPropertyFromAspect('date', 'timestamp');
         $pool = $this->getConnectionPool();
         $connection = (new ConnectionRepository($pool))->getOrCreate($configuration);
         $urlDays = new UrlDayRepository($pool);

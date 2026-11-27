@@ -48,7 +48,8 @@ final readonly class PageViewStore
     /**
      * What the store holds of the periods; null when the configuration may
      * not read a store or there is none. Days after today of the Matomo site
-     * count as held: Matomo has no views for them either.
+     * count as held: Matomo has no views for them either. A stale import of
+     * today is not: the scheduler task may have stopped.
      *
      * @param ?Site $site the site whose page mapping is read: the store is not complete while its URLs are being mapped
      */
@@ -81,7 +82,7 @@ final readonly class PageViewStore
             }
             $coverage = $this->imports->coverage($connection, $from, $to, $siteNow);
             $ranges[$period->toMatomoDate()] = ['from' => $from, 'to' => $to, 'coverage' => $coverage];
-            $isComplete = $isComplete && $coverage->isComplete;
+            $isComplete = $isComplete && $coverage->isComplete && !$coverage->isStale;
         }
         return new PageViewSource(
             $connection,

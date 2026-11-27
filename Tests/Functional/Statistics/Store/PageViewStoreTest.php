@@ -134,6 +134,17 @@ final class PageViewStoreTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function aStaleImportOfTodayIsNotComplete(): void
+    {
+        $this->fillPageViewStore($this->configuration(), self::everyDay('2026-11-17', '2026-11-23', [self::row('https://example.com/about', 2)]), []);
+        self::assertTrue($this->store()->source($this->configuration(), null, $this->week())?->isComplete);
+
+        // The scheduler task stopped: today is as of the last import
+        $this->setNow('2026-11-23 16:31:00');
+        self::assertFalse($this->store()->source($this->configuration(), null, $this->week())?->isComplete);
+    }
+
+    #[Test]
     public function aSiteWhoseUrlsAreNotMappedYetIsNotComplete(): void
     {
         $this->fillPageViewStore($this->configuration(), self::everyDay('2026-11-17', '2026-11-23', [self::row('https://example.com/about', 2)]), []);

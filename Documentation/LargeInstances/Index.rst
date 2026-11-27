@@ -234,7 +234,8 @@ Today is imported again at every run, so today's numbers are as of the last
 run. The :ref:`connection status <connection-status>` shows the stored range,
 the time of the last import and the number of truncated days per site. It
 warns when today was not imported in the last two hours, for example because
-the task stopped.
+the task stopped. Until the next import, reports of periods with today ask
+Matomo directly.
 
 ..  _large-instances-remap:
 
