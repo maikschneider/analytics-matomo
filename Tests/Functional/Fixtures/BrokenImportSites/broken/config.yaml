@@ -1,0 +1,17 @@
+base: 'https://example.com/'
+rootPageId: 1
+dependencies:
+  - maikschneider/analytics-matomo
+languages:
+  -
+    title: English
+    enabled: true
+    languageId: 0
+    base: /
+    locale: en_US.UTF-8
+    navigationTitle: English
+    flag: us
+# The router fails on every page: an enhancer type that does not exist
+routeEnhancers:
+  Broken:
+    type: DoesNotExist

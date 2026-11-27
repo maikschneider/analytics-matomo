@@ -294,6 +294,9 @@
 			<trans-unit id="status.siteSearch" resname="status.siteSearch"><source>Site search is off in Matomo, so the site search reports stay empty.</source></trans-unit>
 			<trans-unit id="status.young" resname="status.young"><source>Matomo tracks this site since %s; trends and comparisons need about %d days of data.</source></trans-unit>
 			<trans-unit id="status.archiveLag" resname="status.archiveLag"><source>Heuristic: the reports show %d visits today, the raw log %d. Archiving may lag behind; the reports catch up with the next archiving run.</source></trans-unit>
+			<trans-unit id="status.pageViewStore" resname="status.pageViewStore"><source>Page view store: %1$s–%2$s, last import %3$s, %4$d truncated days</source></trans-unit>
+			<trans-unit id="status.pageViewStoreStale" resname="status.pageViewStoreStale"><source>Today's page views were not imported within the last %d hours. Does the scheduler run analytics-matomo:import-page-views?</source></trans-unit>
+			<trans-unit id="status.pageViewStoreRemap" resname="status.pageViewStoreRemap"><source>The stored URLs are being mapped to the pages again after a change of the site configuration; page views per page are incomplete until the next imports have caught up.</source></trans-unit>
 		</body>
 	</file>
 </xliff>
