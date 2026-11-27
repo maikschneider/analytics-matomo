@@ -5,7 +5,7 @@
     <h1>{title}</h1>
     <f:if condition="{selection}">
         <p>
-            {selection.site.identifier}: {selection.period.from -> f:format.date(format: 'Y-m-d')} – {selection.period.to -> f:format.date(format: 'Y-m-d')}
+            {selection.period.from -> f:format.date(format: 'Y-m-d')} – {selection.period.to -> f:format.date(format: 'Y-m-d')}
             <f:if condition="{selection.configuration.demo}"><span class="badge badge-warning"><f:translate key="{sharedLabels}:settings.demoData" /></span></f:if>
         </p>
         <p class="text-body-secondary"><f:translate key="{ll}language.hint" /></p>
