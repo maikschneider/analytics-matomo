@@ -171,17 +171,6 @@ final class PageViewStoreReportsTest extends FunctionalTestCase
     }
 
     #[Test]
-    public function pageDetailsAskMatomoWhenDailyTotalsMayHideInSummaryRows(): void
-    {
-        $this->fillStore(truncated: true);
-        $html = (string)$this->render(1, ['id' => '2', 'language' => '0'], 'page')->getBody();
-
-        self::assertSame(['2026-10-27,2026-11-02', '2026-10-20,2026-10-26', '2026-10-27,2026-11-02'], array_column($this->rangeCalls(['Actions.getPageUrl']), 'date'));
-        self::assertStringNotContainsString('Rising:', $html);
-        self::assertStringNotContainsString('Page views from the page view store', $html);
-    }
-
-    #[Test]
     public function pageDetailsShowTheStoreNumbersWhenMatomoDoesNotAnswerThePageReport(): void
     {
         $this->fillStore();

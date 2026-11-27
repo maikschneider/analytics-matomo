@@ -73,10 +73,12 @@ These reports read the store:
     List module, while the site's URLs are mapped (see
     :ref:`large-instances-remap`)
 *   the totals of page details: views, bounce rate, time on page and exit rate
-    of the page, its translations and the site. If either period has truncated
-    days, page details ask Matomo directly: a URL may hide in their summary
-    rows, so its stored total may be incomplete
+    of the page, its translations and the site
 *   the :guilabel:`Top pages` widget and the weekly digest
+
+With truncated days, the total of a URL is a lower bound: views it had on a
+day it was cut from count in that day's summary row. Matomo's own range
+reports add up the same truncated days, so they show the same numbers.
 
 The module says below the title where the page views come from: the store
 with its last import, or Matomo because the store does not hold the period
