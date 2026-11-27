@@ -52,6 +52,10 @@ final readonly class PageDetailsService
         $source = array_filter([$pageUrl, ...$languageUrls], static fn (string $url): bool => !str_contains($url, '://')) === []
             ? $this->store->source($configuration, null, $period, $period->previous())
             : null;
+        // A URL may hide in a truncated day's summary row; its stored total would then be only a lower bound
+        if ($source !== null && ($source->of($period)['coverage']->isTruncated() || $source->of($period->previous())['coverage']->isTruncated())) {
+            $source = null;
+        }
         $complete = $source !== null && $source->isComplete ? $source : null;
 
         $request = ['method' => 'Actions.getPageUrl', 'format_metrics' => 0];
