@@ -49,13 +49,38 @@ final readonly class PageMetrics
                 }
             }
         }
+        return self::fromCounts($sums);
+    }
 
+    /**
+     * @param array<string, int> $counts summed counts by column of COUNTS
+     */
+    public static function fromCounts(array $counts): self
+    {
+        $counts += array_fill_keys(self::COUNTS, 0);
         return new self(
-            views: $sums['nb_hits'],
-            bounceRate: $sums['entry_nb_visits'] > 0 ? $sums['entry_bounce_count'] / $sums['entry_nb_visits'] : 0.0,
-            averageTimeOnPage: $sums['nb_hits'] > 0 ? (int)round($sums['sum_time_spent'] / $sums['nb_hits']) : 0,
-            exitRate: $sums['nb_visits'] > 0 ? $sums['exit_nb_visits'] / $sums['nb_visits'] : 0.0,
+            views: $counts['nb_hits'],
+            bounceRate: $counts['entry_nb_visits'] > 0 ? $counts['entry_bounce_count'] / $counts['entry_nb_visits'] : 0.0,
+            averageTimeOnPage: $counts['nb_hits'] > 0 ? (int)round($counts['sum_time_spent'] / $counts['nb_hits']) : 0,
+            exitRate: $counts['nb_visits'] > 0 ? $counts['exit_nb_visits'] / $counts['nb_visits'] : 0.0,
         );
+    }
+
+    /**
+     * A row of Matomo's page reports (format_metrics=0) from summed counts:
+     * the counts and the metrics derived from them, rates rounded like Matomo's.
+     *
+     * @param array<string, int> $counts by column of COUNTS
+     * @return array<string, int|float>
+     */
+    public static function row(array $counts): array
+    {
+        $metrics = self::fromCounts($counts);
+        return array_intersect_key($counts, array_flip(self::COUNTS)) + [
+            'bounce_rate' => round($metrics->bounceRate, 2),
+            'avg_time_on_page' => $metrics->averageTimeOnPage,
+            'exit_rate' => round($metrics->exitRate, 2),
+        ];
     }
 
     private static function unexpected(mixed $result): MatomoApiException

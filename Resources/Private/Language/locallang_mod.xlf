@@ -146,7 +146,7 @@
 			<trans-unit id="report.campaigns" resname="report.campaigns">
 				<source>Campaigns</source>
 			</trans-unit>
-			<trans-unit id="table.truncated"><source>Matomo truncated this report: pages may be missing. Missing values are unknown, not zero.</source></trans-unit>
+			<trans-unit id="table.truncated"><source>This report is truncated: pages may be missing. Missing values are unknown, not zero.</source></trans-unit>
 			<trans-unit id="table.search"><source>Search</source></trans-unit>
 			<trans-unit id="table.change"><source>Change</source></trans-unit>
 			<trans-unit id="table.actions"><source>Actions</source></trans-unit>
@@ -200,6 +200,7 @@
 			<trans-unit id="page.speed.serverTime" resname="page.speed.serverTime"><source>Server time</source></trans-unit>
 			<trans-unit id="page.speed.samples" resname="page.speed.samples"><source>%d measured page views</source></trans-unit>
 			<trans-unit id="page.speed.tooFew" resname="page.speed.tooFew"><source>Fewer than %d measured page views: no reliable average.</source></trans-unit>
+			<trans-unit id="page.speed.missing" resname="page.speed.missing"><source>Matomo did not answer the page URL report of this period in time: timings and goal conversions are missing. A shorter period may work.</source></trans-unit>
 			<trans-unit id="page.reading" resname="page.reading"><source>Reading time</source></trans-unit>
 			<trans-unit id="page.reading.hint" resname="page.reading.hint"><source>An indication only: time on page includes idle time and tabs in the background, and the estimate counts the visible text of the content elements.</source></trans-unit>
 			<trans-unit id="page.reading.timeOnPage" resname="page.reading.timeOnPage"><source>Avg. time on page</source></trans-unit>

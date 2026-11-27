@@ -34,6 +34,8 @@ use MaikSchneider\AnalyticsMatomo\Statistics\LinkAccess;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageTarget;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageTargetResolver;
 use MaikSchneider\AnalyticsMatomo\Statistics\Period;
+use MaikSchneider\AnalyticsMatomo\Statistics\Store\Day;
+use MaikSchneider\AnalyticsMatomo\Statistics\Store\PageViewSource;
 use MaikSchneider\AnalyticsMatomo\Statistics\TileFactory;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -237,6 +239,7 @@ final readonly class ReportModuleController
                 $variables += $this->goals($goals ?? $this->goalsService->getGoals($selection->configuration), $report, $selection, $parameters, $route, $pageId, (int)$moduleData->get('language'));
             } elseif ($section === 'behaviour' && $report === 'trending') {
                 $trending = $this->trendingService->getTrending($selection->configuration, $selection->period);
+                $variables['sourceHint'] = $this->sourceHint($trending['source']);
                 $reports = [];
                 foreach (['rising' => 'report.risingPages', 'falling' => 'report.fallingPages'] as $direction => $title) {
                     $definition = ['module' => 'Actions', 'action' => 'getPageUrls', 'rows' => 'url', 'title' => $title, 'empty' => 'empty.trending', 'columns' => TrendingService::COLUMNS];
@@ -256,6 +259,9 @@ final readonly class ReportModuleController
                 $reports = [];
                 foreach ($this->reportService->getReports($selection->configuration, $section, $report, $selection->period, $selection->compare, $GLOBALS['LANG']->getLocale()?->getLanguageCode() ?? 'en') as $index => $data) {
                     $reports[] = ['definition' => $definitions[$index]] + $data;
+                    if ($data['source'] !== null) {
+                        $variables['sourceHint'] = $this->sourceHint($data['source']);
+                    }
                 }
                 $variables['tables'] = $this->tables($reports, $selection, $parameters, $route, $pageId, $report, (int)$moduleData->get('language'));
                 if ($reports === []) {
@@ -391,7 +397,28 @@ final readonly class ReportModuleController
         return [
             'tables' => $tables,
             'reportHint' => sprintf($this->label('review.hint'), $period->from->format('Y-m-d'), $period->to->format('Y-m-d'), ContentReviewService::OLD_DAYS),
+            'sourceHint' => $this->sourceHint($review['source']),
         ];
+    }
+
+    /**
+     * Where the page views of a report come from when the site has a page view store: the store
+     * when it holds the period, else Matomo; nothing without a store
+     */
+    private function sourceHint(?PageViewSource $source): string
+    {
+        if ($source === null) {
+            return '';
+        }
+        if ($source->isComplete) {
+            return sprintf($this->translate(self::SHARED_LABELS . 'source.store'), $source->lastImport->format('d.m.Y H:i'));
+        }
+        $timezone = $source->lastImport->getTimezone();
+        return sprintf(
+            $this->translate(self::SHARED_LABELS . 'source.incomplete'),
+            Day::toDate($source->oldestDay, $timezone)->format('d.m.Y'),
+            Day::toDate($source->newestDay, $timezone)->format('d.m.Y'),
+        );
     }
 
     /**
@@ -507,14 +534,16 @@ final readonly class ReportModuleController
         return [
             'pageDetails' => [
                 'url' => $target->pageUrl,
-                'speed' => $this->speed($details['pageRow']),
+                'speed' => $this->speed($details['pageRow'] ?? []),
+                'timingsMissing' => $details['pageRow'] === null,
                 'reading' => $this->reading($target, $details['current'], (int)$selection->site->getSettings()->get('analyticsMatomo.wordsPerMinute', 220)),
                 'languages' => $this->languages($selection, $pageId, $languageId, [$languageId => $details['current']] + $details['languages']),
                 'transitionsUrl' => (string)$this->uriBuilder->buildUriFromRoute('analytics_matomo_page', ['id' => $pageId, 'language' => $languageId, 'transitions' => 1]),
                 'transitions' => $withTransitions ? $this->transitions($selection, $target, $user) : null,
-                'goals' => $this->pageGoals($details['goals'], $details['pageRow']),
+                'goals' => $details['pageRow'] === null ? [] : $this->pageGoals($details['goals'], $details['pageRow']),
                 'trend' => $details['trend'] === null ? null : $details['trend'] + ['change' => (new MetricFormatter())->format($details['trend']['difference'], 'difference')],
             ],
+            'sourceHint' => $this->sourceHint($details['source']),
             'minimumSamples' => ReportCatalog::MINIMUM_TIMING_SAMPLES,
             'tiles' => $this->tileFactory->createForOverview($details['current'], $details['previous'], EvolutionChartFactory::PAGE_METRICS),
             'chart' => $this->chartFactory->withAnnotations($details['chart'], Annotation::forPage($this->annotationService->get($selection->site, $target->configuration, $selection->period), $target->pageUrl)),

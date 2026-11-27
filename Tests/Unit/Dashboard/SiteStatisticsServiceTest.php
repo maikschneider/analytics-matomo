@@ -10,6 +10,7 @@ use MaikSchneider\AnalyticsMatomo\Dashboard\SiteStatisticsService;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoApiException;
 use MaikSchneider\AnalyticsMatomo\Matomo\MatomoClient;
 use MaikSchneider\AnalyticsMatomo\Statistics\Period;
+use MaikSchneider\AnalyticsMatomo\Tests\Unit\EmptyPageViewStoreTrait;
 use MaikSchneider\AnalyticsMatomo\Tests\Unit\InMemoryCacheTrait;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Http\RequestFactory;
@@ -22,6 +23,7 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
  */
 final class SiteStatisticsServiceTest extends UnitTestCase
 {
+    use EmptyPageViewStoreTrait;
     use InMemoryCacheTrait;
 
     protected bool $resetSingletonInstances = true;
@@ -147,10 +149,9 @@ final class SiteStatisticsServiceTest extends UnitTestCase
             return new Response($body, 200);
         });
 
-        return new SiteStatisticsService(
-            new MatomoClient($requestFactory),
-            $this->createStatisticsCache(),
-        );
+        $client = new MatomoClient($requestFactory);
+        $cache = $this->createStatisticsCache();
+        return new SiteStatisticsService($client, $cache, $this->createEmptyPageViewStore($client, $cache));
     }
 
     private function configuration(): MatomoConfiguration

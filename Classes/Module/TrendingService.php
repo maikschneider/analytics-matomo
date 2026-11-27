@@ -10,12 +10,15 @@ use MaikSchneider\AnalyticsMatomo\Matomo\MatomoClient;
 use MaikSchneider\AnalyticsMatomo\Statistics\PageUrlMapper;
 use MaikSchneider\AnalyticsMatomo\Statistics\Period;
 use MaikSchneider\AnalyticsMatomo\Statistics\StatisticsCache;
+use MaikSchneider\AnalyticsMatomo\Statistics\Store\PageViewSource;
+use MaikSchneider\AnalyticsMatomo\Statistics\Store\PageViewStore;
 
 /**
  * Pages that gained or lost views against the previous period. Matomo's Insights
  * plugin ranks only the top level of the page report (folders, not pages), so the
  * flat page reports of both periods are compared here, with Insights' default
- * thresholds plus a minimum difference against noise on small sites.
+ * thresholds plus a minimum difference against noise on small sites. Both periods
+ * come from the page view store when it holds them.
  */
 final readonly class TrendingService
 {
@@ -33,35 +36,54 @@ final readonly class TrendingService
     public function __construct(
         private MatomoClient $client,
         private StatisticsCache $cache,
+        private PageViewStore $store,
     ) {
     }
 
     /**
-     * @return array{rising: list<array<string, mixed>>, falling: list<array<string, mixed>>} rows with url, value_old, value_new, difference and growth
+     * @return array{rising: list<array<string, mixed>>, falling: list<array<string, mixed>>, source: ?PageViewSource} rows with url, value_old, value_new, difference and growth
      * @throws MatomoApiException
      */
     public function getTrending(MatomoConfiguration $configuration, Period $period): array
     {
         return $this->cache->remember(['trending', $configuration->getCacheIdentifier(), $period->toMatomoDate()], function () use ($configuration, $period): array {
-            $request = ['method' => 'Actions.getPageUrls', 'period' => 'range', 'flat' => 1, 'format_metrics' => 0, 'filter_limit' => -1, 'showColumns' => 'nb_hits'];
-            [$current, $previous] = $this->client->bulkRequest($configuration, [
-                $request + ['date' => $period->toMatomoDate()],
-                $request + ['date' => $period->previous()->toMatomoDate()],
-            ]);
-            $views = $this->views($current);
-            $before = $this->views($previous);
-            $total = array_sum(array_map(static fn (mixed $row): int => is_array($row) ? (int)($row['nb_hits'] ?? 0) : 0, is_array($current) ? $current : []));
+            $urls = [];
+            $source = $this->store->source($configuration, null, $period, $period->previous());
+            if ($source !== null && $source->isComplete) {
+                $views = $this->store->hitsByUrl($source, $period);
+                $before = $this->store->hitsByUrl($source, $period->previous());
+                $coverage = $source->of($period)['coverage'];
+                $total = $coverage->totalHits;
+                $isTruncated = $coverage->isTruncated() || $source->of($period->previous())['coverage']->isTruncated();
+            } else {
+                $request = ['method' => 'Actions.getPageUrls', 'period' => 'range', 'flat' => 1, 'format_metrics' => 0, 'filter_limit' => -1, 'showColumns' => 'nb_hits'];
+                [$current, $previous] = $this->client->bulkRequest($configuration, [
+                    $request + ['date' => $period->toMatomoDate()],
+                    $request + ['date' => $period->previous()->toMatomoDate()],
+                ]);
+                [$views, $urls] = $this->views($current);
+                [$before, $previousUrls] = $this->views($previous);
+                $urls += $previousUrls;
+                $total = array_sum(array_map(static fn (mixed $row): int => is_array($row) ? (int)($row['nb_hits'] ?? 0) : 0, is_array($current) ? $current : []));
+                $isTruncated = $this->isTruncated($current) || $this->isTruncated($previous);
+            }
             // A page missing from a truncated report may hide in its summary row, so only pages of both periods count
-            $keys = $this->isTruncated($current) || $this->isTruncated($previous) ? array_keys(array_intersect_key($views, $before)) : array_keys($views + $before);
-            $rising = $falling = [];
+            $keys = $isTruncated ? array_keys(array_intersect_key($views, $before)) : array_keys($views + $before);
+            $trends = [];
             foreach ($keys as $key) {
-                $url = $views[$key][0] ?? $before[$key][0];
-                $old = $before[$key][1] ?? 0;
-                $new = $views[$key][1] ?? 0;
+                $old = $before[$key] ?? 0;
+                $new = $views[$key] ?? 0;
                 $trend = self::trend($old, $new, $total);
-                if ($trend === null) {
-                    continue;
+                if ($trend !== null) {
+                    $trends[$key] = [$trend, $old, $new];
                 }
+            }
+            if ($source !== null && $source->isComplete) {
+                $urls = $this->store->displayUrls(array_map(intval(...), array_keys($trends)));
+            }
+            $rising = $falling = [];
+            foreach ($trends as $key => [$trend, $old, $new]) {
+                $url = $urls[$key] ?? '';
                 $row = [
                     'label' => (string)(parse_url($url, PHP_URL_PATH) ?: '/'), 'url' => $url,
                     'value_old' => $old, 'value_new' => $new, 'difference' => $new - $old, 'growth' => $old > 0 ? ($new - $old) / $old : null,
@@ -74,7 +96,7 @@ final readonly class TrendingService
             }
             usort($rising, static fn (array $a, array $b): int => $b['difference'] <=> $a['difference']);
             usort($falling, static fn (array $a, array $b): int => $a['difference'] <=> $b['difference']);
-            return ['rising' => $rising, 'falling' => $falling];
+            return ['rising' => $rising, 'falling' => $falling, 'source' => $source];
         });
     }
 
@@ -105,17 +127,18 @@ final readonly class TrendingService
     }
 
     /**
-     * @return array<string, array{string, int}> URL and page views by URL without scheme; Matomo splits a URL tracked under http and https
+     * @return array{array<string, int>, array<string, string>} page views and the first URL seen, by URL without scheme; Matomo splits a URL tracked under http and https
      */
     private function views(mixed $rows): array
     {
-        $views = [];
+        $views = $urls = [];
         foreach (is_array($rows) ? $rows : [] as $row) {
             if (is_array($row) && isset($row['url']) && !PageUrlMapper::isSummaryRow($row)) {
                 $key = (string)preg_replace('#^https?://#', '', (string)$row['url']);
-                $views[$key] = [$views[$key][0] ?? (string)$row['url'], ($views[$key][1] ?? 0) + (int)($row['nb_hits'] ?? 0)];
+                $urls[$key] ??= (string)$row['url'];
+                $views[$key] = ($views[$key] ?? 0) + (int)($row['nb_hits'] ?? 0);
             }
         }
-        return $views;
+        return [$views, $urls];
     }
 }

@@ -252,7 +252,8 @@ Folders, shortcuts and links get no views.
 The setting is per user and off by default. It needs the page statistics
 permission. One cached request per site and hour answers every tree level; when
 Matomo is unreachable, the tree shows no views and asks again after five
-minutes.
+minutes. On large Matomo instances the views come from the
+:ref:`page view store <large-instances-read>`.
 
 Traffic anomaly alerts
 ======================

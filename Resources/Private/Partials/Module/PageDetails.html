@@ -95,6 +95,11 @@
 </f:if>
 <section class="card mb-4"><div class="card-header"><h2><f:translate key="{ll}page.speed" /></h2></div><div class="card-body">
 <p class="text-body-secondary"><f:translate key="{ll}page.speed.hint" /></p>
+<f:if condition="{pageDetails.timingsMissing}">
+<f:then>
+<p class="text-body-secondary" data-timings-missing><f:translate key="{ll}page.speed.missing" /></p>
+</f:then>
+<f:else>
 <dl class="row">
     <f:for each="{pageDetails.speed}" as="timing" key="key">
         <div class="col-sm-4" data-speed="{key}">
@@ -110,5 +115,7 @@
         </div>
     </f:for>
 </dl>
+</f:else>
+</f:if>
 </div></section>
 </html>

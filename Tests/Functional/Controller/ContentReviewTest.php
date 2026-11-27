@@ -155,7 +155,7 @@ final class ContentReviewTest extends FunctionalTestCase
         $html = (string)$this->render(1, ['id' => '1', 'report' => 'review'], 'behaviour')->getBody();
 
         [$withoutViews] = explode('<h2>Old pages with traffic</h2>', $html);
-        self::assertStringContainsString('Matomo truncated this report', $withoutViews);
+        self::assertStringContainsString('This report is truncated', $withoutViews);
         self::assertMatchesRegularExpression('#<td>Saxon Switzerland</td>\s*<td>–</td>#', $withoutViews);
         self::assertStringNotContainsString('<td>0</td>', $withoutViews);
     }

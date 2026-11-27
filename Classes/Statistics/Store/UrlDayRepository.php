@@ -216,10 +216,10 @@ final readonly class UrlDayRepository
     }
 
     /**
-     * @param list<string> $hashes
-     * @return array<string, array{uid: int, url: string}> by URL hash
+     * @param list<string> $hashes URL hashes (UrlDayRows::hash())
+     * @return array<string, array{uid: int, url: string}> uid and display URL of the known ones, by URL hash
      */
-    private function findUrls(int $connection, array $hashes): array
+    public function findUrls(int $connection, array $hashes): array
     {
         $urls = [];
         foreach (array_chunk($hashes, self::CHUNK_SIZE) as $chunk) {

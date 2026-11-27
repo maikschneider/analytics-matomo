@@ -297,6 +297,8 @@
 			<trans-unit id="status.pageViewStore" resname="status.pageViewStore"><source>Page view store: %1$s–%2$s, last import %3$s, %4$d truncated days</source></trans-unit>
 			<trans-unit id="status.pageViewStoreStale" resname="status.pageViewStoreStale"><source>Today's page views were not imported within the last %d hours. Does the scheduler run analytics-matomo:import-page-views?</source></trans-unit>
 			<trans-unit id="status.pageViewStoreRemap" resname="status.pageViewStoreRemap"><source>The stored URLs are being mapped to the pages again after a change of the site configuration; page views per page are incomplete until the next imports have caught up.</source></trans-unit>
+			<trans-unit id="source.store" resname="source.store"><source>Page views from the page view store, last import %s</source></trans-unit>
+			<trans-unit id="source.incomplete" resname="source.incomplete"><source>Page views directly from Matomo: the page view store (%1$s–%2$s) does not hold this period completely yet.</source></trans-unit>
 		</body>
 	</file>
 </xliff>

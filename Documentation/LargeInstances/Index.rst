@@ -36,12 +36,7 @@ with the six counts of the report (page views, visits, time spent, entries,
 bounces, exits). Each URL is also mapped to the page and language it routes to
 in every TYPO3 site that uses the same Matomo site. Features that need the
 full page report over several days can then sum the stored days instead of
-asking Matomo.
-
-..  note::
-
-    This version fills the store and reports its state; the backend features
-    do not read it yet.
+asking Matomo, see :ref:`large-instances-read`.
 
 One store is kept per Matomo site (Matomo URL and site ID), however many
 TYPO3 sites use it. The token is not part of it. Demo sites are not stored.
@@ -52,6 +47,50 @@ report ("Others") is not stored as a URL, but its page views count in the day's
 total. A day counts as truncated when Matomo cut its report, see
 `datatable_archiving_maximum_rows_actions` in Matomo's
 :file:`config/global.ini.php`.
+
+..  _large-instances-read:
+
+Reading the store
+=================
+
+A report reads the store only when it holds **every day of every period the
+report shows**, for example the last 30 days and the 30 days before for the
+page tree. Otherwise it asks Matomo directly, as without a store: a fresh
+installation, a backfill still running or a scheduler task that stopped
+change nothing but the speed. Days after today in the Matomo site's time zone
+count as held, as Matomo has no views for them either.
+
+These reports read the store:
+
+*   :guilabel:`Behaviour > Pages`, with the 1,000 most viewed URLs of the
+    Matomo site; the table is marked truncated when there are more
+*   :guilabel:`Behaviour > Trending pages`
+*   :guilabel:`Behaviour > Content review` and the views in the page tree and
+    List module, while the site's URLs are mapped (see
+    :ref:`large-instances-remap`)
+*   the totals of page details: views, bounce rate, time on page and exit rate
+    of the page, its translations and the site
+*   the :guilabel:`Top pages` widget and the weekly digest
+
+The module says below the title where the page views come from: the store
+with its last import, or Matomo because the store does not hold the period
+yet. The tooltip of the views in the page tree names the store, too.
+
+The store holds all visits of a Matomo site. Reports with a segment and demo
+sites never read it. A TYPO3 site reads it only while its own token may view
+the Matomo site: the extension asks Matomo for the site with that token and
+caches the answer for an hour. Another TYPO3 site sharing the Matomo URL
+cannot read a store its token has no access to.
+
+Page details still ask Matomo for the evolution chart (days, weeks or months,
+which Matomo archives anyway) and for the timings and goal conversions of the
+page, which only Matomo's page URL report of the whole period has. When the
+store holds the period, that report is asked on its own: if Matomo does not
+answer in time, page details show their numbers without timings and goals.
+
+The other URL reports, :guilabel:`Entry pages`, :guilabel:`Exit pages`,
+:guilabel:`Page titles`, :guilabel:`Performance` and the goal pages, still ask
+Matomo for the period.
 
 Scheduler
 =========
