@@ -318,6 +318,7 @@ final class ReportModuleControllerTest extends FunctionalTestCase
 
         self::assertSame('2026-09-01,2026-09-17', $selection?->period->toMatomoDate());
         self::assertStringContainsString('id=31', $html);
+        self::assertMatchesRegularExpression('#<p>\s*2026-09-01 – 2026-09-17\s*(<span|</p>)#', $html);
     }
 
     #[Test]
