@@ -194,14 +194,36 @@ final class PageViewStoreTest extends FunctionalTestCase
     {
         $this->fillPageViewStore($this->configuration(), self::everyDay('2026-11-17', '2026-11-23', [
             self::row('https://example.com/about', 3),
+            self::row('https://example.com/imprint', 1),
             ['label' => -1, 'nb_hits' => 5],
         ]), []);
         $source = $this->store()->source($this->configuration(), null, $this->week());
         self::assertNotNull($source);
 
-        $rows = $this->store()->urlRows($source, $this->week(), 10);
+        $rows = $this->store()->urlRows($source, $this->week(), 1);
         self::assertSame(['/about', '-1'], array_column($rows, 'label'));
-        self::assertSame([21, 35], array_column($rows, 'nb_hits'));
+        self::assertSame([21, 42], array_column($rows, 'nb_hits'));
+        // Matomo's summary rows hold no time: the average comes from the URLs cut off only
+        self::assertSame(10, $rows[1]['avg_time_on_page']);
+    }
+
+    #[Test]
+    public function completeUrlsAreTheUrlsOnEveryTruncatedDay(): void
+    {
+        $about = self::row('https://example.com/about', 3);
+        $imprint = self::row('https://example.com/imprint', 1);
+        $this->fillPageViewStore($this->configuration(), self::everyDay('2026-11-17', '2026-11-20', [$about, $imprint])
+            + self::everyDay('2026-11-21', '2026-11-23', [$imprint, ['label' => -1, 'nb_hits' => 3]]), []);
+        $source = $this->store()->source($this->configuration(), null, $this->week());
+        self::assertNotNull($source);
+
+        $complete = $this->store()->completeUrls($source, $this->week());
+        self::assertNotNull($complete);
+        self::assertSame(['https://example.com/imprint'], array_values($this->store()->displayUrls(array_keys($complete))));
+        $before = Period::lastDays(4, new \DateTimeImmutable('2026-11-20'));
+        $source = $this->store()->source($this->configuration(), null, $before);
+        self::assertNotNull($source);
+        self::assertNull($this->store()->completeUrls($source, $before));
     }
 
     #[Test]

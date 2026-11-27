@@ -196,6 +196,34 @@ final readonly class UrlDayRepository
     }
 
     /**
+     * Number of the given days each URL has counts on.
+     *
+     * @param list<int> $days Ymd
+     * @return array<int, int> days by URL uid
+     */
+    public function countDays(int $connection, array $days): array
+    {
+        if ($days === []) {
+            return [];
+        }
+        $queryBuilder = $this->queryBuilder(self::TABLE);
+        $result = $queryBuilder->select('url')
+            ->addSelectLiteral($queryBuilder->expr()->count('day', 'days'))
+            ->from(self::TABLE)
+            ->where(
+                $queryBuilder->expr()->eq('connection', $queryBuilder->createNamedParameter($connection, Connection::PARAM_INT)),
+                $queryBuilder->expr()->in('day', $queryBuilder->createNamedParameter($days, Connection::PARAM_INT_ARRAY)),
+            )
+            ->groupBy('url')
+            ->executeQuery();
+        $counts = [];
+        while ($row = $result->fetchAssociative()) {
+            $counts[(int)$row['url']] = (int)$row['days'];
+        }
+        return $counts;
+    }
+
+    /**
      * @param list<int> $urlUids
      * @return array<int, string> display URL by URL uid
      */

@@ -63,8 +63,12 @@ count as held, as Matomo has no views for them either.
 These reports read the store:
 
 *   :guilabel:`Behaviour > Pages`, with the 1,000 most viewed URLs of the
-    Matomo site; the table is marked truncated when there are more
-*   :guilabel:`Behaviour > Trending pages`
+    Matomo site; the table is marked truncated when there are more. Matomo's
+    summary rows of truncated days count page views only, so the share of
+    unique page views is left out when the period has truncated days
+*   :guilabel:`Behaviour > Trending pages`; with truncated days only URLs
+    Matomo reported on each of them, as the others may hide in the summary
+    rows
 *   :guilabel:`Behaviour > Content review` and the views in the page tree and
     List module, while the site's URLs are mapped (see
     :ref:`large-instances-remap`)

@@ -52,9 +52,14 @@ final readonly class TrendingService
             if ($source !== null && $source->isComplete) {
                 $views = $this->store->hitsByUrl($source, $period);
                 $before = $this->store->hitsByUrl($source, $period->previous());
-                $coverage = $source->of($period)['coverage'];
-                $total = $coverage->totalHits;
-                $isTruncated = $coverage->isTruncated() || $source->of($period->previous())['coverage']->isTruncated();
+                $total = $source->of($period)['coverage']->totalHits;
+                // Only URLs with a known total in both periods count; a total is unknown when the URL is missing on a truncated day
+                $known = [$this->store->completeUrls($source, $period), $this->store->completeUrls($source, $period->previous())];
+                $keys = array_keys(array_filter(
+                    $views + $before,
+                    static fn (int $key): bool => ($known[0] === null || isset($known[0][$key])) && ($known[1] === null || isset($known[1][$key])),
+                    ARRAY_FILTER_USE_KEY,
+                ));
             } else {
                 $request = ['method' => 'Actions.getPageUrls', 'period' => 'range', 'flat' => 1, 'format_metrics' => 0, 'filter_limit' => -1, 'showColumns' => 'nb_hits'];
                 [$current, $previous] = $this->client->bulkRequest($configuration, [
@@ -65,10 +70,9 @@ final readonly class TrendingService
                 [$before, $previousUrls] = $this->views($previous);
                 $urls += $previousUrls;
                 $total = array_sum(array_map(static fn (mixed $row): int => is_array($row) ? (int)($row['nb_hits'] ?? 0) : 0, is_array($current) ? $current : []));
-                $isTruncated = $this->isTruncated($current) || $this->isTruncated($previous);
+                // A page missing from a truncated report may hide in its summary row, so only pages of both periods count
+                $keys = $this->isTruncated($current) || $this->isTruncated($previous) ? array_keys(array_intersect_key($views, $before)) : array_keys($views + $before);
             }
-            // A page missing from a truncated report may hide in its summary row, so only pages of both periods count
-            $keys = $isTruncated ? array_keys(array_intersect_key($views, $before)) : array_keys($views + $before);
             $trends = [];
             foreach ($keys as $key) {
                 $old = $before[$key] ?? 0;

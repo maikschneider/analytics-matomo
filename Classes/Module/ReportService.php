@@ -71,9 +71,11 @@ final readonly class ReportService
             foreach ($definitions as $definition) {
                 if ($complete !== null && ($definition['store'] ?? false)) {
                     $metadata = $this->metadata(array_shift($results));
+                    // Matomo's summary rows of truncated days are stored with their page views only
+                    $visitsShare = array_filter($periods, static fn (Period $range): bool => $complete->of($range)['coverage']->isTruncated()) === [];
                     $reports[] = [
-                        'current' => self::storeReport($metadata, $this->store->urlRows($complete, $period, self::STORE_ROWS)),
-                        'previous' => $compare ? self::storeReport($metadata, $this->store->urlRows($complete, $period->previous(), self::STORE_ROWS)) : null,
+                        'current' => self::storeReport($metadata, $this->store->urlRows($complete, $period, self::STORE_ROWS), $visitsShare),
+                        'previous' => $compare ? self::storeReport($metadata, $this->store->urlRows($complete, $period->previous(), self::STORE_ROWS), $visitsShare) : null,
                         'source' => $complete,
                     ];
                     continue;
@@ -127,17 +129,19 @@ final readonly class ReportService
      *
      * @param array<string, mixed> $metadata
      * @param list<array<string, mixed>> $rows
+     * @param bool $visitsShare false when the visits of the summary row are unknown
      * @return Report
      */
-    private static function storeReport(array $metadata, array $rows): array
+    private static function storeReport(array $metadata, array $rows, bool $visitsShare): array
     {
         $total = [];
         foreach (PageMetrics::COUNTS as $column) {
             $total[$column] = (int)array_sum(array_column($rows, $column));
         }
+        $shares = $visitsShare ? ['nb_hits', 'nb_visits'] : ['nb_hits'];
         $data = $rowMetadata = [];
         foreach ($rows as $row) {
-            foreach (['nb_hits', 'nb_visits'] as $column) {
+            foreach ($shares as $column) {
                 $row[$column . '_percent_of_total'] = $total[$column] > 0 ? round((int)($row[$column] ?? 0) / $total[$column], 3) : 0;
             }
             $rowMetadata[] = isset($row['url']) ? ['url' => $row['url']] : [];
@@ -148,8 +152,10 @@ final readonly class ReportService
         $columns = ['label' => (string)($metadata['dimension'] ?? '')];
         foreach (['nb_hits', 'nb_visits'] as $column) {
             $columns[$column] = (string)($names[$column] ?? $column);
-            $columns[$column . '_percent_of_total'] = $columns[$column] . ' (%)';
-            $metadata['metricTypes'][$column . '_percent_of_total'] = 'percent';
+            if (in_array($column, $shares, true)) {
+                $columns[$column . '_percent_of_total'] = $columns[$column] . ' (%)';
+                $metadata['metricTypes'][$column . '_percent_of_total'] = 'percent';
+            }
         }
         foreach (['avg_time_on_page', 'bounce_rate', 'exit_rate'] as $column) {
             $columns[$column] = (string)($names[$column] ?? $column);

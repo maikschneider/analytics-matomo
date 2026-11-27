@@ -28,6 +28,11 @@ use TYPO3\CMS\Core\Site\Entity\Site;
  */
 final readonly class PageViewStore
 {
+    /**
+     * Seconds the answer of the access check is kept, whatever the lifetime of the reports
+     */
+    private const ACCESS_LIFETIME = 3600;
+
     public function __construct(
         private ConnectionRepository $connections,
         private ImportRepository $imports,
@@ -111,7 +116,7 @@ final readonly class PageViewStore
         }
         // Without view access Matomo answers with an error instead of the site
         $site = is_array($site) && (int)($site['idsite'] ?? 0) === $configuration->idSite ? $site : null;
-        $this->cache->set($key, ['site' => $site]);
+        $this->cache->set($key, ['site' => $site], self::ACCESS_LIFETIME);
         return $site;
     }
 
@@ -124,6 +129,24 @@ final readonly class PageViewStore
     {
         ['from' => $from, 'to' => $to] = $source->of($period);
         return array_map(static fn (array $counts): int => $counts['nb_hits'], $this->urlDays->sumByUrl($source->connection, $from, $to));
+    }
+
+    /**
+     * The URLs whose total over the period is known: Matomo keeps or drops a URL's row
+     * of a day as a whole, so a URL missing on a truncated day may hide in its summary
+     * row. Null when no day of the period was truncated: every total is known, 0 included.
+     *
+     * @return array<int, true>|null by URL uid
+     */
+    public function completeUrls(PageViewSource $source, Period $period): ?array
+    {
+        ['from' => $from, 'to' => $to] = $source->of($period);
+        $truncatedDays = $this->imports->truncatedDays($source->connection, $from, $to);
+        if ($truncatedDays === []) {
+            return null;
+        }
+        $counts = array_filter($this->urlDays->countDays($source->connection, $truncatedDays), static fn (int $days): bool => $days === count($truncatedDays));
+        return array_fill_keys(array_keys($counts), true);
     }
 
     /**
@@ -166,8 +189,8 @@ final readonly class PageViewStore
                     $summary[$column] += $counts[$column];
                 }
             }
-            $summary['nb_hits'] += $coverage->summaryHits;
-            $rows[] = ['label' => '-1', 'is_summary' => 1] + PageMetrics::row($summary);
+            // Matomo's summary rows of truncated days are stored as page views only: no visits, no time, nothing to derive from
+            $rows[] = ['label' => '-1', 'is_summary' => 1] + ['nb_hits' => $summary['nb_hits'] + $coverage->summaryHits] + PageMetrics::row($summary);
         }
         return $rows;
     }

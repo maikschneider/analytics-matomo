@@ -98,6 +98,18 @@ final class PageViewStoreReportsTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function topPagesFromTruncatedDaysShowNoShareOfUnknownVisits(): void
+    {
+        $this->fillStore(truncated: true);
+        // The last 30 days hold the truncated days
+        $html = (string)$this->render(1, ['id' => '1', 'report' => 'pages', 'period' => '30'], 'behaviour')->getBody();
+
+        self::assertSame([], $this->rangeCalls());
+        self::assertStringContainsString('Pageviews (%)', $html);
+        self::assertStringNotContainsString('Unique Pageviews (%)', $html);
+    }
+
+    #[Test]
     public function trendingPagesComeFromTheStore(): void
     {
         $this->fillStore();
@@ -108,6 +120,19 @@ final class PageViewStoreReportsTest extends FunctionalTestCase
         self::assertMatchesRegularExpression('#<td>/about</td>\s*<td>14</td>\s*<td>35</td>\s*<td>\+21</td>#', $rising);
         self::assertMatchesRegularExpression('#<td>/s%C3%A4chsische-schweiz</td>\s*<td>21</td>\s*<td>0</td>\s*<td>−21</td>#', $falling);
         self::assertStringContainsString('Page views from the page view store', $html);
+    }
+
+    #[Test]
+    public function trendingPagesLeaveOutUrlsHiddenInSummaryRowsOfTruncatedDays(): void
+    {
+        $this->fillStore(truncated: true);
+        $html = (string)$this->render(1, ['id' => '1', 'report' => 'trending'], 'behaviour')->getBody();
+
+        self::assertSame([], $this->rangeCalls());
+        [$rising, $falling] = explode('<h2>Falling pages</h2>', $html);
+        // The views of /about before are unknown: only 2 of them were reported, the rest hides in summary rows
+        self::assertStringNotContainsString('<td>/about</td>', $rising);
+        self::assertMatchesRegularExpression('#<td>/s%C3%A4chsische-schweiz</td>\s*<td>21</td>\s*<td>0</td>\s*<td>−21</td>#', $falling);
     }
 
     #[Test]
@@ -205,18 +230,22 @@ final class PageViewStoreReportsTest extends FunctionalTestCase
         self::assertStringNotContainsString('page view store', $html);
     }
 
-    private function fillStore(): void
+    /**
+     * @param bool $truncated Matomo truncated the reports of 20 to 25 October: /about hides in their summary rows
+     */
+    private function fillStore(bool $truncated = false): void
     {
-        $this->fillPageViewStore(
-            $this->configuration(),
-            self::everyDay('2026-08-01', '2026-10-26', [
-                self::row('https://example.com/about', 2),
-                self::row('https://example.com/de/ueber-uns', 1),
-                self::row('https://example.com/s%C3%A4chsische-schweiz', 3),
-                self::row('https://shop.example.org/products/', 2),
-            ]) + self::everyDay('2026-10-27', '2026-11-02', self::currentRows()),
-            [$this->site('main')],
-        );
+        $before = [
+            self::row('https://example.com/about', 2),
+            self::row('https://example.com/de/ueber-uns', 1),
+            self::row('https://example.com/s%C3%A4chsische-schweiz', 3),
+            self::row('https://shop.example.org/products/', 2),
+        ];
+        $days = self::everyDay('2026-08-01', '2026-10-26', $before);
+        if ($truncated) {
+            $days = self::everyDay('2026-10-20', '2026-10-25', [...array_slice($before, 1), ['label' => -1, 'nb_hits' => 2]]) + $days;
+        }
+        $this->fillPageViewStore($this->configuration(), $days + self::everyDay('2026-10-27', '2026-11-02', self::currentRows()), [$this->site('main')]);
     }
 
     /**
